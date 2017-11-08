@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Test.me</title>
+    <link href="/3rd/bs/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right" id="navbar-list"></ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+    <h3>&nbsp</h3>
+
+    <div class="container">
+        <section id="content">ha</section>
+        <footer class="footer" id="footer"></footer>
+    </div>
+
+<script type="text/template" id="tpl-navbar-list">
+    <li class="active"><a href="">主页</a></li>
+        {% if user.is_authenticated %}
+            <li><a href="">个人中心</a></li>
+            <li><a href="/user/logout">登出(<b>{{user.username}})</b></a></li>
+        {% else %}
+            <li><a href="/user/login">登录</a></li>
+            <li><a href="/user/signup">注册</a></li>
+        {% endif %}
+</script>
+
+<script type="text/template" id="tpl-footer">
+    <p>&copy; 2017 Test.me</p>
+</script>
+
+<script src="/3rd/jquery.js"></script>
+<script src="/3rd/bs/js/bootstrap.min.js"></script>
+<script src="/3rd/swig.js"></script>
+<script src="/js/base.js"></script>
+<script src="/js/base_admin.js"></script>
+
+<script>
+    var locals = {
+        user: {'is_authenticated': false,
+            'username': ''},
+    };
+    var renderTemplate = function (name) {
+        $('#' + name).html(swig.render($('#tpl-' + name).html(), {locals: locals}));
+    };
+    var render = function () {
+        renderTemplate('navbar-list');
+        renderTemplate('footer');
+    };
+    $(function () {
+        render();
+        api.get('/api/base/index', {}, function (data) {
+            locals.user = data;
+            render();
+            }, dftFail);
+    });
+</script>
+
+
+
+</body>
+
+</html>
