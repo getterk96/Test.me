@@ -13,7 +13,7 @@ class Index(APIView):
                 'username': user.username}
 
 
-class Login(APIView):
+class UserLogin(APIView):
 
     def get(self):
         if not self.request.user.is_authenticated:
@@ -25,3 +25,12 @@ class Login(APIView):
         if not user:
             raise ValidateError("Wrong username or password")
         auth.login(self.request, user)
+
+
+class UserLogout(APIView):
+
+    def post(self):
+        if self.request.user.is_authenticated():
+            auth.logout(self.request)
+        else:
+            raise LogicError("Not login")
