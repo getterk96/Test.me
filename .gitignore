@@ -1,0 +1,13 @@
+#Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class  
+
+#idea files
+.idea/
+
+#migration files
+test_me_app/migrations
+adminpage/migrations
+organizerpage/migrations
+playerpage/migrations
