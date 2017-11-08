@@ -4,11 +4,12 @@ from django.contrib.auth.models import User, UserManager
 
 
 # Create your models here.
+
 class User_common(User):
     objects = UserManager()
     group = models.CharField(max_length = 128)
-    #for players, group may mean their university or so
-    #for organizers, group may mean their coporation or university or so
+    # for players, group may mean their university or so
+    # for organizers, group may mean their coporation or university or so
     nickname = models.CharField(max_length = 20)
     avatar = models.ImageField(blank = True, upload_to = 'user_avatar')
     contact_phone = models.CharField(max_length = 20)
@@ -16,6 +17,7 @@ class User_common(User):
     
     class Meta:
         abstract = True
+
 
 class Players(User_common):
     gender = models.BooleanField()
@@ -29,6 +31,7 @@ class Players(User_common):
     )
     player_type = models.IntegerField(choices = TYPE_CHOICE)
 
+
 class Organizers(User_common):
     verify_status = models.IntegerField()
     verify_file = models.FileField(blank = True, null = True, upload_to = 'verification')
@@ -37,10 +40,12 @@ class Organizers(User_common):
     VERIFIED = 1
     REJECTED = 2
 
+
 class Exam_questions(models.Model):
     description = models.TextField()
     attachment = models.FileField(blank = True, null = True, upload_to = 'question_attachment')
     submission_limit = models.IntegerField()
+
 
 class Periods(models.Model):
     index = models.IntegerField()
@@ -51,6 +56,7 @@ class Periods(models.Model):
     description = models.TextField()
     attachment = models.FileField(blank = True, null = True, upload_to = 'period_attachment')
     questions = models.ForeignKey(Exam_questions, null = True)
+
 
 class Contests(models.Model):
     name = models.CharField(max_length = 64)
@@ -68,8 +74,10 @@ class Contests(models.Model):
         related_query_name = 'contest_with_tag')
     periods = models.ForeignKey(Periods, related_name = 'contest', null = True)
 
+
 class Tags(models.Model):
     content = models.CharField(max_length = 20)
+
 
 class Period_score(models.Model):
     period_id = models.IntegerField()
@@ -77,11 +85,13 @@ class Period_score(models.Model):
     score = models.IntegerField()
     rank = models.IntegerField()
 
+
 class Works(models.Model):
     question_id = models.IntegerField()
     team_id = models.IntegerField()
     content = models.FileField(blank = True, null = True, upload_to = 'team_works')
     index = models.IntegerField()
+
 
 class Teams(models.Model):
     players = models.ForeignKey(Players, null = True)

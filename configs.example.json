@@ -1,0 +1,8 @@
+{
+  "SECRET_KEY": "ThisIsARandomStringWithLength=50!-----------------",
+  "DEBUG": true,
+  "DB_NAME": "test_me",
+  "DB_USER": "username",
+  "DB_PASS": "password",
+  "SITE_DOMAIN": "127.0.0.1"
+}

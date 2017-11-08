@@ -11,3 +11,9 @@ test_me_app/migrations
 adminpage/migrations
 organizerpage/migrations
 playerpage/migrations
+
+#config files
+configs.json
+
+#django stuff
+*.log
