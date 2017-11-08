@@ -31,11 +31,16 @@ class Players(User_common):
 
 class Organizers(User_common):
     verify_status = models.IntegerField()
-    verify_file = models.FileField()
+    verify_file = models.FileField(blank = True, null = True, upload_to = 'verification')
     
     VERIFYING = 0
     VERIFIED = 1
     REJECTED = 2
+
+class Exam_questions(models.Model):
+    description = models.TextField()
+    attachment = models.FileField(blank = True, null = True, upload_to = 'question_attachment')
+    submission_limit = models.IntegerField()
 
 class Periods(models.Model):
     index = models.IntegerField()
@@ -44,7 +49,8 @@ class Periods(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     description = models.TextField()
-    attachment = models.FileField()
+    attachment = models.FileField(blank = True, null = True, upload_to = 'period_attachment')
+    questions = models.ForeignKey(Exam_questions, null = True)
 
 class Contests(models.Model):
     name = models.CharField(max_length = 64)
@@ -55,26 +61,35 @@ class Contests(models.Model):
     sign_up_end_time = models.DateTimeField()
     available_slots = models.IntegerField()
     max_team_members = models.IntegerField()
-    sign_up_attachment = models.FileField()
+    sign_up_attachment = models.FileField(blank = True, null = True, upload_to = 'sign_up_attachment')
     level = models.CharField(max_length = 20)
     tags = models.ManyToManyField('Tags',
         related_name = 'contest_with_tag',
         related_query_name = 'contest_with_tag')
-    periods = models.ForeignKey(Periods, related_name = 'contest')
+    periods = models.ForeignKey(Periods, related_name = 'contest', null = True)
 
 class Tags(models.Model):
     content = models.CharField(max_length = 20)
 
 class Period_score(models.Model):
     period_id = models.IntegerField()
+    team_id = models.IntegerField()
     score = models.IntegerField()
     rank = models.IntegerField()
 
+class Works(models.Model):
+    question_id = models.IntegerField()
+    team_id = models.IntegerField()
+    content = models.FileField(blank = True, null = True, upload_to = 'team_works')
+    index = models.IntegerField()
+
 class Teams(models.Model):
-    players = models.ForeignKey(Players)
+    players = models.ForeignKey(Players, null = True)
     leader_id = models.IntegerField()
     contest_id = models.IntegerField()
     avatar = models.ImageField(blank = True, upload_to = 'team_avatar')
     description = models.TextField()
     status = models.IntegerField()
-    score_record = models.ForeignKey(Period_score)
+    score_record = models.ForeignKey(Period_score, null = True)
+    works = models.ForeignKey(Works, null = True)
+    sign_up_attachment = models.FileField(blank = True, null = True, upload_to = 'sign_up_submission')
