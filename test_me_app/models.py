@@ -11,7 +11,7 @@ class User_common(User):
     # for players, group may mean their university or so
     # for organizers, group may mean their coporation or university or so
     nickname = models.CharField(max_length = 20)
-    avatar = models.ImageField(blank = True, upload_to = 'user_avatar')
+    avatar_url = models.CharField(max_length=256)
     contact_phone = models.CharField(max_length = 20)
     description = models.TextField()
     
@@ -34,7 +34,7 @@ class Players(User_common):
 
 class Organizers(User_common):
     verify_status = models.IntegerField()
-    verify_file = models.FileField(blank = True, null = True, upload_to = 'verification')
+    verify_file_url = models.CharField(max_length=256)
     
     VERIFYING = 0
     VERIFIED = 1
@@ -43,7 +43,7 @@ class Organizers(User_common):
 
 class Exam_questions(models.Model):
     description = models.TextField()
-    attachment = models.FileField(blank = True, null = True, upload_to = 'question_attachment')
+    attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
 
 
@@ -54,20 +54,20 @@ class Periods(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     description = models.TextField()
-    attachment = models.FileField(blank = True, null = True, upload_to = 'period_attachment')
+    attachment_url = models.CharField(max_length=256)
     questions = models.ForeignKey(Exam_questions, null = True)
 
 
 class Contests(models.Model):
     name = models.CharField(max_length = 64)
     description = models.TextField()
-    logo = models.ImageField(blank = True, upload_to = 'contest_media')
-    banner = models.ImageField(blank = True, upload_to = 'contest_media')
+    logo_url = models.CharField(max_length=256)
+    banner_url = models.CharField(max_length=256)
     sign_up_start_time = models.DateTimeField()
     sign_up_end_time = models.DateTimeField()
     available_slots = models.IntegerField()
     max_team_members = models.IntegerField()
-    sign_up_attachment = models.FileField(blank = True, null = True, upload_to = 'sign_up_attachment')
+    sign_up_attachment_url = models.CharField(max_length=256)
     level = models.CharField(max_length = 20)
     tags = models.ManyToManyField('Tags',
         related_name = 'contest_with_tag',
@@ -89,7 +89,7 @@ class Period_score(models.Model):
 class Works(models.Model):
     question_id = models.IntegerField()
     team_id = models.IntegerField()
-    content = models.FileField(blank = True, null = True, upload_to = 'team_works')
+    content_url = models.CharField(max_length=256)
     index = models.IntegerField()
 
 
@@ -97,9 +97,9 @@ class Teams(models.Model):
     players = models.ForeignKey(Players, null = True)
     leader_id = models.IntegerField()
     contest_id = models.IntegerField()
-    avatar = models.ImageField(blank = True, upload_to = 'team_avatar')
+    avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     status = models.IntegerField()
     score_record = models.ForeignKey(Period_score, null = True)
     works = models.ForeignKey(Works, null = True)
-    sign_up_attachment = models.FileField(blank = True, null = True, upload_to = 'sign_up_submission')
+    sign_up_attachment_url = models.CharField(max_length=256)
