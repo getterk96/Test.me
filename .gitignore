@@ -17,3 +17,6 @@ configs.json
 
 #django stuff
 *.log
+
+#media files
+media/

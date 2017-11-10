@@ -1,6 +1,11 @@
 from django.contrib import auth
 from codex.baseview import APIView
 from codex.baseerror import *
+from datetime import datetime
+import time
+
+from test_me import settings
+from test_me_app.models import *
 
 # Create your views here.
 
@@ -34,3 +39,64 @@ class UserLogout(APIView):
             auth.logout(self.request)
         else:
             raise LogicError("Not login")
+
+
+class PlayerSignup(APIView):
+
+    def post(self):
+        self.check_input('avatar-url', 'birthday-day', 'birthday-month', 'birthday-year',
+                         'description', 'gender', 'group', 'nickname', 'password', 'phone',
+                         'player-type', 'username');
+        user = User.objects.create_user(username=self.input['username'],
+                                        password=self.input['password'])
+        type = 0
+        for key, value in Players.TYPE_CHOICE:
+            if value == self.input['player-type']:
+                type = key
+        player = Players.objects.create(user=user,
+                                        group=self.input['group'],
+                                        nickname=self.input['nickname'],
+                                        avatar_url=self.input['avatar-url'],
+                                        contact_phone=self.input['phone'],
+                                        description=self.input['description'],
+                                        gender=self.input['gender'],
+                                        birthday=datetime(int(self.input['birthday-year']),
+                                                             int(self.input['birthday-month']),
+                                                             int(self.input['birthday-day'])),
+                                        player_type=type)
+        player.save()
+
+
+class OrganizerSignup(APIView):
+
+    def post(self):
+        self.check_input('avatar-url', 'description', 'group', 'nickname', 'password', 'phone',
+                         'verify-file-url', 'username')
+        user = User.objects.create_user(username=self.input['username'],
+                                        password=self.input['password'])
+        organizer = Organizers.objects.create(user=user,
+                                        group=self.input['group'],
+                                        nickname=self.input['nickname'],
+                                        avatar_url=self.input['avatar-url'],
+                                        contact_phone=self.input['phone'],
+                                        description=self.input['description'],
+                                        verify_file_url=self.input['verify-file-url'],
+                                        verify_status=Organizers.VERIFYING)
+        organizer.save()
+
+
+class UploadFile(APIView):
+
+    def post(self):
+        self.check_input('file_type', 'file')
+        file = self.input['file'][0]
+        new_name = self.input['file_type'] + '/' + time.strftime('%Y%m%d%H%M%S') + '.' + file.name.split('.')[-1]
+        save_path = settings.MEDIA_ROOT + '/' + new_name
+        save_file = open(save_path, 'w+b')
+        if file.multiple_chunks():
+            for chunk in file.chunks():
+                save_file.write(chunk)
+        else:
+            save_file.write(file.read())
+        save_file.close()
+        return settings.get_url(settings.MEDIA_URL + new_name)
