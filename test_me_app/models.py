@@ -75,7 +75,11 @@ class Contests(models.Model):
         related_name = 'contest_with_tag',
         related_query_name = 'contest_with_tag')
     periods = models.ForeignKey(Periods, related_name = 'contest', null = True)
+    status = models.IntegerField()
 
+    STATUS_DELETED = -1
+    STATUS_SAVED = 0
+    STATUS_PUBLISHED = 1
 
 class Tags(models.Model):
     content = models.CharField(max_length = 20)
