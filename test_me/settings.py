@@ -115,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -138,7 +138,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Media files
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 
 MEDIA_ROOT = BASE_DIR
 
