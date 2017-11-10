@@ -113,18 +113,18 @@ class ContestUpload(APIView):
         try:
             self.check_input('file')
             data = self.input['file'][0]
-            path = default_storage.save(MEDIA_URL + 'file/' + data.name, data)
+            path = default_storage.save('contest/file/' + data.name, data)
 
         except InputError:
             try:
                 self.check_input('banner')
                 data = self.input['banner'][0]
-                path = default_storage.save(MEDIA_URL + 'img/banner/' + data.name, data)
+                path = default_storage.save('contest/banner/' + data.name, data)
             except InputError:
                 self.check_input('logo')
                 data = self.input['logo'][0]
-                path = default_storage.save(MEDIA_URL + 'img/logo/' + data.name, data)
+                path = default_storage.save('contest/logo/' + data.name, data)
 
-        return SITE_DOMAIN + path
+        return SITE_DOMAIN + '/' + path
 
 # Create your views here.

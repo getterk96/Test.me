@@ -5,8 +5,8 @@ from django.contrib.auth.models import User, UserManager
 
 # Create your models here.
 
-class User_common(User):
-    objects = UserManager()
+class User_common(models.Model):
+    #objects = UserManager()
     group = models.CharField(max_length = 128)
     # for players, group may mean their university or so
     # for organizers, group may mean their coporation or university or so
@@ -14,12 +14,13 @@ class User_common(User):
     avatar_url = models.CharField(max_length=256)
     contact_phone = models.CharField(max_length = 20)
     description = models.TextField()
-    
+
     class Meta:
         abstract = True
 
 
 class Players(User_common):
+    user = models.OneToOneField('auth.User', related_name='player')
     gender = models.BooleanField()
     birthday = models.DateField()
     TYPE_CHOICE = (
@@ -33,6 +34,7 @@ class Players(User_common):
 
 
 class Organizers(User_common):
+    user = models.OneToOneField('auth.User', related_name='organizer')
     verify_status = models.IntegerField()
     verify_file_url = models.CharField(max_length=256)
     

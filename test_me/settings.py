@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 import os
 import json
 import logging
+import urllib.parse
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -128,6 +130,14 @@ USE_TZ = True
 SITE_DOMAIN = CONFIGS['SITE_DOMAIN'].rstrip('/')
 
 
+def get_url(path, params=None):
+    full_path = urllib.parse.urljoin(SITE_DOMAIN, path)
+    if params:
+        return full_path + ('&' if urllib.parse.urlparse(full_path).query else '?') + urllib.parse.urlencode(params)
+    else:
+        return full_path
+
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -138,9 +148,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Media files
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
-MEDIA_ROOT = BASE_DIR
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # Logging configurations
