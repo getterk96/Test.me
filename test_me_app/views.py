@@ -15,7 +15,8 @@ class Index(APIView):
     def get(self):
         user = self.request.user
         return {'is_authenticated': bool(user.is_authenticated),
-                'username': user.username}
+                'username': user.username,
+                'id': user.id}
 
 
 class UserLogin(APIView):
@@ -100,3 +101,14 @@ class UploadFile(APIView):
             save_file.write(file.read())
         save_file.close()
         return settings.get_url(settings.MEDIA_URL + new_name)
+
+
+class UserCenter(APIView):
+
+    def get(self):
+        self.check_input('id')
+        user = User.objects.get(id=self.input['id'])
+        return {
+            'username': user.username,
+            'nickname': user.player.nickname
+        }

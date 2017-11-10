@@ -26,19 +26,20 @@
     <h3>&nbsp</h3>
 
     <div class="container">
-        <section id="content">这里是竞赛平台主页</section>
+        <section id="content"></section>
         <footer class="footer" id="footer"></footer>
     </div>
 
 <script type="text/template" id="tpl-navbar-list">
-    <li class="active"><a href="/index">主页</a></li>
-        {% if user.is_authenticated %}
-            <li><a href="/user/center?id={{user.id}}">个人中心</a></li>
-            <li><a onclick="logout()">登出(<b>{{user.username}})</b></a></li>
-        {% else %}
-            <li><a href="/user/login">登录</a></li>
-            <li><a href="/user/signup">注册</a></li>
-        {% endif %}
+    <li><a href="/index">主页</a></li>
+    <li  class="active"><a href="/user/center?id={{urlParam.id}}">个人中心</a></li>
+    <li><a onclick="logout()">登出(<b>{{user.username}})</b></a></li>
+</script>
+
+<script type="text/template" id="tpl-content">
+    <h1>个人信息</h1>
+    <h3>username:{{user.username}}</h3>
+    <h3>nickname:{{user.nickname}}</h3>
 </script>
 
 <script type="text/template" id="tpl-footer">
@@ -53,23 +54,24 @@
 
 <script>
     var locals = {
-        user: {'is_authenticated': false,
-               'username': '',
-               'id': -1},
+        user:{}
     };
     var renderTemplate = function (name) {
         $('#' + name).html(swig.render($('#tpl-' + name).html(), {locals: locals}));
     };
     var render = function () {
         renderTemplate('navbar-list');
+        renderTemplate('content');
         renderTemplate('footer');
     };
     $(function () {
         render();
-        api.get('/api/base/index', {}, function (data) {
-            locals.user = data;
-            render();
-            }, dftFail);
+        loginRequired(function(){
+           api.get('/api/base/center', {id:urlParam.id}, function(data) {
+               locals.user = data;
+               render();
+           })
+        });
     });
 </script>
 

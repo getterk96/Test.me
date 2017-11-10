@@ -3,8 +3,8 @@ window.location.pathname_with_query_string = function(){
 }
 
 window.loginRequired = function (cb) {
-    api.get('/api/a/login', {}, cb, function () {
-        window.location.href = '/a/login?' + $.param({
+    api.get('/api/base/login', {}, cb, function () {
+        window.location.href = '/user/login?' + $.param({
             next: window.location.pathname_with_query_string()
         });
     });

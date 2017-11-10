@@ -8,4 +8,5 @@ urlpatterns = [
     url(r'^signup/player', PlayerSignup.as_view()),
     url(r'^signup/organizer', OrganizerSignup.as_view()),
     url(r'^uploadfile', UploadFile.as_view()),
+    url(r'^center', UserCenter.as_view())
 ]
