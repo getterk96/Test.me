@@ -24,7 +24,7 @@ class FileView(BaseView):
             return None
 
     def cut_url_prefix(self, url, prefix):
-        url = url[len(prefix)-1:];
+        return url[len(prefix)-1:];
 
     def do_dispatch(self, *args, **kwargs):
         rpath = self.request.path.replace('..', '.').strip('/')
@@ -35,7 +35,7 @@ class FileView(BaseView):
         if rpath.startswith(('media/')):
             root = settings.MEDIA_ROOT
             url_prefix = settings.MEDIA_URL
-        self.cut_url_prefix(rpath, url_prefix)
+        rpath = self.cut_url_prefix(rpath, url_prefix)
         content = self.get_file(os.path.join(root, rpath))
         if content is not None:
             return HttpResponse(content, content_type=mimetypes.guess_type(rpath)[0])

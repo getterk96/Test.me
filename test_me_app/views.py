@@ -14,9 +14,14 @@ class Index(APIView):
 
     def get(self):
         user = self.request.user
+        try:
+            avatar_url = user.player.avatar_url
+        except:
+            avatar_url = user.organizer.avatar_url
         return {'is_authenticated': bool(user.is_authenticated),
                 'username': user.username,
-                'id': user.id}
+                'id': user.id,
+                'avatar_url': avatar_url}
 
 
 class UserLogin(APIView):
