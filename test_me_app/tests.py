@@ -11,16 +11,6 @@ import time
 
 # Create your tests here.
 
-def patcher_start(patchers):
-    for patcher in patchers:
-        patcher.start()
-
-
-def patcher_stop(patchers):
-    for patcher in patchers:
-        patcher.stop()
-
-
 class LoginTest(TestCase):
 
     def test_login_get(self):
