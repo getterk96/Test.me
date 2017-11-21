@@ -94,3 +94,17 @@ class PlayerPersonalInfo(APIView):
         player.save()
 
 
+class PlayerParticipatingContests(APIView):
+
+    @player_required
+    def get(self):
+        player = self.request.user.player
+        contests = []
+        for team in player.team_set:
+            contest = Contest.objects.get(id=team.contest_id)
+            print(contest.name)
+            organizer = Organizer.objects.get(id=contest.creator_id)
+            contests.append({'id': team.contest_id,
+                             'name': contest.name,
+                             'organizerName': organizer.nickname})
+        return contests
