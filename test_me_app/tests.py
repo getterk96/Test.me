@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from unittest.mock import Mock, patch
 from django.contrib import auth
 from test_me import settings
+from test_me_app.models import User_profile
 import test_me_app.urls
 import json
 import time
@@ -11,7 +12,7 @@ import time
 
 # Create your tests here.
 
-class LoginTest(TestCase):
+class TestLogin(TestCase):
 
     def test_login_get(self):
         found = resolve('/login', urlconf=test_me_app.urls)
@@ -54,7 +55,7 @@ class LoginTest(TestCase):
                 self.assertEqual(response['code'], 0)
 
 
-class Logout(TestCase):
+class TestLogout(TestCase):
 
     def test_logout(self):
         found = resolve('/logout', urlconf=test_me_app.urls)
@@ -70,7 +71,7 @@ class Logout(TestCase):
             self.assertEqual(response['code'], 0)
 
 
-class UploadTest(TestCase):
+class TestUpload(TestCase):
 
     def test_upload_login_required(self):
         found = resolve('/upload', urlconf=test_me_app.urls)
@@ -90,3 +91,16 @@ class UploadTest(TestCase):
             response = json.loads(found.func(request).content.decode())
             self.assertRaises(FileNotFoundError, msg="No such file or directory:" + settings.MEDIA_URL +
                 " 'test_destination/20170101122333.txt'")
+
+
+class TestUserType(TestCase):
+
+    def test_user_type_get(self):
+        found = resolve('/user_type', urlconf=test_me_app.urls)
+        request = Mock(wraps=HttpRequest(), method='GET',
+                       user=Mock(is_authenticated=True, user_type=User_profile.PLAYER))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'], User_profile.PLAYER)
