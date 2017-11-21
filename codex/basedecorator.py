@@ -1,6 +1,7 @@
 from functools import wraps
 from django.utils.decorators import available_attrs
 from codex.baseerror import *
+from test_me_app.models import User_profile
 
 
 def user_passes_test(test_func, error=ValidateError, msg="Can not pass user test"):
@@ -24,20 +25,20 @@ def login_required(func):
 
 def player_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated & u.type == 0
+        lambda u: u.is_authenticated and u.user_type == User_profile.PLAYER
     )
     return actual_decorator(func, ValidateError, "Player required")
 
 
 def organizer_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated & u.type == 1
+        lambda u: u.is_authenticated and u.user_type == User_profile.ORGANIZER
     )
     return actual_decorator(func, ValidateError, "Organizer required")
 
 
 def admin_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated & u.type == 2
+        lambda u: u.is_authenticated and u.user_type == User_profile.ADMINISTRATOR
     )
     return actual_decorator(func, ValidateError, "Admin required")
