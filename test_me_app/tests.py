@@ -11,16 +11,6 @@ import time
 
 # Create your tests here.
 
-def patcher_start(patchers):
-    for patcher in patchers:
-        patcher.start()
-
-
-def patcher_stop(patchers):
-    for patcher in patchers:
-        patcher.stop()
-
-
 class LoginTest(TestCase):
 
     def test_login_get(self):
@@ -81,6 +71,15 @@ class Logout(TestCase):
 
 
 class UploadTest(TestCase):
+
+    def test_upload_login_required(self):
+        found = resolve('/upload', urlconf=test_me_app.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=Mock(is_authenticated=False))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"file":[{"name":"test_file.txt"}],"destination":"test_destination"}')
+        with patch.object(time, 'strftime', return_value='20170101122333'):
+            response = json.loads(found.func(request).content.decode())
+            self.assertEqual(response['msg'], "Login required")
 
     def test_upload_url(self):
         found=resolve('/upload', urlconf=test_me_app.urls)
