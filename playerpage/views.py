@@ -1,9 +1,6 @@
 from codex.baseerror import *
 from codex.baseview import APIView
-from django.contrib.auth.models import User
 from test_me_app.models import *
-from test_me import settings
-import time
 
 # Create your views here.
 

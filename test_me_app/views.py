@@ -1,6 +1,7 @@
 from django.contrib import auth
 from codex.baseview import APIView
 from codex.baseerror import *
+from codex.basedecorator import login_required
 import time
 
 from test_me import settings
@@ -35,6 +36,7 @@ class Logout(APIView):
 
 class Upload(APIView):
 
+    @login_required
     def post(self):
         self.check_input('file', 'destination')
         file = self.input['file'][0]
