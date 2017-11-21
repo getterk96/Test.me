@@ -51,7 +51,7 @@ class Player(User_common):
 
 
 class Organizer(User_common):
-    user = models.OneToOneField(User, related_name = 'organizer')
+    user = models.OneToOneField(User, related_name='organizer')
     verify_status = models.IntegerField()
     verify_file_url = models.CharField(max_length=256)
     
@@ -69,7 +69,7 @@ class Exam_question(models.Model):
 
 class Period(models.Model):
     index = models.IntegerField()
-    name = models.CharField(max_length = 20)
+    name = models.CharField(max_length=20)
     available_slots = models.IntegerField()
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -79,7 +79,7 @@ class Period(models.Model):
 
 
 class Contest(models.Model):
-    name = models.CharField(max_length = 64)
+    name = models.CharField(max_length=64)
     creator_id = models.IntegerField()
     description = models.TextField()
     logo_url = models.CharField(max_length=256)
@@ -100,17 +100,18 @@ class Contest(models.Model):
     DEPARTMENT = 6
     
     tags = models.ManyToManyField('Tag',
-        related_name = 'contest_with_tag',
-        related_query_name = 'contest_with_tag')
-    periods = models.ForeignKey(Period, related_name = 'contest', null = True)
+        related_name='contest_with_tag',
+        related_query_name='contest_with_tag')
+    periods = models.ForeignKey(Period, related_name='contest', null=True)
     status = models.IntegerField()
     
     CANCELLED = -1
     SAVED = 0
     PUBLISHED = 1
 
+
 class Tag(models.Model):
-    content = models.CharField(max_length = 20)
+    content = models.CharField(max_length=20)
 
 
 class Period_score(models.Model):
@@ -129,12 +130,12 @@ class Work(models.Model):
 
 
 class Team(models.Model):
-    players = models.ForeignKey(Player, null = True)
+    players = models.ForeignKey(Player, null=True)
     leader_id = models.IntegerField()
     contest_id = models.IntegerField()
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     status = models.IntegerField()
-    score_record = models.ForeignKey(Period_score, null = True)
-    works = models.ForeignKey(Work, null = True)
+    score_record = models.ForeignKey(Period_score, null=True)
+    works = models.ForeignKey(Work, null=True)
     sign_up_attachment_url = models.CharField(max_length=256)
