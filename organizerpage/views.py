@@ -5,14 +5,14 @@ from django.core.files.storage import default_storage
 from codex.baseerror import *
 from codex.baseview import APIView
 
-from test_me_app.models import Contests, Tags, Periods
+from test_me_app.models import Contest, Tag, Period
 
 from test_me.settings import SITE_DOMAIN, MEDIA_URL
 
 
 class ContestDetail(APIView):
     def get(self):
-        contest = Contests.objects.get(id=self.input['id'])
+        contest = Contest.objects.get(id=self.input['id'])
         tags = ""
         for tag in contest.tags.all():
             tags += tag.content
@@ -41,7 +41,7 @@ class ContestDetail(APIView):
                          , 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         # user = self.request.user
         # if user.is_authenticated:
-        contest = Contests.objects.get(id=self.input['id'])
+        contest = Contest.objects.get(id=self.input['id'])
         contest.name = self.input['name']
         contest.status = self.input['status']
         contest.description = self.input['description']
@@ -56,7 +56,7 @@ class ContestDetail(APIView):
         tags = self.input['tags'].split(',')
         contest.save()
         for content in tags:
-            tag, created = Tags.objects.get_or_create(content=content)
+            tag, created = Tag.objects.get_or_create(content=content)
             tag.save()
             contest.tags.add(tag)
 
@@ -69,7 +69,7 @@ class ContestCreateBasic(APIView):
                          , 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         # user = self.request.user
         # if user.is_authenticated:
-        contest = Contests()
+        contest = Contest()
         contest.name = self.input['name']
         contest.status = self.input['status']
         contest.description = self.input['description']
@@ -84,7 +84,7 @@ class ContestCreateBasic(APIView):
         tags = self.input['tags'].split(',')
         contest.save()
         for content in tags:
-            tag, created = Tags.objects.get_or_create(content=content)
+            tag, created = Tag.objects.get_or_create(content=content)
             tag.save()
             contest.tags.add(tag)
 

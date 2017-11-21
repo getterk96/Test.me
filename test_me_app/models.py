@@ -8,10 +8,11 @@ from django.db.models.signals import post_save
 
 class User_profile(models.Model):
     user = models.OneToOneField(User)
-    user_type = models.IntegerField()
+    user_type = models.IntegerField(default=0)
     PLAYER = 0
     ORGANIZER = 1
     ADMINISTRATOR = 2
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -19,16 +20,17 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile.user = instance
         profile.save()
 
+
 post_save.connect(create_user_profile, sender = User)
 
+
 class User_common(models.Model):
-    #objects = UserManager()
-    group = models.CharField(max_length = 128)
+    group = models.CharField(max_length=128)
     # for players, group may mean their university or so
     # for organizers, group may mean their coporation or university or so
-    nickname = models.CharField(max_length = 20)
+    nickname = models.CharField(max_length=20)
     avatar_url = models.CharField(max_length=256)
-    contact_phone = models.CharField(max_length = 20)
+    contact_phone = models.CharField(max_length=20, default="")
     description = models.TextField()
     
     class Meta:
@@ -36,7 +38,7 @@ class User_common(models.Model):
 
 
 class Player(User_common):
-    user = models.OneToOneField(User, related_name = 'player')
+    user = models.OneToOneField(User, related_name='player')
     gender = models.BooleanField()
     birthday = models.DateField()
     player_type = models.IntegerField()
