@@ -159,3 +159,5 @@ logging.basicConfig(
     format='%(levelname)-7s [%(asctime)s] %(module)s.%(funcName)s:%(lineno)d  %(message)s',
     level=logging.DEBUG if DEBUG else logging.WARNING,
 )
+
+AUTH_PROFILE_MODULE = 'test_me_app.User_profile'
