@@ -1,15 +1,66 @@
 import time
 
-from django.core.files.storage import default_storage
+from datetime import datetime
 
 from codex.baseerror import *
 from codex.baseview import APIView
 
-from test_me_app.models import Contest, Tag, Period
+from test_me_app.models import Organizer, Contest, Tag, Team, Period
+from codex.basedecorator import organizer_required
 
-from test_me.settings import SITE_DOMAIN, MEDIA_URL
+
+@organizer_required
+class PersonalInfo(APIView):
+    def get(self):
+        self.check_input('id')
+        organizer = Organizer.objects.get(id=self.input['id'])
+        data = {
+            'nickname': organizer.nickname,
+            'avatarUrl': organizer.avatar_url,
+            'contactPhone': organizer.contactPhone,
+            'email': organizer.email,
+            'description': organizer.description,
+            'verifyStatus': organizer.verify_status,
+        }
+
+        return data
+
+    def post(self):
+        self.check_input('id', 'nickname', 'avatarUrl', 'description', 'contactPhone', 'email', 'verifyStatus')
+        organizer = Organizer.objects.get(id=self.input['id'])
+        organizer.nickname = self.input['nickname']
+        organizer.verify_status = self.input['verifyStatus']
+        organizer.description = self.input['description']
+        organizer.avatar_url = self.input['avatarUrl']
+        organizer.contact_phone = self.input['contactPhone']
+        organizer.email = self.input['email']
+        organizer.verify_status = self.input['verifyStatus']
+        organizer.save()
+
+        return organizer.id
 
 
+@organizer_required
+class OrganizingContests(APIView):
+    def get(self):
+        self.check_input('id')
+        contest = Contest.objects.get(id=self.input['id'])
+        for period in contest.periods.all():
+            if period.startTime < datetime.utcnow().replace(tzinfo=pytz.timezone('UTC')):
+                continue
+            data = {
+                'id': contest.id,
+                'name': contest.name,
+                'newestPeriod': period.name,
+                'teamsNumber': Team.objects.filter(contest_id=contest.id).count(),
+                'creatorId': contest.organizer.id,
+                'creatorName': contest.organizer.name,
+            }
+
+            return data
+
+
+@organizer_required
 class ContestDetail(APIView):
     def get(self):
         contest = Contest.objects.get(id=self.input['id'])
@@ -37,10 +88,8 @@ class ContestDetail(APIView):
         return data
 
     def post(self):
-        self.check_input('id', 'name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd', 'availableSlots'
-                         , 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
-        # user = self.request.user
-        # if user.is_authenticated:
+        self.check_input('id', 'name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
+                         'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         contest = Contest.objects.get(id=self.input['id'])
         contest.name = self.input['name']
         contest.status = self.input['status']
@@ -63,12 +112,11 @@ class ContestDetail(APIView):
         contest.save()
 
 
+@organizer_required
 class ContestCreateBasic(APIView):
     def post(self):
-        self.check_input('name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd', 'availableSlots'
-                         , 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
-        # user = self.request.user
-        # if user.is_authenticated:
+        self.check_input('name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
+                         'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         contest = Contest()
         contest.name = self.input['name']
         contest.status = self.input['status']
@@ -91,40 +139,19 @@ class ContestCreateBasic(APIView):
         contest.save()
 
         return contest.id
-        # else:
-        #    raise ValidateError("请先登录")
 
 
-class ContestCreateSlots(APIView):
+@organizer_required
+class ContestBatchRemove(APIView):
     def post(self):
-        self.check_input('image')
-        user = self.request.user
-        if user.is_authenticated:
-            data = self.input['image'][0]
-            path = default_storage.save('img/' + data.name, data)
-            return SITE_DOMAIN + '/media/' + path
-
-        else:
-            raise ValidateError("请先登录")
-
-
-class ContestUpload(APIView):
-    def post(self):
-        try:
-            self.check_input('file')
-            data = self.input['file'][0]
-            path = default_storage.save('contest/file/' + data.name, data)
-
-        except InputError:
-            try:
-                self.check_input('banner')
-                data = self.input['banner'][0]
-                path = default_storage.save('contest/banner/' + data.name, data)
-            except InputError:
-                self.check_input('logo')
-                data = self.input['logo'][0]
-                path = default_storage.save('contest/logo/' + data.name, data)
-
-        return SITE_DOMAIN + '/' + path
+        self.check_input('contest_id')
+        for id in self.input['contest_id']:
+            contest = Contest.objects.get(id=id)
+            periods = Period.objects.filter(contest=contest)
+            if not periods.empty():
+                for period in periods:
+                    period.delete()
+            contest.delete()
+        return 0
 
 # Create your views here.
