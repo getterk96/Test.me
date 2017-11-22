@@ -28,8 +28,8 @@ def check_contact_phone(contact_phone):
 def player_signup_contest(player, contest):
     for team in (player.lead_teams + player.join_teams):
         if team.contest == contest:
-            return True, team
-    return False, None
+            return team
+    raise ValidateError('You have not sign up this contest')
 
 
 class PlayerRegister(APIView):
@@ -129,7 +129,12 @@ class PlayerContestDetail(APIView):
 
         # already sign up
         player = self.request.user.player
-        signup_flag, team = player_signup_contest(player, contest)
+        signup_flag = False
+        try:
+            player_signup_contest(player, contest)
+        except ValidateError:
+            signup_flag = True
+
         # tags
         tags = []
         for tag in contest.tags:
@@ -173,9 +178,7 @@ class PlayerPeriodDetail(APIView):
             raise InputError('Period does not exist')
 
         player = self.request.user.player
-        signup_flag, team = player_signup_contest(player, period.contest)
-        if not signup_flag:
-            raise ValidateError('You have not signed up this contest')
+        team = player_signup_contest(player, period.contest)
 
         # get period score
         try:
@@ -199,3 +202,41 @@ class PlayerPeriodDetail(APIView):
             'score': score,
             'rank': rank
         }
+
+
+class PlayerPeriodQuestion(APIView):
+
+    @player_required
+    def get(self):
+        # check
+        self.check_input('pid')
+        try:
+            period = Period.objects.get(id=self.input['pid'])
+        except ObjectDoesNotExist:
+            raise InputError('Period does not exist')
+
+        player = self.request.user.player
+        team = player_signup_contest(player, period.contest)
+
+        # get question list
+        questions = []
+        for question in period.examquestion_set:
+            try:
+                work = Work.objects.get(question=question, team=team)
+                submission_times = work.submission_times
+                work_url = work.content_url
+                score = work.score
+            except ObjectDoesNotExist:
+                submission_times = 0
+                work_url = ''
+                score = -1
+            questions.append({
+                'description': question.description,
+                'attachmentUrl': question.attachment_url,
+                'submission_limit': question.submission_limit,
+                'submission_times': submission_times,
+                'workUrl': work_url,
+                'score': score,
+            })
+
+        return questions

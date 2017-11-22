@@ -138,5 +138,5 @@ class Work(models.Model):
     question = models.ForeignKey(ExamQuestion)
     team = models.ForeignKey(Team)
     content_url = models.CharField(max_length=256)
-    score = models.IntegerField(default=0)
+    score = models.IntegerField(default=-1)
     submission_times = models.IntegerField(default=1)
