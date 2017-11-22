@@ -60,23 +60,8 @@ class Organizer(UserCommon):
     REJECTED = -1
 
 
-class ExamQuestion(models.Model):
-    period = models.ForeignKey(Period)
-    index = models.IntegerField()
-    description = models.TextField()
-    attachment_url = models.CharField(max_length=256)
-    submission_limit = models.IntegerField()
-
-
-class Period(models.Model):
-    contest = models.ForeignKey(Contest)
-    index = models.IntegerField()
-    name = models.CharField(max_length=20)
-    available_slots = models.IntegerField()
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    description = models.TextField()
-    attachment_url = models.CharField(max_length=256)
+class Tag(models.Model):
+    content = models.CharField(max_length=20)
 
 
 class Contest(models.Model):
@@ -107,21 +92,23 @@ class Contest(models.Model):
     PUBLISHED = 1
 
 
-class Tag(models.Model):
-    content = models.CharField(max_length=20)
+class Period(models.Model):
+    contest = models.ForeignKey(Contest)
+    index = models.IntegerField()
+    name = models.CharField(max_length=20)
+    available_slots = models.IntegerField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    description = models.TextField()
+    attachment_url = models.CharField(max_length=256)
 
 
-class PeriodScore(models.Model):
+class ExamQuestion(models.Model):
     period = models.ForeignKey(Period)
-    team = models.ForeignKey(Team)
-    score = models.IntegerField()
-
-
-class Work(models.Model):
-    question = models.ForeignKey(ExamQuestion)
-    team = models.ForeignKey(Team)
-    content_url = models.CharField(max_length=256)
-    score = models.IntegerField(default=0)
+    index = models.IntegerField()
+    description = models.TextField()
+    attachment_url = models.CharField(max_length=256)
+    submission_limit = models.IntegerField()
 
 
 class Team(models.Model):
@@ -138,3 +125,16 @@ class Team(models.Model):
     VERIFYING = 0
     VERIFIED = 1
     DISMISSED = 2
+
+
+class PeriodScore(models.Model):
+    period = models.ForeignKey(Period)
+    team = models.ForeignKey(Team)
+    score = models.IntegerField()
+
+
+class Work(models.Model):
+    question = models.ForeignKey(ExamQuestion)
+    team = models.ForeignKey(Team)
+    content_url = models.CharField(max_length=256)
+    score = models.IntegerField(default=0)
