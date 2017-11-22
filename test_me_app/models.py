@@ -131,6 +131,7 @@ class PeriodScore(models.Model):
     period = models.ForeignKey(Period)
     team = models.ForeignKey(Team)
     score = models.IntegerField()
+    rank = models.IntegerField()
 
 
 class Work(models.Model):
@@ -138,3 +139,4 @@ class Work(models.Model):
     team = models.ForeignKey(Team)
     content_url = models.CharField(max_length=256)
     score = models.IntegerField(default=0)
+    submission_times = models.IntegerField(default=1)
