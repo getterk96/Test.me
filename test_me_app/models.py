@@ -21,28 +21,28 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile.save()
 
 
-post_save.connect(create_user_profile, sender = User)
+post_save.connect(create_user_profile, sender=User)
 
 
-class User_common(models.Model):
+class UserCommon(models.Model):
     group = models.CharField(max_length=128)
     # for players, group may mean their university or so
-    # for organizers, group may mean their coporation or university or so
+    # for organizers, group may mean their corporation or university or so
     nickname = models.CharField(max_length=20)
     avatar_url = models.CharField(max_length=256)
     contact_phone = models.CharField(max_length=20, default="")
     description = models.TextField()
-    
+
     class Meta:
         abstract = True
 
 
-class Player(User_common):
+class Player(UserCommon):
     user = models.OneToOneField(User, related_name='player')
     gender = models.BooleanField()
     birthday = models.DateField()
     player_type = models.IntegerField()
-    
+
     UNDERGRADUATE = 0
     POSTGRADUATE = 1
     JUNIOR_COLLEGE_STUDENT = 2
@@ -50,37 +50,23 @@ class Player(User_common):
     OUTSIDER = 4
 
 
-class Organizer(User_common):
-    user = models.OneToOneField(User, related_name = 'organizer')
-    verify_status = models.IntegerField()
+class Organizer(UserCommon):
+    user = models.OneToOneField(User, related_name='organizer')
     verify_file_url = models.CharField(max_length=256)
-    
+
+    verify_status = models.IntegerField()
     VERIFYING = 0
     VERIFIED = 1
     REJECTED = -1
 
 
-class Exam_question(models.Model):
-    index = models.IntegerField()
-    description = models.TextField()
-    attachment_url = models.CharField(max_length=256)
-    submission_limit = models.IntegerField()
-
-
-class Period(models.Model):
-    index = models.IntegerField()
-    name = models.CharField(max_length = 20)
-    available_slots = models.IntegerField()
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    description = models.TextField()
-    attachment_url = models.CharField(max_length=256)
-    questions = models.ForeignKey(Exam_question, null = True)
+class Tag(models.Model):
+    content = models.CharField(max_length=20)
 
 
 class Contest(models.Model):
-    name = models.CharField(max_length = 64)
-    creator_id = models.IntegerField()
+    name = models.CharField(max_length=64)
+    organizer = models.ForeignKey(Organizer)
     description = models.TextField()
     logo_url = models.CharField(max_length=256)
     banner_url = models.CharField(max_length=256)
@@ -89,8 +75,9 @@ class Contest(models.Model):
     available_slots = models.IntegerField()
     max_team_members = models.IntegerField()
     sign_up_attachment_url = models.CharField(max_length=256)
+    tags = models.ManyToManyField(Tag)
+
     level = models.IntegerField()
-    
     INTERNATIONAL = 0
     NATIONAL = 1
     PROVINCIAL = 2
@@ -98,43 +85,56 @@ class Contest(models.Model):
     DISTRICT = 4
     SCHOOL = 5
     DEPARTMENT = 6
-    
-    tags = models.ManyToManyField('Tag',
-        related_name = 'contest_with_tag',
-        related_query_name = 'contest_with_tag')
-    periods = models.ForeignKey(Period, related_name = 'contest', null = True)
+
     status = models.IntegerField()
-    
     CANCELLED = -1
     SAVED = 0
     PUBLISHED = 1
 
-class Tag(models.Model):
-    content = models.CharField(max_length = 20)
 
-
-class Period_score(models.Model):
-    period_id = models.IntegerField()
-    team_id = models.IntegerField()
-    score = models.IntegerField()
-    rank = models.IntegerField()
-
-
-class Work(models.Model):
-    question_id = models.IntegerField()
-    team_id = models.IntegerField()
-    content_url = models.CharField(max_length=256)
+class Period(models.Model):
+    contest = models.ForeignKey(Contest)
     index = models.IntegerField()
-    score = models.IntegerField()
+    name = models.CharField(max_length=20)
+    available_slots = models.IntegerField()
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    description = models.TextField()
+    attachment_url = models.CharField(max_length=256)
+
+
+class ExamQuestion(models.Model):
+    period = models.ForeignKey(Period)
+    index = models.IntegerField()
+    description = models.TextField()
+    attachment_url = models.CharField(max_length=256)
+    submission_limit = models.IntegerField()
 
 
 class Team(models.Model):
-    players = models.ForeignKey(Player, null = True)
-    leader_id = models.IntegerField()
-    contest_id = models.IntegerField()
+    name = models.CharField(max_length=20)
+    leader = models.ForeignKey(Player, related_name="lead_teams")
+    members = models.ManyToManyField(Player, related_name="join_teams")
+    contest = models.ForeignKey(Contest)
+    period = models.ForeignKey(Period)
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
-    status = models.IntegerField()
-    score_record = models.ForeignKey(Period_score, null = True)
-    works = models.ForeignKey(Work, null = True)
     sign_up_attachment_url = models.CharField(max_length=256)
+    status = models.IntegerField()
+
+    VERIFYING = 0
+    VERIFIED = 1
+    DISMISSED = 2
+
+
+class PeriodScore(models.Model):
+    period = models.ForeignKey(Period)
+    team = models.ForeignKey(Team)
+    score = models.IntegerField()
+
+
+class Work(models.Model):
+    question = models.ForeignKey(ExamQuestion)
+    team = models.ForeignKey(Team)
+    content_url = models.CharField(max_length=256)
+    score = models.IntegerField(default=0)

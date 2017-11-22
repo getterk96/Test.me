@@ -50,3 +50,10 @@ class Upload(APIView):
             save_file.write(file.read())
         save_file.close()
         return settings.get_url(settings.MEDIA_URL + new_name)
+
+
+class UserType(APIView):
+
+    @login_required
+    def get(self):
+        return self.request.user.user_type
