@@ -231,6 +231,7 @@ class PlayerPeriodQuestion(APIView):
                 work_url = ''
                 score = -1
             questions.append({
+                'id': question.id,
                 'description': question.description,
                 'attachmentUrl': question.attachment_url,
                 'submission_limit': question.submission_limit,
@@ -240,3 +241,33 @@ class PlayerPeriodQuestion(APIView):
             })
 
         return questions
+
+
+class PlayerPeriodQuestionSubmit(APIView):
+
+    def post(self):
+        # check input
+        self.check_input('qid', 'workUrl')
+        try:
+            question = ExamQuestion.objects.get(id=self.input['qid'])
+        except ObjectDoesNotExist:
+            raise InputError('Question does not exist')
+
+        # check signup
+        player = self.request.user.player
+        team = player_signup_contest(player, question.period.contest)
+
+        # check leader
+        if player != team.leader:
+            raise ValidateError('Only team leader can submit work')
+
+        try:
+            work = Work.objects.get(question=question, team=team)
+            work.submission_times += 1
+            work.content_url = self.input['workUrl']
+            work.save()
+        except ObjectDoesNotExist:
+            work = Work.objects.create(question=question,
+                                       team=team,
+                                       content_url=self.input['workUrl'])
+            work.save()
