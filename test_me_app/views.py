@@ -36,11 +36,11 @@ class Logout(APIView):
 
 class Upload(APIView):
 
-    @login_required
+    #@login_required
     def post(self):
         self.check_input('file', 'destination')
         file = self.input['file'][0]
-        new_name = self.input['destination'] + '/' + time.strftime('%Y%m%d%H%M%S') + '.' + file['name'].split('.')[-1]
+        new_name = self.input['destination'] + '/' + time.strftime('%Y%m%d%H%M%S') + '.' + file.name.split('.')[-1]
         save_path = settings.MEDIA_ROOT + '/' + new_name
         save_file = open(save_path, 'w+b')
         if file.multiple_chunks():
