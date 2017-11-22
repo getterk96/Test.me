@@ -4,13 +4,44 @@ from datetime import datetime
 
 from codex.baseerror import *
 from codex.baseview import APIView
-
-from test_me_app.models import Organizer, Contest, Tag, Team, Period
 from codex.basedecorator import organizer_required
 
+from test_me_app.models import Organizer, Contest, Tag, Team, Period, User, User_profile
+from test_me import settings
 
-@organizer_required
+class Register(APIView):
+
+    def post(self):
+        # check
+        self.check_input('username', 'password', 'email', 'verifyFileUrl')
+        # create
+        try:
+            user = User.objects.create_user(username=self.input['username'],
+                                            password=self.input['password'],
+                                            email=self.input['email'])
+            user.user_type = User_profile.ORGANIZER
+            user.save()
+            # default columns
+            avatar_url = settings.get_url(settings.STATIC_URL + 'img/default_avatar.jpg')
+            description = '请填写主办方简介'
+            group = '请填写组织名称'
+            phone = '13000000000'
+            # create organizer
+            organizer = Organizer.objects.create(user=user,
+                                           nickname=self.input['username'],
+                                           group=group,
+                                           contact_phone=phone,
+                                           avatar_url=avatar_url,
+                                           description=description,
+                                           verify_status=0,
+                                           verify_file_url=self.input['verifyFileUrl'])
+            organizer.save()
+        except:
+            raise LogicError('Signup fail')
+
+
 class PersonalInfo(APIView):
+    @organizer_required
     def get(self):
         self.check_input('id')
         organizer = Organizer.objects.get(id=self.input['id'])
@@ -25,6 +56,7 @@ class PersonalInfo(APIView):
 
         return data
 
+    @organizer_required
     def post(self):
         self.check_input('id', 'nickname', 'avatarUrl', 'description', 'contactPhone', 'email', 'verifyStatus')
         organizer = Organizer.objects.get(id=self.input['id'])
@@ -40,8 +72,8 @@ class PersonalInfo(APIView):
         return organizer.id
 
 
-@organizer_required
 class OrganizingContests(APIView):
+    @organizer_required
     def get(self):
         self.check_input('id')
         contest = Contest.objects.get(id=self.input['id'])
@@ -60,8 +92,9 @@ class OrganizingContests(APIView):
             return data
 
 
-@organizer_required
+
 class ContestDetail(APIView):
+    @organizer_required
     def get(self):
         contest = Contest.objects.get(id=self.input['id'])
         tags = ""
@@ -87,6 +120,7 @@ class ContestDetail(APIView):
 
         return data
 
+    @organizer_required
     def post(self):
         self.check_input('id', 'name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
@@ -112,8 +146,9 @@ class ContestDetail(APIView):
         contest.save()
 
 
-@organizer_required
+
 class ContestCreateBasic(APIView):
+    @organizer_required
     def post(self):
         self.check_input('name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
@@ -141,8 +176,8 @@ class ContestCreateBasic(APIView):
         return contest.id
 
 
-@organizer_required
 class ContestBatchRemove(APIView):
+    @organizer_required
     def post(self):
         self.check_input('contest_id')
         for id in self.input['contest_id']:

@@ -20,10 +20,10 @@ from test_me import settings
 from test_me.views import FileView
 
 urlpatterns = [
-    url(r'^api/c/', include('test_me_app.urls')),
-    url(r'^api/a/', include('adminpage.urls')),
-    url(r'^api/o/', include('organizerpage.urls')),
-    url(r'^api/p/', include('playerpage.urls')),
+    url(r'^api/common/', include('test_me_app.urls')),
+    url(r'^api/admin/', include('adminpage.urls')),
+    url(r'^api/organizer/', include('organizerpage.urls')),
+    url(r'^api/player/', include('playerpage.urls')),
 ]
 
 if settings.DEBUG:
