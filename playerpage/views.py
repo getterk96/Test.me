@@ -245,6 +245,7 @@ class PlayerQuestionDetail(APIView):
 
 class PlayerQuestionSubmit(APIView):
 
+    @player_required
     def post(self):
         # check input
         self.check_input('qid', 'workUrl')
@@ -271,3 +272,19 @@ class PlayerQuestionSubmit(APIView):
                                        team=team,
                                        content_url=self.input['workUrl'])
             work.save()
+
+
+class PlayerTeamList(APIView):
+
+    @player_required
+    def get(self):
+        player = self.request.user.player
+        teams = []
+        for team in (player.lead_teams + player.join_teams):
+            teams.append({
+                'id': team.id,
+                'name': team.name,
+                'leaderName': team.leader.name,
+                'contestName': team.contest.name
+            })
+        return teams
