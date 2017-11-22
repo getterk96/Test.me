@@ -328,7 +328,8 @@ class PlayerTeamDetail(APIView):
             'periodName': period_name,
             'avatarUrl': team.avatar_url,
             'description': team.description,
-            'signUpAttachmentUrl': team.sign_up_attachment_url
+            'signUpAttachmentUrl': team.sign_up_attachment_url,
+            'status': team.status
         }
 
     @player_required
@@ -357,11 +358,46 @@ class PlayerTeamDetail(APIView):
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
 
-        team.leader = leader
+        team.leader = leader.player
         team.members.clear()
         for member in members:
-            team.members.add(member)
+            team.members.add(member.player)
         team.avatar_url = self.input['avatarUrl']
         team.description = self.input['description']
         team.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+        team.save()
+
+
+class PlayerTeamCreate(APIView):
+
+    @player_required
+    def post(self):
+        self.check_input('name', 'memberIds', 'contestId', 'avatarUrl',
+                         'description', 'signUpAttachmentUrl')
+        try:
+            contest = Contest.objects.get(id=self.input['contestId'])
+        except ObjectDoesNotExist:
+            raise InputError('Contest does not exist')
+
+        members = []
+        for memberId in self.input['memberIds']:
+            member = User.objects.get(id=memberId)
+            if member.user_type != User_profile.PLAYER:
+                raise InputError('Player does not exist')
+            members.append(member)
+
+        player = self.request.user.player
+        for team in (player.lead_teams + player.join_teams):
+            if team.contest == contest:
+                raise LogicError('You are already in a team of this contest')
+
+        team = Team.create(name=self.input['name'],
+                           leader=player,
+                           contest=contest,
+                           avatar_url=self.input['avatarUrl'],
+                           description=self.input['description'],
+                           sign_up_attachment_url=self.input['signUpAttachmentUrl'],
+                           status=Team.VERIFYING)
+        for member in members:
+            team.members.add(member)
         team.save()

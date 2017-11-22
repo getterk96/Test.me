@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^question/submit$', PlayerQuestionSubmit.as_view()),
     url(r'^team/list$', PlayerTeamList.as_view()),
     url(r'^team/detail$', PlayerTeamDetail.as_view()),
+    url('^team/create$', PlayerTeamCreate.as_view()),
 ]
