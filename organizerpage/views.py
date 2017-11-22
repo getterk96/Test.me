@@ -6,11 +6,11 @@ from codex.baseerror import *
 from codex.baseview import APIView
 from codex.basedecorator import organizer_required
 
-from test_me_app.models import Organizer, Contest, Tag, Team, Period, User, User_profile
+from test_me_app.models import *
 from test_me import settings
 
-class Register(APIView):
 
+class Register(APIView):
     def post(self):
         # check
         self.check_input('username', 'password', 'email', 'verifyFileUrl')
@@ -28,13 +28,13 @@ class Register(APIView):
             phone = '13000000000'
             # create organizer
             organizer = Organizer.objects.create(user=user,
-                                           nickname=self.input['username'],
-                                           group=group,
-                                           contact_phone=phone,
-                                           avatar_url=avatar_url,
-                                           description=description,
-                                           verify_status=0,
-                                           verify_file_url=self.input['verifyFileUrl'])
+                                                 nickname=self.input['username'],
+                                                 group=group,
+                                                 contact_phone=phone,
+                                                 avatar_url=avatar_url,
+                                                 description=description,
+                                                 verify_status=0,
+                                                 verify_file_url=self.input['verifyFileUrl'])
             organizer.save()
         except:
             raise LogicError('Signup fail')
@@ -92,7 +92,6 @@ class OrganizingContests(APIView):
             return data
 
 
-
 class ContestDetail(APIView):
     @organizer_required
     def get(self):
@@ -146,8 +145,7 @@ class ContestDetail(APIView):
         contest.save()
 
 
-
-class ContestCreateBasic(APIView):
+class ContestCreate(APIView):
     @organizer_required
     def post(self):
         self.check_input('name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
@@ -188,5 +186,30 @@ class ContestBatchRemove(APIView):
                     period.delete()
             contest.delete()
         return 0
+
+
+class PeriodCreate(APIView):
+    @organizer_required
+    def post(self):
+        self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
+                         , 'attachmentUrl', 'questionId')
+        period = Period()
+        period.name = self.input['name']
+        period.index = self.input['index']
+        period.description = self.input['description']
+        period.start_time = self.input['startTime']
+        period.end_time = self.input['endTime']
+        period.available_slots = self.input['availableSlots']
+        period.attachment_url = self.input['attachmentUrl']
+        period.contest = Contest.objects.get(id=self.input['id'])
+        questions_id = self.input['questionId'].split(' ')
+        period.save()
+        for question_id in questions_id:
+            question = Exam_question.objects.get(id=question_id)
+            question.period = period
+            question.save()
+
+        period.save()
+        return period.id
 
 # Create your views here.
