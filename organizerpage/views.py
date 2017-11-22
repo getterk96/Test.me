@@ -11,6 +11,7 @@ from test_me import settings
 
 
 class Register(APIView):
+
     def post(self):
         # check
         self.check_input('username', 'password', 'email', 'verifyFileUrl')
@@ -41,6 +42,7 @@ class Register(APIView):
 
 
 class PersonalInfo(APIView):
+
     @organizer_required
     def get(self):
         self.check_input('id')
@@ -73,6 +75,7 @@ class PersonalInfo(APIView):
 
 
 class OrganizingContests(APIView):
+
     @organizer_required
     def get(self):
         self.check_input('id')
@@ -93,6 +96,7 @@ class OrganizingContests(APIView):
 
 
 class ContestDetail(APIView):
+
     @organizer_required
     def get(self):
         contest = Contest.objects.get(id=self.input['id'])
@@ -146,6 +150,7 @@ class ContestDetail(APIView):
 
 
 class ContestCreate(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
@@ -174,7 +179,21 @@ class ContestCreate(APIView):
         return contest.id
 
 
+class ContestRemove(APIView):
+
+    @organizer_required
+    def post(self):
+        self.check_input('id')
+        contest = Contest.objects.get(id=self.input['id'])
+        periods = Period.objects.filter(contest=contest)
+        for period in periods:
+            period.delete()
+        contest.delete()
+        return 0
+
+
 class ContestBatchRemove(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('contest_id')
@@ -189,6 +208,7 @@ class ContestBatchRemove(APIView):
 
 
 class PeriodCreate(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
@@ -211,5 +231,117 @@ class PeriodCreate(APIView):
 
         period.save()
         return period.id
+
+
+class PeriodDetail(APIView):
+
+    @organizer_required
+    def get(self):
+        self.check_input('id')
+        period = Period.objects.get(id=self.input['id'])
+        question_id = []
+        for question in period.questions.all():
+            question_id.append(question.id)
+        data = {
+            'index': period.index,
+            'name': period.name,
+            'description': period.description,
+            'startTime': time.mktime(period.start_time.timetuple()),
+            'endTime': time.mktime(period.end_time.timetuple()),
+            'availableSlots': period.available_slots,
+            'attachmentUrl': period.attachment_url,
+            'questionId': question_id,
+        }
+
+        return data
+
+    @organizer_required
+    def post(self):
+        self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
+                         , 'attachmentUrl', 'questionId')
+        # user = self.request.user
+        # if user.is_authenticated:
+        period = Period.objects.get(id=self.input['id'])
+        period.name = self.input['name']
+        period.index = self.input['index']
+        period.description = self.input['description']
+        period.start_time = self.input['startTime']
+        period.end_time = self.input['endTime']
+        period.available_slots = self.input['availableSlots']
+        period.attachment_url = self.input['attachmentUrl']
+        questions_id = self.input['questionId'].split(' ')
+        period.save()
+        for question_id in questions_id:
+            question = Exam_question.objects.get(id=question_id)
+            period.questions.add(question)
+
+        period.save()
+        return period.id
+
+
+class PeriodRemove(APIView):
+
+    @organizer_required
+    def post(self):
+        self.check_input('id')
+        period = Period.objects.get(id=self.input['id'])
+        period.delete()
+        return 0
+
+
+class QuestionCreate(APIView):
+
+    @organizer_required
+    def post(self):
+        self.check_input('description', 'attachmentUrl', 'submissionLimit')
+        # user = self.request.user
+        # if user.is_authenticated:
+        question = Exam_question()
+        question.description = self.input['description']
+        question.attachment_url = self.input['attachmentUrl']
+        question.submission_limit = self.input['submissionLimit']
+        question.save()
+
+        question.save()
+        return question.id
+
+
+class QuestionDetail(APIView):
+
+    @organizer_required
+    def get(self):
+        self.check_input('id')
+        question = Exam_question.objects.get(id=self.input['id'])
+        data = {
+            'description': question.description,
+            'attachmentUrl': question.attachment_url,
+            'submissionLimit': question.submission_limit,
+        }
+
+        return data
+
+    @organizer_required
+    def post(self):
+        self.check_input('id', 'description', 'startTime', 'attachmentUrl', 'submissionLimit')
+        # user = self.request.user
+        # if user.is_authenticated:
+        question = Exam_question.objects.get(id=self.input['id'])
+        question.description = self.input['description']
+        question.attachment_url = self.input['attachmentUrl']
+        question.submission_limit = self.input['submissionLimit']
+        question.period = Period.objects.get(id=self.input['id'])
+        question.save()
+
+        return question.id
+
+
+class QuestionRemove(APIView):
+
+    @organizer_required
+    def post(self):
+        self.check_input('id')
+        question = Exam_question.objects.get(id=self.input['id'])
+        question.delete()
+        return 0
 
 # Create your views here.
