@@ -11,19 +11,25 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import json
+import logging
+import urllib.parse
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Configurations load from file
+CONFIGS = json.loads(open(os.path.join(BASE_DIR, 'configs.json')).read())
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'xffk+%fl85vx%*w2m4x27$io#v#wj(c*q7b$%2p4*lj@h8=772'
+SECRET_KEY = CONFIGS['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = CONFIGS['DEBUG']
 
 ALLOWED_HOSTS = ['*']
 
@@ -35,16 +41,19 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    # 'django.contrib.messages',
+    # 'django.contrib.staticfiles',
     'test_me_app',
+    'adminpage',
+    'organizerpage',
+    'playerpage',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -77,9 +86,9 @@ WSGI_APPLICATION = 'test_me.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'test_me',
-        'USER': 'root',
-        'PASSWORD': '123456',
+        'NAME': CONFIGS['DB_NAME'],
+        'USER': CONFIGS['DB_USER'],
+        'PASSWORD': CONFIGS['DB_PASS'],
     }
 }
 
@@ -108,7 +117,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'Asia/Shanghai'
+TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
@@ -116,9 +125,39 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Site and URL
+
+SITE_DOMAIN = CONFIGS['SITE_DOMAIN'].rstrip('/')
+
+
+def get_url(path, params=None):
+    full_path = urllib.parse.urljoin(SITE_DOMAIN, path)
+    if params:
+        return full_path + ('&' if urllib.parse.urlparse(full_path).query else '?') + urllib.parse.urlencode(params)
+    else:
+        return full_path
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_URL = '/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+
+# Media files
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Logging configurations
+
+logging.basicConfig(
+    format='%(levelname)-7s [%(asctime)s] %(module)s.%(funcName)s:%(lineno)d  %(message)s',
+    level=logging.DEBUG if DEBUG else logging.WARNING,
+)
+
+AUTH_PROFILE_MODULE = 'test_me_app.User_profile'
