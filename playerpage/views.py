@@ -25,6 +25,13 @@ def check_contact_phone(contact_phone):
             raise InputError('Wrong contact phone')
 
 
+def player_signup_contest(player, contest):
+    for team in (player.lead_teams + player.join_teams):
+        if team.contest == contest:
+            return True, team
+    return False, None
+
+
 class PlayerRegister(APIView):
 
     def post(self):
@@ -122,10 +129,7 @@ class PlayerContestDetail(APIView):
 
         # already sign up
         player = self.request.user.player
-        already_signup = False
-        for team in (player.lead_teams + player.join_teams):
-            if team.contest == contest:
-                already_signup = True
+        signup_flag, team = player_signup_contest(player, contest)
         # tags
         tags = []
         for tag in contest.tags:
@@ -144,7 +148,7 @@ class PlayerContestDetail(APIView):
             'description': contest.description,
             'logoUrl': contest.logo_url,
             'bannerUrl': contest.banner_url,
-            'alreadySignUp': already_signup,
+            'alreadySignUp': 1 if signup_flag else 0,
             'signUpStartTime': time.mktime(contest.sign_up_start_time.timetuple()),
             'signUpEndTime': time.mktime(contest.sign_up_end_time.timetuple()),
             'currentTime': time.mktime(datetime.datetime.now().timetuple()),
@@ -154,4 +158,44 @@ class PlayerContestDetail(APIView):
             'level': contest.level,
             'tags': tags,
             'periods': periods
+        }
+
+
+class PlayerPeriodDetail(APIView):
+
+    @player_required
+    def get(self):
+        # check
+        self.check_input('pid')
+        try:
+            period = Period.objects.get(id=self.input['pid'])
+        except ObjectDoesNotExist:
+            raise InputError('Period does not exist')
+
+        player = self.request.user.player
+        signup_flag, team = player_signup_contest(player, period.contest)
+        if not signup_flag:
+            raise ValidateError('You have not signed up this contest')
+
+        # get period score
+        try:
+            period_score = PeriodScore.objects.get(period=period, team=team)
+        except ObjectDoesNotExist:
+            period_score = None
+        if period_score:
+            score = period_score.score
+            rank = period_score.rank
+        else:
+            score = -1
+            rank = -1
+
+        return {
+            'name': period.name,
+            'availableSlots': period.available_slots,
+            'startTime': time.mktime(period.start_time.timetuple()),
+            'endTime': time.mktime(period.end_time.timetuple()),
+            'description': period.description,
+            'attachmentUrl': period.attachment_url,
+            'score': score,
+            'rank': rank
         }

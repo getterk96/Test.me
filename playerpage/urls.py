@@ -7,5 +7,6 @@ urlpatterns = [
     url(r'^register$', PlayerRegister.as_view()),
     url(r'^personal_info$', PlayerPersonalInfo.as_view()),
     url(r'^participating_contests$', PlayerParticipatingContests.as_view()),
-    url(r'^contest/detail$', PlayerContestDetail.as_view(),)
+    url(r'^contest/detail$', PlayerContestDetail.as_view()),
+    url(r'^period/detail$', PlayerPeriodDetail.as_view()),
 ]
