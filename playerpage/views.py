@@ -1,8 +1,10 @@
+from django.core.exceptions import ObjectDoesNotExist
 from codex.baseerror import *
 from codex.baseview import APIView
 from codex.basedecorator import *
 from test_me_app.models import *
 from test_me import settings
+import time, datetime
 
 # Create your views here.
 
@@ -100,11 +102,56 @@ class PlayerParticipatingContests(APIView):
     def get(self):
         player = self.request.user.player
         contests = []
-        for team in player.team_set:
-            contest = Contest.objects.get(id=team.contest_id)
-            print(contest.name)
-            organizer = Organizer.objects.get(id=contest.creator_id)
-            contests.append({'id': team.contest_id,
-                             'name': contest.name,
-                             'organizerName': organizer.nickname})
+        for team in (player.lead_teams + player.join_teams):
+            contests.append({'id': team.contest.id,
+                             'name': team.contest.name,
+                             'organizerName': team.contest.organizer.nickname})
         return contests
+
+
+class PlayerContestDetail(APIView):
+
+    @player_required
+    def get(self):
+        # check
+        self.check_input('cid')
+        try:
+            contest = Contest.objects.get(id=self.input['cid'])
+        except ObjectDoesNotExist:
+            raise InputError('Contest does not exist')
+
+        # already sign up
+        player = self.request.user.player
+        already_signup = False
+        for team in (player.lead_teams + player.join_teams):
+            if team.contest == contest:
+                already_signup = True
+        # tags
+        tags = []
+        for tag in contest.tags:
+            tags.append(tag.content)
+        # periods
+        periods = []
+        for period in contest.period_set:
+            periods.append({'periodName': period.name,
+                            'periodId': period.id,
+                            'periodSlots': period.available_slots,
+                            'periodStartTime': time.mktime(period.start_time.timetumple()),
+                            'periodEndTime': time.mktime(period.end_time.timetumple())})
+
+        return {
+            'name': contest.name,
+            'description': contest.description,
+            'logoUrl': contest.logo_url,
+            'bannerUrl': contest.banner_url,
+            'alreadySignUp': already_signup,
+            'signUpStartTime': time.mktime(contest.sign_up_start_time.timetuple()),
+            'signUpEndTime': time.mktime(contest.sign_up_end_time.timetuple()),
+            'currentTime': time.mktime(datetime.datetime.now().timetuple()),
+            'availableSlots': contest.available_slots,
+            'maxTeamMembers': contest.max_team_members,
+            'signUpAttachmentUrl': contest.sign_up_attachment_url,
+            'level': contest.level,
+            'tags': tags,
+            'periods': periods
+        }
