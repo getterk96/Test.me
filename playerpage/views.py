@@ -204,7 +204,7 @@ class PlayerPeriodDetail(APIView):
         }
 
 
-class PlayerPeriodQuestion(APIView):
+class PlayerQuestionDetail(APIView):
 
     @player_required
     def get(self):
@@ -243,7 +243,7 @@ class PlayerPeriodQuestion(APIView):
         return questions
 
 
-class PlayerPeriodQuestionSubmit(APIView):
+class PlayerQuestionSubmit(APIView):
 
     def post(self):
         # check input
