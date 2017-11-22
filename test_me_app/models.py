@@ -125,6 +125,7 @@ class Work(models.Model):
 
 
 class Team(models.Model):
+    name = models.CharField(max_length=20)
     leader = models.ForeignKey(Player, related_name="lead_teams")
     members = models.ManyToManyField(Player, related_name="join_teams")
     contest = models.ForeignKey(Contest)
