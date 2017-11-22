@@ -14,6 +14,7 @@ class TestRegister(TestCase):
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
         request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
                                                 '"email":"1@1.com",'
                                                 '"verifyFileUrl":"/a/a"}')
         response = json.loads(found.func(request).content.decode())
@@ -23,13 +24,6 @@ class TestRegister(TestCase):
 class UserCenterTest(TestCase):
 
     def test_get_correct(self):
-        found = resolve('/register', urlconf=organizerpage.urls)
-        request = Mock(wraps=HttpRequest(), method='POST')
-        request.body = Mock()
-        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
-                                                '"email":"1@1.com",'
-                                                '"verifyFileUrl":"/a/a"}')
-        response = json.loads(found.func(request).content.decode())
         found = resolve('/personal_info', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET')
         request.body = Mock()
