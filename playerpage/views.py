@@ -288,3 +288,80 @@ class PlayerTeamList(APIView):
                 'contestName': team.contest.name
             })
         return teams
+
+
+class PlayerTeamDetail(APIView):
+
+    @player_required
+    def get(self):
+        self.check_input('tid')
+        try:
+            team = Team.objects.get(id=self.input['tid'])
+        except ObjectDoesNotExist:
+            raise InputError('Team does not exist')
+
+        player = self.request.user.player
+        if player not in (team.leader + team.members):
+            raise ValidateError('You are not in this team')
+
+        # member
+        memberNames = []
+        for member in team.members:
+            memberNames.append(member.nickname)
+
+        # period
+        try:
+            period = Period.objects.get(team=team)
+            period_id = period.id
+            period_name = period.name
+        except ObjectDoesNotExist:
+            period_id = -1
+            period_name = ''
+
+        return {
+            'name': team.name,
+            'leaderName': team.leader.nickname,
+            'memberNames': memberNames,
+            'contestId': team.contest.id,
+            'contestName': team.contest.name,
+            'periodId': period_id,
+            'periodName': period_name,
+            'avatarUrl': team.avatar_url,
+            'description': team.description,
+            'signUpAttachmentUrl': team.sign_up_attachment_url
+        }
+
+    @player_required
+    def post(self):
+        self.check_input('tid', 'leaderId', 'memberIds', 'avatarUrl',
+                         'description', 'signUpAttachmentUrl')
+        try:
+            team = Team.objects.get(id=self.input['tid'])
+        except ObjectDoesNotExist:
+            raise InputError('Team does not exist')
+
+        player = self.request.user.player
+        if team.leader != player:
+            raise ValidateError('Only team leader can change team info')
+
+        try:
+            leader = User.objects.get(id=self.input['leaderId'])
+            if leader.user_type != User_profile.PLAYER:
+                raise InputError('Player Required')
+            members = []
+            for memberId in self.input['memberIds']:
+                member = User.objects.get(id=memberId)
+                if member.user_type != User_profile.PLAYER:
+                    raise InputError('Player Required')
+                members.append(member)
+        except ObjectDoesNotExist:
+            raise InputError('Player does not exist')
+
+        team.leader = leader
+        team.members.clear()
+        for member in members:
+            team.members.add(member)
+        team.avatar_url = self.input['avatarUrl']
+        team.description = self.input['description']
+        team.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+        team.save()
