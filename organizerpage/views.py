@@ -42,13 +42,14 @@ class Register(APIView):
 class PersonalInfo(APIView):
     @organizer_required
     def get(self):
-        self.check_input('id')
-        organizer = Organizer.objects.get(id=self.input['id'])
+        the_user = self.request.user
+        organizer = the_user.organizer
         data = {
+            'username': the_user.username,
             'nickname': organizer.nickname,
             'avatarUrl': organizer.avatar_url,
-            'contactPhone': organizer.contactPhone,
-            'email': organizer.email,
+            'contactPhone': organizer.contact_phone,
+            'email': self.request.user.email,
             'description': organizer.description,
             'verifyStatus': organizer.verify_status,
         }
@@ -57,18 +58,15 @@ class PersonalInfo(APIView):
 
     @organizer_required
     def post(self):
-        self.check_input('id', 'nickname', 'avatarUrl', 'description', 'contactPhone', 'email', 'verifyStatus')
-        organizer = Organizer.objects.get(id=self.input['id'])
+        self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
+        the_user = self.request.user
+        organizer = the_user.organizer
         organizer.nickname = self.input['nickname']
-        organizer.verify_status = self.input['verifyStatus']
         organizer.description = self.input['description']
         organizer.avatar_url = self.input['avatarUrl']
         organizer.contact_phone = self.input['contactPhone']
         organizer.email = self.input['email']
-        organizer.verify_status = self.input['verifyStatus']
         organizer.save()
-
-        return organizer.id
 
 
 class OrganizingContests(APIView):

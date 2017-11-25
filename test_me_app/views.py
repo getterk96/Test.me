@@ -56,4 +56,4 @@ class UserType(APIView):
 
     @login_required
     def get(self):
-        return self.request.user.user_type
+        return self.request.user.user_profile.user_type
