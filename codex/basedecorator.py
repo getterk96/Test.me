@@ -1,6 +1,7 @@
 from functools import wraps
 from django.utils.decorators import available_attrs
 from codex.baseerror import *
+from test_me_app.models import User_profile
 
 
 def user_passes_test(test_func, error=ValidateError, msg="Can not pass user test"):
