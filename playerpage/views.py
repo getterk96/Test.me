@@ -77,7 +77,7 @@ class PlayerPersonalInfo(APIView):
             'contactPhone': player.contact_phone,
             'description': player.description,
             'gender': 'male' if player.gender else 'female',
-            'birthday': player.birthday,
+            'birthday': player.birthday.strftime("%Y-%m-%d"),
             'playerType': player.player_type
         }
 
@@ -98,7 +98,7 @@ class PlayerPersonalInfo(APIView):
         player.contact_phone = self.input['contactPhone']
         player.description = self.input['description']
         player.gender = (self.input['gender'] == 'male')
-        player.birthday = self.input['gender']
+        player.birthday = self.input['birthday']
         player.player_type = self.input['playerType']
         player.save()
 

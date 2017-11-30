@@ -19,8 +19,9 @@ class Register(APIView):
             user = User.objects.create_user(username=self.input['username'],
                                             password=self.input['password'],
                                             email=self.input['email'])
-            user.user_type = User_profile.ORGANIZER
+            user.user_profile.user_type = User_profile.ORGANIZER
             user.save()
+            user.user_profile.save();
             # default columns
             avatar_url = settings.get_url(settings.STATIC_URL + 'img/default_avatar.jpg')
             description = '请填写主办方简介'
@@ -72,21 +73,18 @@ class PersonalInfo(APIView):
 class OrganizingContests(APIView):
     @organizer_required
     def get(self):
-        self.check_input('id')
-        contest = Contest.objects.get(id=self.input['id'])
-        for period in contest.periods.all():
-            if period.startTime < datetime.utcnow().replace(tzinfo=pytz.timezone('UTC')):
-                continue
+        contests = Contest.objects.filter(organizer_id=self.request.user.id)
+        ret = []
+        for contest in contests:
             data = {
                 'id': contest.id,
                 'name': contest.name,
-                'newestPeriod': period.name,
                 'teamsNumber': Team.objects.filter(contest_id=contest.id).count(),
                 'creatorId': contest.organizer.id,
-                'creatorName': contest.organizer.name,
+                'creatorName': contest.organizer.nickname,
             }
-
-            return data
+            ret.append(data)
+        return ret
 
 
 class ContestDetail(APIView):
@@ -145,11 +143,10 @@ class ContestDetail(APIView):
 class ContestCreate(APIView):
     @organizer_required
     def post(self):
-        self.check_input('name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
+        self.check_input('name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         contest = Contest()
         contest.name = self.input['name']
-        contest.status = self.input['status']
         contest.description = self.input['description']
         contest.logo_url = self.input['logoUrl']
         contest.banner_url = self.input['bannerUrl']
@@ -160,6 +157,8 @@ class ContestCreate(APIView):
         contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
         contest.level = self.input['level']
         tags = self.input['tags'].split(',')
+        contest.organizer_id = self.request.user.organizer.id
+        contest.status = 0
         contest.save()
         for content in tags:
             tag, created = Tag.objects.get_or_create(content=content)
@@ -273,9 +272,10 @@ class PeriodCreate(APIView):
         period.available_slots = self.input['availableSlots']
         period.attachment_url = self.input['attachmentUrl']
         period.contest = Contest.objects.get(id=self.input['id'])
-        questions_id = self.input['questionId'].split(' ')
+        questions_id = self.input['questionId']
         period.save()
         for question_id in questions_id:
+            print(question_id)
             question = ExamQuestion.objects.get(id=question_id)
             question.period = period
             question.save()

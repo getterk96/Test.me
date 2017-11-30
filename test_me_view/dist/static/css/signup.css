@@ -1,0 +1,51 @@
+#readbeforesignup div {
+    text-align : center;
+    font-size : 2em;
+}
+
+#readbeforesignup a {
+    font-size : 1em;
+    color : blue;
+}
+
+#readbeforesignup .confirm-button {
+    margin : 2em auto 1em auto;
+    display : block;
+    height : 2em;
+    font-size : 2em;
+    width : auto;
+    padding : 0.2em 1em;
+    border-radius : 5px;
+    outline-style : none;
+    border : 2px solid rgb(96, 144, 195);
+    background-color : rgb(124, 172, 222);
+    color : white;
+    transition : background-color 0.3s, border 0.3s;
+}
+
+#readbeforesignup .confirm-button:hover {
+    background-color : rgb(80, 130, 185);
+    border : 2px solid rgb(127, 172, 222);
+}
+
+#signupbox ul {
+    list-style : none;
+}
+
+#signupbox li {
+    margin-top : 2em;
+}
+
+#signupbox li div,
+#signupbox li input,
+#signupbox li label {
+    display : inline-block;
+    font-size : 1.5em;
+    margin-left : 2em;
+}
+
+.fileuploader {
+    width : 1.2em;
+    height : 1.2em;
+    vertical-align : bottom;
+}
