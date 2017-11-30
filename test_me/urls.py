@@ -20,6 +20,7 @@ from test_me import settings
 from test_me.views import FileView
 
 urlpatterns = [
+    url(r'^$', FileView.as_view()),
     url(r'^api/c/', include('test_me_app.urls')),
     url(r'^api/a/', include('adminpage.urls')),
     url(r'^api/o/', include('organizerpage.urls')),

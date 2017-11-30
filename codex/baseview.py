@@ -31,6 +31,10 @@ class APIView(BaseView):
 
     logger = logging.getLogger('API')
 
+    def options(self):
+        return {
+        }
+
     def do_dispatch(self, *args, **kwargs):
         self.input = self.query or self.body
         handler = getattr(self, self.request.method.lower(), None)
@@ -81,7 +85,12 @@ class APIView(BaseView):
                 'msg': msg,
                 'data': None,
             })
-        return HttpResponse(response, content_type='application/json')
+        tmp_response = HttpResponse(response, content_type='application/json')
+        tmp_response.__setitem__('Access-Control-Allow-Origin', 'null')
+        tmp_response.__setitem__('Access-Control-Allow-Methods', 'GET, POST, PUT')
+        tmp_response.__setitem__('Access-Control-Allow-Headers', 'content-type')
+        tmp_response.__setitem__('Access-Control-Allow-Credentials', 'true')
+        return tmp_response
 
     def check_input(self, *keys):
         for k in keys:

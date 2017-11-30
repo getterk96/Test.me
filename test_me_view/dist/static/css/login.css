@@ -1,0 +1,172 @@
+/*
+ * set the size of the page as the size of the viewport
+ */
+body {
+    overflow : hidden;
+    height : 100vh;
+    width : 100vw;
+    background-color : rgba(250, 250, 250, 1);
+}
+
+/*
+ * make the slogan align with the middle line of the viewport
+ */
+#slogan-box {
+    display : block;
+    position : fixed;
+    padding : 5vh 0;
+    height : 90vh;
+}
+
+#slogan {
+    margin-left : 4em;
+    display : block;
+    position : relative;
+    padding : calc(45vh - 1.5em) 0;
+    line-height : 1.5em;
+    font-family : 'h-en', 'h-cn';
+    font-size : 4.5em;
+}
+
+/*
+ * set the area of login box
+ */
+#login-box {
+    display : block;
+    position : fixed;
+    width : 28vw;
+    height : 60vh;
+    right : 10vw;
+    top : 20vh;
+    border-radius : 0.7em;
+    background-color : rgba(73, 110, 193, 0.7);
+}
+
+/*
+ * set the style of required input for login
+ */
+.logininput {
+    display : block;
+    width : 90%;
+    margin : 2em auto;
+    height : 2em;
+    font-size : 1.2em;
+    border-style : none;
+}
+
+.logininput>span {
+    position : absolute;
+    left : 15%;
+    z-index : 1;
+    margin-left : 1em;
+    line-height : 2em;
+    line-height : 2em;
+    font-size : 1em;
+    vertical-align : center;
+}
+
+.logininput>span::after {
+    position : absolute;
+    left : 3.2em;
+    color : rgba(0, 0, 0, 0.45);
+    content : '|';
+}
+
+.logininput>input {
+    position : absolute;
+    left : 15%;
+    width : calc(70% - 5em);
+    height : 2em;
+    padding-left : 5em;
+    border-radius : 0.2em;
+    border-style : solid;
+    border-color : rgba(255, 255, 255, 0.6);
+    outline-style : none;
+    background-color : rgba(255, 255, 255, 0.3);
+    overflow : hidden;
+    font-size : 1em;
+    transition : border-color 0.5s, background-color 0.5s;
+}
+
+.logininput>input:hover,
+.logininput>input:focus {
+    border-color : rgba(255, 255, 255, 0.8);
+    background-color : rgba(255, 255, 255, 0.5);
+}
+
+/*
+ * set the style for submit button of account info
+ */
+.loginsubmit {
+    display : block;
+    margin : 2em auto 1em auto;
+    font-size : 2em;
+    letter-spacing : 5px;
+    background : transparent;
+    color : white;
+    font-weight : lighter;
+    border-style : none;
+    outline-style : none;
+}
+
+.submibtn:focus {
+    outline-style : none;
+}
+
+.loginsubmit::before,
+.loginsubmit::after {
+    display : inline-block;
+    position : relative;
+    opacity : 0;
+    color : white;
+    transition : transform 0.5s, opacity 0.5s;
+}
+
+.loginsubmit::before {
+    margin-right : 50px;
+    transform : translateX(70px);
+    content : '[';
+}
+
+.loginsubmit::after {
+    margin-left : 50px;
+    transform : translateX(-70px);
+    content : ']';
+}
+
+.loginsubmit:hover::before,
+.loginsubmit:hover::after,
+.loginsubmit:focus::before,
+.loginsubmit:focus::after {
+    opacity : 1;
+    transform : translateX(0);
+}
+
+/*style for link that to other page*/
+.links {
+    display : block;
+    position : absolute;
+    bottom : 0;
+    right : 0px;
+    padding-right : 2em;
+    padding-bottom : 1.5em;
+}
+
+.links>ul {
+    list-style : none;
+}
+
+.links li {
+    display : inline-block;
+    margin-left : 1em;
+    margin-right : 1em;
+}
+
+.links li>a {
+    font-size : 1.6em;
+    color : white;
+}
+
+.links li>a:hover {
+    text-decoration : underline;
+}
