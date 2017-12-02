@@ -41,8 +41,6 @@ class FileView(BaseView):
             content = self.get_file(root + '/index.html')
         else :
             content = self.get_file(root + '/' + rpath + '/index.html')
-        print(len(rpath))
-        print(root, '1', root + '/' + rpath + '/index.html')
         if content is not None:
             return HttpResponse(content, content_type=mimetypes.guess_type(rpath + '/index.html')[0])
         raise Http404('Could not found static file: ' + self.request.path)
