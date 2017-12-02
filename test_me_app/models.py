@@ -178,3 +178,10 @@ class Work(models.Model):
     content_url = models.CharField(max_length=256)
     score = models.IntegerField(default=-1)
     submission_times = models.IntegerField(default=1)
+
+
+class Appeal(models.Model):
+    initiator = models.ForeignKey(Player)
+    target_man = models.ForeignKey(Organizer)
+    content = models.TextField()
+    attachment_url = models.CharField(max_length=256)
