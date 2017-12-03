@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User, UserManager
 from django.db.models.signals import post_save
 from codex.baseerror import *
+from django.core.exceptions import ObjectDoesNotExist
+
 
 
 # Create your models here.
@@ -169,10 +171,17 @@ class TeamInvitation(models.Model):
     team = models.ForeignKey(Team)
     player = models.ForeignKey(Player)
 
-    status = models.IntegerField()
+    status = models.IntegerField(default=0)
     CONFIRMING = 0
     CONFIRMED = 1
     REFUSED = -1
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such team invitation')
 
 
 class PeriodScore(models.Model):

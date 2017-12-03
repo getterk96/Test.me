@@ -282,6 +282,8 @@ class PlayerQuestionSubmit(APIView):
 
         try:
             work = Work.objects.get(question=question, team=team)
+            if work.submission_times >= question.submission_limit:
+                raise LogicError('Out of submission limit')
             work.submission_times += 1
             work.content_url = self.input['workUrl']
             work.save()
@@ -418,7 +420,40 @@ class PlayerTeamCreate(APIView):
                            status=Team.VERIFYING)
         for member in members:
             team.members.add(member)
+            TeamInvitation.objects.create(team=team, player=contest)
         team.save()
+
+
+class PlayerTeamInvitationList(APIView):
+
+    @player_required
+    def get(self):
+        invitations = []
+        for invitation in self.request.user.player.teaminvitation_set:
+            memeberIds = []
+            memberNames = []
+            for member in invitation.team.members:
+                memeberIds.append(member.id)
+                memberNames.append(member.user.username)
+            invitations.append({
+                'id': invitation.id,
+                'contest': invitation.contest.name,
+                'leaderId': invitation.team.leader.id,
+                'leaderName': invitation.team.leader.user.username,
+                'memberIds': memeberIds,
+                'memberNames': memberNames,
+            })
+        return invitations
+
+    @player_required
+    def post(self):
+        self.check_input('iid', 'confirm')
+        invitation = TeamInvitation.safe_get(id=self.input['iid'])
+        if self.input['confirm'] == 1:
+            invitation.status = TeamInvitation.CONFIRMED
+        elif self.input['confirm'] == 0:
+            invitation.status = TeamInvitation.REFUSED
+        invitation.save()
 
 
 class PlayerAppealCreate(APIView):
