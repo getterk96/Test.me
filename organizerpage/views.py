@@ -111,6 +111,7 @@ class ContestDetail(APIView):
             'level': contest.level,
             'currentTime': int(time.time()),
             'tags': tags,
+            'periods': contest.period_set.values_list('id', flat=True)
         }
 
         return data
@@ -323,7 +324,7 @@ class PeriodDetail(APIView):
         period.save()
         for question_id in questions_id:
             question = ExamQuestion.safeGet(question_id)
-            period.questions.add(question)
+            period.examquestion_set.add(question)
             period.save()
 
         return period.id

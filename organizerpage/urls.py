@@ -15,10 +15,9 @@ urlpatterns = [
     url(r'^contest/team?$', ContestTeam.as_view()),
     url(r'^contest/team_batch_manage?$', ContestTeamBatchManage.as_view()),
     url(r'^period/create?$', PeriodCreate.as_view()),
-    url(r'^period/detail?$', PeriodCreate.as_view()),
-    url(r'^period/remove?$', PeriodCreate.as_view()),
-    url(r'^question/create?$', PeriodCreate.as_view()),
-    url(r'^question/detail?$', PeriodCreate.as_view()),
-    url(r'^question/remove?$', PeriodCreate.as_view()),
-
+    url(r'^period/detail?$', PeriodDetail.as_view()),
+    url(r'^period/remove?$', PeriodRemove.as_view()),
+    url(r'^question/create?$', QuestionCreate.as_view()),
+    url(r'^question/detail?$', QuestionDetail.as_view()),
+    url(r'^question/remove?$', QuestionRemove.as_view()),
 ]
