@@ -55,4 +55,27 @@ if (usertype in [0, 1]) {
             logout();
         }
     });
-}
+} else
+    header.link_list.push({
+        alias : '登录',
+        link : '../index.html',
+        action : empty_f
+    })
+
+var nav = new Vue({
+    el : '#side-nav',
+    data : {
+        list : ['比赛信息', '申诉处理', '选手管理', '成绩录入'],
+        choice : '比赛信息'
+    },
+    methods : {
+        select : function(target) {
+            for (i of this.list)
+                if (i == target) {
+                    this.choice = target;
+                    return;
+                }
+            console.log('[err] No such item');
+        }
+    }
+})

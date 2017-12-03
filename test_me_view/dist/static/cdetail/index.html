@@ -8,6 +8,7 @@
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
         <script src="../js/uni.js"></script>
         <link type="text/css" rel="stylesheet" href="../css/uni.css" />
+        <link type="text/css" rel="stylesheet" href="../css/cdetail.css" />
     </head>
     <body>
         <div id="header">
@@ -21,6 +22,14 @@
                 </ul></nav>
             </div>
         </div>
+        <nav id="side-nav">
+            <ul>
+                <li v-for="item in list">
+                    <label :class="['choice', item == choice ? 'chosen' : 'unchosen']" @click='select(item)'>{{ item }}</label>
+                </li>
+            </ul>
+        </nav>
+        <div id="body"></div>
     </body>
     <script src="../js/uni_c.js"></script>
     <script src="../js/header_c.js"></script>
