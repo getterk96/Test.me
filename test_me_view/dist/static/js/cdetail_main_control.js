@@ -245,8 +245,6 @@ var contest_c = new Vue({
                 );
             }
             for (i in window.contest['period']) {
-                //self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
-                //         , 'attachmentUrl', 'questionId')
                 var url = '/api/o/period/create';
                 var m = 'POST';
                 var p = window.contest['period'][i];
@@ -301,7 +299,34 @@ var contest_c = new Vue({
             if (!files.length)
                 return;
             this.rank_filename = files[0].name;
-            //api
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'rank_file');
+            $t(url, m, data, this.rank_upload_pass, this.rank_upload_fail);
+        },
+        rank_upload_pass : function(response) {
+            this.rank_filename = response['data'];
+            /*
+            var url = '/api/o/batch_rank';
+            var m = 'POST';
+            var data = {
+                'file' : this.rank_filename,
+                'id' : window.cid
+            }
+            $t(url, m, data,
+                function(response) {
+                    alert('Ranking information modify sucess!');
+                },
+                function(response) {
+                    alert('[' + response.code.toString() + ']' + response.msg);
+                }
+            );
+            */
+        },
+        rank_upload_fail : function(response) {
+            alert('[' + response.code.toString() + ']' + response.msg);
         },
         change_sort_key : function(key) {
             for (i in playerlist) {
