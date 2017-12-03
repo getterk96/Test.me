@@ -152,8 +152,8 @@ class Team(models.Model):
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     sign_up_attachment_url = models.CharField(max_length=256)
-    status = models.IntegerField()
 
+    status = models.IntegerField()
     VERIFYING = 0
     VERIFIED = 1
     DISMISSED = 2
@@ -182,6 +182,18 @@ class Work(models.Model):
 
 class Appeal(models.Model):
     initiator = models.ForeignKey(Player)
-    target_man = models.ForeignKey(Organizer)
+    target_organizer = models.ForeignKey(Organizer)
+    target_contest = models.ForeignKey(Contest)
     content = models.TextField()
     attachment_url = models.CharField(max_length=256)
+
+    status = models.IntegerField()
+    TOSOLVE = 0
+    SOLVED = 1
+    ACCEPTED = 2
+
+    def safeGet(id):
+        try:
+            return Appeal.objects.get(id=id)
+        except:
+            raise LogicError("No Such Appeal")

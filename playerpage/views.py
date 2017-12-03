@@ -401,3 +401,62 @@ class PlayerTeamCreate(APIView):
         for member in members:
             team.members.add(member)
         team.save()
+
+
+class PlayerAppealCreate(APIView):
+
+    @player_required
+    def post(self):
+        self.check_input('contestId', 'content', 'attachmentUrl')
+        appeal = Appeal()
+        appeal.target_contest = Contest.safeGet(self.input['contestId'])
+        appeal.target_organizer = appeal.target_contest.organizer
+        appeal.status = 0
+        appeal.content = self.input['content']
+        appeal.attachment_url = self.input['attachmentUrl']
+        appeal.save()
+
+        return appeal.id
+
+
+class PlayerAppealDetail(APIView):
+
+    @player_required
+    def get(self):
+        self.check_input('id')
+        appeal = Appeal.safeGet(self.input['id'])
+        data = {
+            'contestName': appeal.contest.name,
+            'content': appeal.content,
+            'attachmentUrl': appeal.attachment_url,
+            'status': appeal.status,
+        }
+
+        return data
+
+    @player_required
+    def post(self):
+        self.check_input('id', 'contestId', 'content', 'attachmentUrl', 'status')
+        appeal = Appeal.safeGet(self.input['id'])
+        appeal.target_contest = Contest.safeGet(self.input['contestId'])
+        appeal.target_organizer = appeal.target_contest.organizer
+        appeal.status = self.input['status']
+        appeal.content = self.input['content']
+        appeal.attachment_url = self.input['attachmentUrl']
+        appeal.save()
+
+        return appeal.id
+
+
+class PlayerAppealRemove(APIView):
+
+    @player_required
+    def post(self):
+        self.check_input('id')
+        appeal = Appeal.safeGet(self.input['id'])
+        try:
+            appeal.delete()
+        except:
+            raise LogicError("Appeal Delete Failed")
+
+        return self.input['id']
