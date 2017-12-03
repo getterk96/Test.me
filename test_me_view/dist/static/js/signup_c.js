@@ -147,7 +147,6 @@ var signup = new Vue({
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
                 return;
-            console.log(files[0]);
             this.val_filename = files[0].name;
             var url = '/api/c/upload';
             var m = 'POST';

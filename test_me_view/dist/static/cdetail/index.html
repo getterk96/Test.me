@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title></title>
+        <title>Test.Me</title>
         <script src="https://unpkg.com/vue"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
@@ -29,7 +29,66 @@
                 </li>
             </ul>
         </nav>
-        <div id="body"></div>
+        <div id="body">
+            <template v-if="!is_guest">
+                <template v-if="is_organizer">
+                    <template v-if="page == '比赛信息'">
+                        <div :class="['session']">
+                            <button :class="['s-title', show_basic_info ? '' :  'collapse']" @click="switch_basic_info"><span :class="['title']">比赛基本信息</span></button>
+                            <article :class="['s-body']" v-if="show_basic_info">
+                                <ul :class="['form']">
+                                    <li v-for='item in contest.attr'>
+                                        <div :class="['label']">{{ item.alias }}</div>
+                                        <template v-if="item.type == 'text'">
+                                            <input v-if="item.editable" v-model="item.content" :class="['input', 'long']" />
+                                            <input v-else disabled v-model="item.content" :class="['input', 'long']" />
+                                        </template>
+                                        <template v-else-if="item.type == 'ltext'">
+                                            <textarea v-if="item.editable" v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
+                                            <textarea v-else disabled v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
+                                        </template>
+                                        <template v-else-if="item.type == 'datetime'">
+                                            <div v-if="item.editable">
+                                                <input :class="['input', 'mid']" type="date" v-model="item.content.sd" />
+                                                <input  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                <input  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
+                                                <input :class="['input', 'mid']" type="date" v-model="item.content.ed" />
+                                                <input  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                <input  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                            </div>
+                                            <div v-else>
+                                            </div>
+                                        </template>
+                                        <template v-else-if="item.type == 'number'">
+                                            <input v-if="item.editable" v-model="item.content" :class="['input']" type="number" />
+                                            <input v-else disabled v-model="item.content" :class="['input']" type="number" />
+                                        </template>
+                                        <template v-else-if="item.type == 'progress'">
+                                            <progress :max="contest.getAttr(item.content.base)" :value="item.content.value" :class="['progressbar']"></progress>
+                                            <span>{{ item.content.value + "/" + contest.getAttr(item.content.base) }}</span>
+                                        </template>
+                                        <template v-else-if="item.type == 'file'">
+                                            <label :class="['fileuploader']">
+                                                <input type="file" @change="c_file_change" required/>
+                                            </label>
+                                            {{ item.content }}
+                                        </template>
+                                    </li>
+                                </ul>
+                            </article>
+                        </div>
+                            <div :class="['session']">
+                                <button :class="['s-title']" @click=""><span :class="['title']">aaaa</span></button>
+                                <article :class="['s-body']">
+                                </article>
+                            </div>
+                    </template>
+                </template>
+                <template v-else></template>
+            </template>
+            <template v-else>
+            </template>
+        </div>
     </body>
     <script src="../js/uni_c.js"></script>
     <script src="../js/header_c.js"></script>

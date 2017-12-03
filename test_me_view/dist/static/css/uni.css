@@ -156,6 +156,10 @@ button.s-title:hover {
     border-left-color : rgba(73, 110, 193, 1);
 }
 
+button.s-title.collapse {
+    border-left-color : rgba(73, 110, 193, 1);
+}
+
 button.s-title>span {
     font-size : 2.3em;
     margin-left : 0.5em;
@@ -223,7 +227,7 @@ ul.form>li>* {
 
 .input {
     height : 100%;
-    padding : 0.2em 0.5em;
+    padding : 0.12em 0.5em;
     background-color : transparent;
     border-top : none;
     border-right : 1px solid rgba(127, 172, 222, 0.1);
@@ -284,7 +288,35 @@ ul.form>li>* {
 }
 
 .fileuploader input[type='file'] {
+    cursor : pointer;
     opacity : 0;
     width : 0px;
     height : 0px;
+}
+
+/* > progress bar*/
+.progressbar[value] {
+    display : inline-block;
+    -webkit-appearance : none;
+    appearance : none;
+}
+
+.progressbar[value]::-webkit-progress-bar {
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+}
+
+.progressbar[value]::-webkit-progress-value {
+  background-image:
+	   -webkit-linear-gradient(-45deg,
+	                           transparent 33%, rgba(0, 0, 0, .1) 33%,
+	                           rgba(0,0, 0, .1) 66%, transparent 66%),
+	   -webkit-linear-gradient(top,
+	                           rgba(255, 255, 255, .25),
+	                           rgba(0, 0, 0, .25)),
+	   -webkit-linear-gradient(left, #09c, #f44);
+
+    border-radius: 2px;
+    background-size: 35px 20px, 100% 100%, 100% 100%;
 }
