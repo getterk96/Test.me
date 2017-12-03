@@ -165,6 +165,16 @@ class Team(models.Model):
             raise LogicError("No Such Team")
 
 
+class TeamInvitation(models.Model):
+    team = models.ForeignKey(Team)
+    player = models.ForeignKey(Player)
+
+    status = models.IntegerField()
+    CONFIRMING = 0
+    CONFIRMED = 1
+    REFUSED = -1
+
+
 class PeriodScore(models.Model):
     period = models.ForeignKey(Period)
     team = models.ForeignKey(Team)
