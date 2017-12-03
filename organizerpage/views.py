@@ -390,4 +390,29 @@ class QuestionRemove(APIView):
         question.delete()
         return 0
 
+
+class AppealDetail(APIView):
+
+    @organizer_required
+    def get(self):
+        self.check_input('id')
+        appeal = Appeal.safeGet(self.input['id'])
+        data = {
+            'contestName': appeal.contest.name,
+            'content': appeal.content,
+            'attachmentUrl': appeal.attachment_url,
+            'status': appeal.status,
+        }
+
+        return data
+
+    @organizer_required
+    def post(self):
+        self.check_input('id', 'status')
+        appeal = Appeal.safeGet(self.input['id'])
+        appeal.status = self.input['status']
+        appeal.save()
+
+        return appeal.id
+
 # Create your views here.
