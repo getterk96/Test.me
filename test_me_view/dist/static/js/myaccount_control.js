@@ -113,13 +113,17 @@ var myaccount_c = new Vue({
             alert('[' + response.code.toString() + ']' + response.msg);
         },
         deletecontest : function(id) {
-            //api
+            var url = '/api/o/contest/remove';
+            var m = 'POST';
+            var data = {'id' : id};
+            $t(url, m, data, this.deletecontest_succ, this.deletecontest_fail);
         },
         deletecontest_succ : function(response) {
-            //api
+            alert('Delete contest successfully!');
+            window.location.assign("./index.html");
         },
         deletecontest_fail : function(response) {
-            //apdi
+            alert('[' + response.code.toString() + ']' + response.msg);
         },
         appeal : function(c_id) {
             //api
@@ -221,7 +225,7 @@ function get_contest_info() {
                     myaccount_c.contestlist.push({
                         'name' : response.data[i].name,
                         'period' : response.data[i].creatorName,
-                        'detail' : '#',
+                        'detail' : '../cdetail/index.html?cid=' + response.data[i].id.toString(),
                         'id' : response.data[i].id,
                     });
                 }

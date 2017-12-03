@@ -76,7 +76,8 @@ window.contest = {
         filename : 'wow.pdf'
     },
     period_lock : false,
-    period : []
+    period : [],
+    period_id : [],
 };
 window.user = null;
 window.playerlist = [
@@ -118,6 +119,8 @@ var contest_c = new Vue({
     data : {
         page : 0,
         contest : window.contest,
+
+        usertype : -1,
 
         show_contest_basic_info : true,
         show_period_info : true,
@@ -165,7 +168,7 @@ var contest_c = new Vue({
         },
         add_period : function() {
             var new_period = {
-                id : 'p' + this.contest.period.length.toString(),
+                id : 'p' + (window.contest.period.length + 1).toString(),
                 name : {
                     editable : true,
                     content : 'period' + this.contest.period.length.toString()
@@ -197,16 +200,35 @@ var contest_c = new Vue({
                 attachment : {
                     editable : true,
                     filename : '',
+                    need_feed_back : 0,
                     change : function(e) {
                         var files = e.target.files || e.dataTransfer.files;
                         if (!files.length)
                             return;
-                        for (item of contest_c.contest.period) {
+                        for (item of window.contest.period) {
+                            console.log(item.id, e.target.id);
                             if (item.id == e.target.id) {
                                 item.attachment.filename = files[0].name;
-                                //api
+                                item.attachment.need_feed_back = 1;
+                                var url = '/api/c/upload';
+                                var m = 'POST';
+                                var data = new FormData();
+                                data.append('file', files[0]);
+                                data.append('destination', 'period_attachment');
+                                $t(url, m, data, item.attachment.upload_pass, item.attachment.upload_fail);
                             }
                         }
+                    },
+                    upload_pass : function(response) {
+                        for (item of window.contest.period) {
+                            if (item.attachment.need_feed_back == 1) {
+                                item.attachment.need_feed_bakc = 0;
+                                item.attachment.filename = response.data;
+                            }
+                        }
+                    },
+                    upload_fail : function(response) {
+                        alert('[' + response.code.toString() + ']' + response.msg);
                     }
                 }
             };
@@ -214,7 +236,65 @@ var contest_c = new Vue({
         },
         submitcontestinfo : function() {
             //api
-            alert('submit');
+            for (i in window.contest['period_id']) {
+                $t('/api/o/period/remove', 'POST', {'id' : window.contest['period_id'][i]},
+                    function(response) {},
+                    function(response) {
+                        alert('[' + response.code.toString() + ']' + response.msg);
+                    }
+                );
+            }
+            for (i in window.contest['period']) {
+                //self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
+                //         , 'attachmentUrl', 'questionId')
+                var url = '/api/o/period/create';
+                var m = 'POST';
+                var p = window.contest['period'][i];
+                var t = p['time'].content;
+                var data = {
+                    'id' : window.cid,
+                    'index' : i,
+                    'name' : p['name'].content,
+                    'description' : p['description'].content,
+                    'startTime' : t.sy + '-' + t.sm + '-' + t.sd + ' ' + t.sh + ':' + t.sx + ':00',
+                    'endTime' : t.ey + '-' + t.em + '-' + t.ed + ' ' + t.eh + ':' + t.ex + ':00',
+                    'availableSlots' : p['slots'].content,
+                    'attachmentUrl' : p['attachment'].filename,
+                    'questionId' : []
+                };
+                $t(url, m, data,
+                    function(response) {},
+                    function(response) {
+                        alert('[' + response.code.toString() + ']' + response.msg);
+                    }
+                );
+            }
+            var url = '/api/o/contest/detail';
+            var m = 'POST';
+            var t = window.contest['time'].content;
+            var data = {
+                'id' : window.cid,
+                'name' : window.contest['name'].content,
+                'status' : 1,
+                'description' : window.contest['description'].content,
+                'logoUrl' : '',
+                'bannerUrl' : '',
+                'signUpStart' : t.sy + '-' + t.sm + '-' + t.sd + ' ' + t.sh + ':' + t.sx + ':00',
+                'signUpEnd' : t.ey + '-' + t.em + '-' + t.ed + ' ' + t.eh + ':' + t.ex + ':00',
+                'availableSlots' : window.contest['slots'].content,
+                'maxTeamMembers' : 3,
+                'signUpAttachmentUrl' : window.contest['attachment'].filename,
+                'level' : 1,
+                'tags' : ''
+            };
+            $t(url, m, data, this.modify_succ, this.modify_fail);
+        },
+        modify_succ : function(response) {
+            alert('Modify success!');
+            window.location.assign('../myaccount/index.html');
+        },
+        modify_fail : function(response) {
+            alert('[' + response.code.toString() + ']' + response.msg);
         },
         rank_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -301,8 +381,7 @@ var contest_c = new Vue({
     },
     computed : {
         isorganizer : function() {
-            //api part
-            return true;
+            return this.usertype == 1;
         },
         in_period : function() {
             //api part
@@ -322,3 +401,141 @@ var contest_c = new Vue({
         }
     }
 });
+
+var per_get_succ = function (response) {
+    var data = response.data;
+    var start_time = new Date(data['startTime'] * 1000);
+    var end_time = new Date(data['endTime'] * 1000);
+    var period = {
+        id : 'p' + data['index'].toString(),
+        index : data['index'],
+        name : {
+            editable : true,
+            content : data['name']
+        },
+        description : {
+            editable : true,
+            content : data['description'],
+        },
+        time : {
+            editable : true,
+            content : {
+                sy : start_time.getFullYear(),
+                sm : start_time.getMonth() + 1,
+                sd : start_time.getDate(),
+                sh : start_time.getHours(),
+                sx : start_time.getMinutes(),
+                ey : end_time.getFullYear(),
+                em : end_time.getMonth() + 1,
+                ed : end_time.getDate(),
+                eh : end_time.getHours(),
+                ex : end_time.getMinutes()
+            }
+        },
+        slots : {
+            editable : true,
+            content : data['availableSlots'].toString()
+        },
+        attachment : {
+            editable : true,
+            filename : data['attachmentUrl'],
+            need_feed_back : 0,
+            change : function(e) {
+                var files = e.target.files || e.dataTransfer.files;
+                if (!files.length)
+                    return;
+                for (item of window.contest.period) {
+                     if (item.id == e.target.id) {
+                         item.attachment.filename = files[0].name;
+                         item.attachment.need_feed_back = 1;
+                         var url = '/api/c/upload';
+                         var m = 'POST';
+                         var data = new FormData();
+                         data.append('file', files[0]);
+                         data.append('destination', 'period_attachment');
+                         $t(url, m, data, item.attachment.upload_pass, item.attachment.upload_fail);
+                     }
+                }
+            },
+            upload_pass : function(response) {
+                for (item of window.contest.period) {
+                    if (item.attachment.need_feed_back == 1) {
+                        item.attachment.need_feed_bakc = 0;
+                        item.attachment.filename = response.data;
+                    }
+                }
+            },
+            upload_fail : function(response) {
+                alert('[' + response.code.toString() + ']' + response.msg);
+            }
+        },
+        question_id : data['questionId']
+    }
+    window.contest['period'].push(period);
+}
+
+var per_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+function bigger(a, b) {
+    return a.index > b.index;
+}
+
+var org_get_succ = function(response) {
+    var data = response.data;
+    window.contest['name'].content = data['name'];
+    window.contest['description'].content = data['name'];
+    var start_time = new Date(data['signUpStart'] * 1000);
+    var end_time = new Date(data['signUpEnd'] * 1000);
+    window.contest['time'].content['sy'] = start_time.getFullYear();
+    window.contest['time'].content['sm'] = start_time.getMonth() + 1;
+    window.contest['time'].content['sd'] = start_time.getDate();
+    window.contest['time'].content['sh'] = start_time.getHours();
+    window.contest['time'].content['sx'] = start_time.getMinutes();
+    window.contest['time'].content['ey'] = end_time.getFullYear();
+    window.contest['time'].content['em'] = end_time.getMonth() + 1;
+    window.contest['time'].content['ed'] = end_time.getDate();
+    window.contest['time'].content['eh'] = end_time.getHours();
+    window.contest['time'].content['ex'] = end_time.getMinutes();
+    window.contest['slots'].content = data['availableSlots'].toString();
+    window.contest['attachment'].filename = data['signUpAttachmentUrl'];
+    window.contest['period_id'] = data['periods'];
+    for (i in window.contest['period_id']) {
+        var url = '/api/o/period/detail';
+        var m = 'GET';
+        var data = {'id' : window.contest['period_id'][i]};
+        $t(url, m, data, per_get_succ, per_get_fail);
+    }
+    window.contest['period'].sort(bigger);
+    //logoUrl bannerUrl level currentTime tags maxTeamMembers
+};
+
+var org_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
+var org_get_contest_detail = function() {
+    var url = '/api/o/contest/detail';
+    var m = 'GET';
+    var data = {'id' : window.cid};
+    $t(url, m, data, org_get_succ, org_get_fail);
+};
+
+(function () {
+    //PLAYER = 0, ORGANIZER = 1
+    contest_c.usertype = -1;
+    $t('/api/c/user_type', 'GET', {},
+        function (response) {
+            contest_c.usertype = response['data'];
+            if (contest_c.usertype == 1) {
+                org_get_contest_detail();
+            }
+        },
+        function (response) {
+            alert('[' + response.code.toString() + ']' + response.msg);
+        }
+    );
+})();
+
+
