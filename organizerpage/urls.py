@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 from django.conf.urls import url
-
 from organizerpage.views import *
 
 urlpatterns = [
