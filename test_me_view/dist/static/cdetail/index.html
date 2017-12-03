@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title></title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <script src="../js/uni.js"></script>
+        <link type="text/css" rel="stylesheet" href="../css/uni.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="header-content">
+                <div id="header-greeting">{{ greeting }}</div>
+                <div id="header-title">{{ title }}</div>
+                <nav><ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link' @click='link.action'>{{ link.alias }}</a>
+                    </li>
+                </ul></nav>
+            </div>
+        </div>
+    </body>
+    <script src="../js/uni_c.js"></script>
+    <script src="../js/header_c.js"></script>
+    <script src="../js/cdetail_c.js"></script>
+</html>
+<!-- template -->
