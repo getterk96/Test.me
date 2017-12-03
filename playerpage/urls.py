@@ -8,6 +8,7 @@ urlpatterns = [
     url(r'^personal_info$', PlayerPersonalInfo.as_view()),
     url(r'^participating_contests$', PlayerParticipatingContests.as_view()),
     url(r'^contest/detail$', PlayerContestDetail.as_view()),
+    url(r'^contest/search/simple$', PlayerContestSearchSimple.as_view()),
     url(r'^period/detail$', PlayerPeriodDetail.as_view()),
     url(r'^question/detail$', PlayerQuestionDetail.as_view()),
     url(r'^question/submit$', PlayerQuestionSubmit.as_view()),
