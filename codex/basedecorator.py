@@ -25,20 +25,20 @@ def login_required(func):
 
 def player_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated and u.user_type == User_profile.PLAYER
+        lambda u: u.is_authenticated #& u.user_profile.user_type == 0
     )
     return actual_decorator(func, ValidateError, "Player required")
 
 
 def organizer_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated and u.user_type == User_profile.ORGANIZER
+        lambda u: u.is_authenticated #& u.user_profile.user_type == 1
     )
     return actual_decorator(func, ValidateError, "Organizer required")
 
 
 def admin_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated and u.user_type == User_profile.ADMINISTRATOR
+        lambda u: u.is_authenticated #& u.user_profile.user_type == 2
     )
     return actual_decorator(func, ValidateError, "Admin required")

@@ -1,0 +1,99 @@
+<!-- Created by Ica Riluci-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>加入Test.Me!</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <link type="text/css" rel="stylesheet" href="../css/common.css" />
+        <script src="../js/common.js"></script>
+        <link type="text/css" rel="stylesheet" href="../css/signup.css" />
+    </head>
+    <body>
+        <div id="header" :class="[color]" v-show="showheader">
+            <div id="nav-header" :class="[display_nav ? 'nav-displayed' : 'nav-hidden']" v-show="shownav">{{ nav_header }}</div>
+            <nav id='nav-body' :class="[display_nav ? 'nav-displayed' : 'nav-hidden', color_nav]" v-show="shownav">
+                <ul>
+                    <li v-for='item in nav_list'>
+                        <a :href='item.link'>{{ item.name }}</a>
+                    </li>
+                </ul>
+            </nav>
+            <button id="side-nav-c" v-show="shownav" :class="[display_nav ? 'nav-displayed-c' : 'nav-hidden-c']" @click="change_nav_status">&nbsp;&nbsp;{{ nav_c }}</button>
+            <nav id='personal-nav' v-show='showpersonal'>
+                <ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link'>{{ link.alias }}</a>
+                    </li>
+                    <li id="title-label"><a>Test.Me</a></li>
+                </ul>
+            </nav>
+            <div id='search-box' v-show='showsearchbox' :class="[showsearchinput ? 'search-box-long' : 'search-box-short']">
+                <button :class="[showsearchinput ? 'cancel-search' : 'search']" @click='change_search_status'></button>
+                <input v-show='showsearchinput'/>
+            </div>
+        </div>
+        <div class='contentbox' id='signup'>
+            <div class='content' :class="['content-body']" v-if='!read'>
+                <button :class="['session']" disabled><span>注册须知</span></button>
+                <article>
+                    <p v-for="item in read_before_signup">{{ item }}</p>
+                </article>
+                <button @click="readthis" :class="['confirm-button']">我知道了</button>
+            </div>
+            <div class='content' :class="['content-body']" v-if='read'>
+                <button :class="['session']" disabled><span>注册信息</span></button>
+                <div id="signupbox">
+                    <ul>
+                        <li v-for='item in tofill'>
+                            <template v-if="item.required == ''">
+                                <div :class="['label']">{{ item.label }}</div>
+                                <template v-if="item.type === 'input'">
+                                    <input v-if="item.name === 'password'" v-model='item.content' :class="['input']" type='password' required/>
+                                    <input v-else v-model='item.content' :class="['input']" required/>
+                                </template>
+                                <template v-else-if="(item.type === 'radio') && (item.name === 'usertype')">
+                                    <template v-for='choice in item.choices' :class="['choiceinputs']">
+                                        <label :class="['choice', item.choice === choice ? 'chosen' : 'unchosen']" @click='selectusertype(choice)'>{{ choice }}</label>
+                                    </template>
+                                    <ul>
+                                        <li>
+                                            <template v-if="user_type === '比赛主办方'">
+                                                <div :class="['label']" title="您应该提供一个可以证明您具有举办比赛资格的文件由后台进行审核">验证文档</div>
+                                                <label :class="['fileuploader']">
+                                                    <input type="file" @change="val_file_change" required/>
+                                                </label>
+                                                {{ val_filename }}
+                                            </template>
+                                        </li>
+                                    </ul>
+                                </template>
+                            </template>
+                            <template v-else-if="item.required === user_type">
+                                <div :class="['label']">{{ item.label }}</div>
+                                <template v-if="item.type === 'input'">
+                                    <input v-model='item.content' :class="['input']" required/>
+                                </template>
+                                <template v-else-if="(item.type === 'radio') && (item.name === 'gender')">
+                                    <template v-for='choice in item.choices' :class="['choiceinputs']">
+                                        <label :class="['choice', item.choice === choice ? 'chosen' : 'unchosen']" @click='selectgender(choice)'>{{ choice }}</label>
+                                    </template>
+                                </template>
+                                <template v-else-if="item.type === 'time'">
+                                    <input :class="['input', 'short']" v-model='item.content.y' required />年
+                                    <input :class="['input', 'short']" v-model='item.content.m' required />月
+                                    <input :class="['input', 'short']" v-model='item.content.d' required />日
+                                </template>
+                            </template>
+                        </li>
+                    </ul>
+                    <button :class="['confirm-button']" @click='signup'>现在加入</button>
+                </div>
+            </div>
+        </div>
+        <div id="dev-info">{{ info }}</div>
+    </body>
+    <script src="../js/common_control.js"></script>
+    <script src="../js/signup_control.js"></script>
+</html>

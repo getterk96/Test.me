@@ -64,7 +64,7 @@ ROOT_URLCONF = 'test_me.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['test_me_view/dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,7 +84,7 @@ WSGI_APPLICATION = 'test_me.wsgi.application'
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+   'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': CONFIGS['DB_NAME'],
         'USER': CONFIGS['DB_USER'],
@@ -143,8 +143,7 @@ def get_url(path, params=None):
 
 STATIC_URL = '/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'test_me_view/dist/static')
 
 # Media files
 

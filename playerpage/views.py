@@ -77,7 +77,7 @@ class PlayerPersonalInfo(APIView):
             'contactPhone': player.contact_phone,
             'description': player.description,
             'gender': 'male' if player.gender else 'female',
-            'birthday': player.birthday,
+            'birthday': player.birthday.strftime("%Y-%m-%d"),
             'playerType': player.player_type
         }
 
@@ -98,7 +98,7 @@ class PlayerPersonalInfo(APIView):
         player.contact_phone = self.input['contactPhone']
         player.description = self.input['description']
         player.gender = (self.input['gender'] == 'male')
-        player.birthday = self.input['gender']
+        player.birthday = self.input['birthday']
         player.player_type = self.input['playerType']
         player.save()
 
@@ -401,3 +401,62 @@ class PlayerTeamCreate(APIView):
         for member in members:
             team.members.add(member)
         team.save()
+
+
+class PlayerAppealCreate(APIView):
+
+    @player_required
+    def post(self):
+        self.check_input('contestId', 'content', 'attachmentUrl')
+        appeal = Appeal()
+        appeal.target_contest = Contest.safeGet(self.input['contestId'])
+        appeal.target_organizer = appeal.target_contest.organizer
+        appeal.status = 0
+        appeal.content = self.input['content']
+        appeal.attachment_url = self.input['attachmentUrl']
+        appeal.save()
+
+        return appeal.id
+
+
+class PlayerAppealDetail(APIView):
+
+    @player_required
+    def get(self):
+        self.check_input('id')
+        appeal = Appeal.safeGet(self.input['id'])
+        data = {
+            'contestName': appeal.contest.name,
+            'content': appeal.content,
+            'attachmentUrl': appeal.attachment_url,
+            'status': appeal.status,
+        }
+
+        return data
+
+    @player_required
+    def post(self):
+        self.check_input('id', 'contestId', 'content', 'attachmentUrl', 'status')
+        appeal = Appeal.safeGet(self.input['id'])
+        appeal.target_contest = Contest.safeGet(self.input['contestId'])
+        appeal.target_organizer = appeal.target_contest.organizer
+        appeal.status = self.input['status']
+        appeal.content = self.input['content']
+        appeal.attachment_url = self.input['attachmentUrl']
+        appeal.save()
+
+        return appeal.id
+
+
+class PlayerAppealRemove(APIView):
+
+    @player_required
+    def post(self):
+        self.check_input('id')
+        appeal = Appeal.safeGet(self.input['id'])
+        try:
+            appeal.delete()
+        except:
+            raise LogicError("Appeal Delete Failed")
+
+        return self.input['id']

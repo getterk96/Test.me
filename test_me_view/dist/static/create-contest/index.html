@@ -1,0 +1,136 @@
+<!-- Created by Ica Riluci-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>Create Contest</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <link type="text/css" rel="stylesheet" href="../css/common.css" />
+        <script src="../js/common.js"></script>
+    </head>
+    <body>
+        <div id="header" :class="[color]" v-show="showheader">
+            <div id="nav-header" :class="[display_nav ? 'nav-displayed' : 'nav-hidden']" v-show="shownav">{{ nav_header }}</div>
+            <nav id='nav-body' :class="[display_nav ? 'nav-displayed' : 'nav-hidden', color_nav]" v-show="shownav">
+                <ul>
+                    <li v-for='item in nav_list'>
+                        <a :href='item.link' @click='item.op'>{{ item.name }}</a>
+                    </li>
+                </ul>
+            </nav>
+            <button id="side-nav-c" v-show="shownav" :class="[display_nav ? 'nav-displayed-c' : 'nav-hidden-c']" @click="change_nav_status">&nbsp;&nbsp;{{ nav_c }}</button>
+            <nav id='personal-nav' v-show='showpersonal'>
+                <ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link' @click='link.action'>{{ link.alias }}</a>
+                    </li>
+                    <li id="title-label"><a>Test.Me</a></li>
+                </ul>
+            </nav>
+            <div id='search-box' v-show='showsearchbox' :class="[showsearchinput ? 'search-box-long' : 'search-box-short']">
+                <button :class="[showsearchinput ? 'cancel-search' : 'search']" @click='change_search_status'></button>
+                <input v-show='showsearchinput'/>
+            </div>
+        </div>
+        <div class='contentbox' id='contest-creator'>
+            <div class='content' :class="['content-body']">
+                <template v-if="isorganizer">
+                    <template>
+                        <button :class="['session']" @click="change_basic_info"><span class="title">基本信息</span><span v-if="show_contest_basic_info" >[-]</span><span v-else>[+]</span></button>
+                        <ul class="form" v-show="show_contest_basic_info">
+                            <li>
+                                <div :class="['label']">比赛名称</div>
+                                <input :class="['input']" v-model="contest.name" />
+                            </li>
+                            <li>
+                                <div :class="['label']">比赛简介</div>
+                                <textarea :class="['input']"  v-model="contest.description" rows='3'>{{ contest.description }}</textarea>
+                            </li>
+                            <li>
+                                <div :class="['label']">报名时间</div>
+                                <template>
+                                    <div>
+                                        <input :class="['input', 'short']" v-model="contest.time.sy" />年
+                                        <input :class="['input', 'short']" v-model="contest.time.sm" />月
+                                        <input :class="['input', 'short']" v-model="contest.time.sd" />日
+                                        <input :class="['input', 'short']" v-model="contest.time.sh" />时
+                                        <input :class="['input', 'short']" v-model="contest.time.sx" />分
+                                        -
+                                        <input :class="['input', 'short']" v-model="contest.time.ey" />年
+                                        <input :class="['input', 'short']" v-model="contest.time.em" />月
+                                        <input :class="['input', 'short']" v-model="contest.time.ed" />日
+                                        <input :class="['input', 'short']" v-model="contest.time.eh" />时
+                                        <input :class="['input', 'short']" v-model="contest.time.ex" />分
+                                    </div>
+                                </template>
+                            </li>
+                            <li>
+                                <div :class="['label']">可报名人数</div>
+                                <input :class="['input']" v-model="contest.slots" />
+                            </li>
+                            <li>
+                                <div :class="['label']">比赛附件</div>
+                                <label :class="['fileuploader']" style="width : 1em; height : 1em">
+                                    <input type="file" @change="contest_attachment_change" />
+                                </label>
+                                {{ contest.attachment.filename }}
+                            </li>
+                        </ul>
+                        <button :class="['session']" @click="change_period_info"><span class="title">阶段信息</span><span v-if="show_period_info" >[-]</span><span v-else>[+]</span></button>
+                        <div>
+                            <button @click="add_period" :class="['button', 'font-color-blue', 'float-right']">+添加阶段</button>
+                        </div>
+                        <ul v-show="show_period_info">
+                            <li v-for="item in contest.period">
+                                <ul class="form">
+                                    <li>
+                                        <div :class="['label']">阶段名称</div>
+                                        <input :class="['input']" v-model="item.name" />
+                                    </li>
+                                    <li>
+                                        <div :class="['label']">阶段简介</div>
+                                        <textarea :class="['input']" v-model="item.description" rows='3'>{{ item.description }}</textarea>
+                                    </li>
+                                    <li>
+                                        <div :class="['label']">比赛时间</div>
+                                        <template >
+                                            <div>
+                                                <input :class="['input', 'short']" v-model="item.time.sy" />年
+                                                <input :class="['input', 'short']" v-model="item.time.sm" />月
+                                                <input :class="['input', 'short']" v-model="item.time.sd" />日
+                                                <input :class="['input', 'short']" v-model="item.time.sh" />时
+                                                <input :class="['input', 'short']" v-model="item.time.sx" />分
+                                                -
+                                                <input :class="['input', 'short']" v-model="item.time.ey" />年
+                                                <input :class="['input', 'short']" v-model="item.time.em" />月
+                                                <input :class="['input', 'short']" v-model="item.time.ed" />日
+                                                <input :class="['input', 'short']" v-model="item.time.eh" />时
+                                                <input :class="['input', 'short']" v-model="item.time.ex" />分
+                                            </div>
+                                        </template>
+                                    </li>
+                                    <li>
+                                        <div :class="['label']">可参加人数</div>
+                                        <input :class="['input']" v-model="item.slots" />
+                                    </li>
+                                    <li>
+                                        <div :class="['label']">阶段附件</div>
+                                        <label :class="['fileuploader']" style="width: 1em;height : 1em;">
+                                            <input :id="item.id" type="file" @change="item.attachment.change"  />
+                                        </label>
+                                        {{ item.attachment.filename }}
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <button :class="['confirm-button']" @click='create_contest'>创建比赛</button>
+                    </template>
+                </template>
+            </div>
+        </div>
+        <div id="dev-info">{{ info }}</div>
+    </body>
+    <script src="../js/common_control.js"></script>
+    <script src="../js/create-contest_control.js"></script>
+</html>

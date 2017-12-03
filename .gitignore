@@ -20,3 +20,19 @@ configs.json
 
 #media files
 media/
+
+#front end deployment files
+test_me_view/build
+test_me_view/config
+test_me_view/src
+test_me_view/test
+test_me_view/static
+test_me_view/index.html
+test_me_view/package.json
+test_me_view/package-lock.json
+test_me_view/README.md
+test_me_view/.babelrc
+test_me_view/.editorconfig
+test_me_view/.eslintignore
+test_me_view/.eslintrc.js
+test_me_view/.postcssrc.js

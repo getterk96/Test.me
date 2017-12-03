@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User, UserManager
 from django.db.models.signals import post_save
+from codex.baseerror import *
 
 
 # Create your models here.
@@ -91,6 +92,25 @@ class Contest(models.Model):
     SAVED = 0
     PUBLISHED = 1
 
+    def safeGet(id):
+        try:
+            return Contest.objects.get(id=id)
+        except:
+            raise LogicError("No Such Contest")
+
+    def addTags(self, tags):
+        for content in tags:
+            if not content:
+                continue
+            tag, created = Tag.objects.get_or_create(content=content)
+            if not created:
+                self.save()
+                raise LogicError("Tag Create Error")
+            tag.save()
+            self.tags.add(tag)
+
+        self.save()
+
 
 class Period(models.Model):
     contest = models.ForeignKey(Contest)
@@ -102,6 +122,12 @@ class Period(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
 
+    def safeGet(id):
+        try:
+            return Period.objects.get(id=id)
+        except:
+            raise LogicError("No Such Period")
+
 
 class ExamQuestion(models.Model):
     period = models.ForeignKey(Period)
@@ -109,6 +135,12 @@ class ExamQuestion(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
+
+    def safeGet(id):
+        try:
+            return ExamQuestion.objects.get(id=id)
+        except:
+            raise LogicError("No Such Exam Question")
 
 
 class Team(models.Model):
@@ -120,11 +152,17 @@ class Team(models.Model):
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     sign_up_attachment_url = models.CharField(max_length=256)
-    status = models.IntegerField()
 
+    status = models.IntegerField()
     VERIFYING = 0
     VERIFIED = 1
     DISMISSED = 2
+
+    def safeGet(id):
+        try:
+            return Team.objects.get(id=id)
+        except:
+            raise LogicError("No Such Team")
 
 
 class PeriodScore(models.Model):
@@ -140,3 +178,22 @@ class Work(models.Model):
     content_url = models.CharField(max_length=256)
     score = models.IntegerField(default=-1)
     submission_times = models.IntegerField(default=1)
+
+
+class Appeal(models.Model):
+    initiator = models.ForeignKey(Player)
+    target_organizer = models.ForeignKey(Organizer)
+    target_contest = models.ForeignKey(Contest)
+    content = models.TextField()
+    attachment_url = models.CharField(max_length=256)
+
+    status = models.IntegerField()
+    TOSOLVE = 0
+    SOLVED = 1
+    ACCEPTED = 2
+
+    def safeGet(id):
+        try:
+            return Appeal.objects.get(id=id)
+        except:
+            raise LogicError("No Such Appeal")
