@@ -9,22 +9,6 @@ import time, datetime
 # Create your views here.
 
 
-def check_gender(gender):
-    if gender not in ['male', 'female']:
-        raise InputError('Wrong gender')
-
-
-def check_player_type(player_type):
-    if player_type < 0 or player_type > 4:
-        raise InputError('Wrong player type')
-
-
-def check_contact_phone(contact_phone):
-    for c in contact_phone:
-        if c < '0' or c > '9':
-            raise InputError('Wrong contact phone')
-
-
 def player_signup_contest(player, contest):
     for team in (player.lead_teams + player.join_teams):
         if team.contest == contest:
@@ -37,8 +21,8 @@ class PlayerRegister(APIView):
     def post(self):
         # check
         self.check_input('username', 'password', 'email', 'group', 'gender', 'playerType', 'birthday')
-        check_gender(self.input['gender'])
-        check_player_type(self.input['playerType'])
+        Player.check_gender(self.input['gender'])
+        Player.check_player_type(self.input['playerType'])
         # create
         try:
             user = User.objects.create_user(username=self.input['username'],
@@ -86,9 +70,9 @@ class PlayerPersonalInfo(APIView):
         # check
         self.check_input('email', 'group', 'nickname', 'avatarUrl', 'contactPhone',
                          'description', 'gender', 'birthday', 'playerType')
-        check_contact_phone(self.input['contactPhone'])
-        check_gender(self.input['gender'])
-        check_player_type(self.input['playerType'])
+        Player.check_contact_phone(self.input['contactPhone'])
+        Player.check_gender(self.input['gender'])
+        Player.check_player_type(self.input['playerType'])
         # change
         player = self.request.player
         self.request.user.email = self.input['email']
