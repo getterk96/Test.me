@@ -48,14 +48,6 @@ var signup = new Vue({
                 warning : '请确保邮箱格式正确'
             },
             {
-                label : '昵称',
-                required : '',
-                name : 'nickname',
-                type : 'input',
-                content : '',
-                warning : '昵称是你显示给其他用户的名字'
-            },
-            {
                 label : '用户类型',
                 required : '',
                 name : 'usertype',
@@ -69,7 +61,7 @@ var signup = new Vue({
                 required : '学生',
                 type : 'radio',
                 choice : '[none]',
-                choices : ['高中生', '本科生', '研究生', '专科生']
+                choices : ['本科生', '研究生', '专科生', '高中生', '校外人员']
             },
             {
                 label : '学校',
@@ -169,12 +161,23 @@ var signup = new Vue({
             alert('[' + response.code.toString() + ']' + response.msg);
         },
         signup : function() {
-            //fill api info below
-            //api part please get file from the function 'val_file_change'
-            //and check the functions 'signup_pass' and 'signup_fail'
             var url = '';
             var m = 'POST';
-            var data = {'playerType' : 1};
+            var data = {};
+            for (i in this.userinfo) {
+                if (this.userinfo[i].name == 'password') {
+                    for (j  in this.userinfo) {
+                        if (this.userinfo[j].name == 'cpassword') {
+                            if (this.userinfo[i].content != this.userinfo[j].content) {
+                                alert('两次输入密码不一致！');
+                                return;
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
             for (i in this.userinfo) {
                 if (this.userinfo[i].name == 'usertype') {
                     if (this.userinfo[i].choices.indexOf(this.usertype) == 0) {
@@ -188,12 +191,15 @@ var signup = new Vue({
                         return;
                     }
                 }
-                else if (this.userinfo[i].name == 'school' && this.usertype == '学生') {
-                    data['group'] = this.userinfo[i].content;
-                    console.log(this.userinfo[i].content);
+                else if (this.userinfo[i].name == 'school') {
+                    if (this.usertype == '学生') {
+                        data['group'] = this.userinfo[i].content;
+                    }
                 }
-                else if (this.userinfo[i].name == 'organization' && this.usertype == '比赛主办方') {
-                    data['group'] = this.userinfo[i].content;
+                else if (this.userinfo[i].name == 'organization') {
+                    if (this.usertype == '比赛主办方') {
+                        data['group'] = this.userinfo[i].content;
+                    }
                 }
                 else if (this.userinfo[i].name == 'gender' && this.usertype == '学生') {
                     if (this.userinfo[i].choice == '男') {
@@ -209,6 +215,11 @@ var signup = new Vue({
                 }
                 else if (this.userinfo[i].name == 'birthday' && this.usertype == '学生') {
                     data['birthday'] = this.userinfo[i].content;
+                }
+                else if (this.userinfo[i].name == 'studenttype' && this.usertype == '学生') {
+                    data['playerType'] = this.userinfo[i].choices.indexOf(this.userinfo[i].choice);
+                }
+                else if (this.userinfo[i].name == 'cpassword') {
                 }
                 else {
                     data[this.userinfo[i].name] = this.userinfo[i].content;

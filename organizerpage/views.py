@@ -72,10 +72,8 @@ class PersonalInfo(APIView):
 class OrganizingContests(APIView):
     @organizer_required
     def get(self):
-        contests = Contest.objects.filter(organizer_id=self.request.user.id)
+        contests = Contest.objects.filter(organizer_id=self.request.user.organizer.id)
         ret = []
-        if contests.empty:
-            return ret
         for contest in contests:
             data = {
                 'id': contest.id,
