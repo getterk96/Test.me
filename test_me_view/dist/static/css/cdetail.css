@@ -47,3 +47,11 @@ label.fileuploader {
     height : 1.5em;
     width : 1.5em;
 }
+
+button.response-button {
+    margin-left : 1em;
+}
+
+div.s-u-resp {
+    padding-bottom : 2em;
+}

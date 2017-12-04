@@ -17,6 +17,7 @@ const type_o = 1;
     );
 })();
 
+//api
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -25,6 +26,7 @@ window.contest = {
         console.log('[err] No such attr');
         return null;
     },
+    period_counter : 1,
     period : [
         {
             lid : '0',
@@ -72,6 +74,8 @@ window.contest = {
                     content : ''
                 }
             ],
+            question_modifier_available : true,
+            question_counter : 1,
             question : [
                 {
                     lid : '0',
@@ -169,7 +173,8 @@ window.contest = {
             content : ''
         }
     ],
-    is_guest : false
+    is_guest : false,
+    period_modifier_available : true
 };
 
 header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
@@ -256,6 +261,7 @@ var info = new Vue({
             for (i of this.contest.attr)
                 if (i.name == 'c_file')
                     i.content = files[0].name;
+                    //api
         },
         switch_period_info : function() {
             this.show_period_info = !this.show_period_info;
@@ -269,6 +275,7 @@ var info = new Vue({
                     for (j of i.attr)
                         if (j.name == 'p_file')
                             j.content = files[0].name;
+                            //api
         },
         q_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -280,6 +287,116 @@ var info = new Vue({
                         for (k of j.attr)
                             if (k.name == 'q_file')
                                 k.content = files[0].name;
+                                //api
+        },
+        insert_new_period : function() {
+            var new_period = {
+                lid : this.contest.period_counter.toString(),
+                attr : [
+                    {
+                        name : 'name',
+                        alias : '阶段名称',
+                        type : 'text',
+                        content : '阶段 ' + this.contest.period_counter.toString(),
+                        editable : true
+                    },
+                    {
+                        name : 'description',
+                        alias : '阶段简介',
+                        type : 'ltext',
+                        content : '简介',
+                        editable : true
+                    },
+                    {
+                        name : 'time',
+                        alias : '阶段时间',
+                        type : 'datetime',
+                        content : {
+                            sd : '',
+                            ed : '',
+                            sh : '',
+                            sm : '',
+                            eh : '',
+                            em : ''
+                        },
+                        editable : true
+                    },
+                    {
+                        name : 'slots',
+                        alias : '可参与团队数',
+                        type : 'number',
+                        content : '',
+                        editable : true
+                    },
+                    {
+                        name : 'p_file',
+                        alias : '阶段附件',
+                        editable : true,
+                        type : 'file',
+                        content : ''
+                    }
+                ],
+                question_modifier_available : true,
+                question_counter : 0,
+                question : []
+            };
+            this.contest.period.push(new_period);
+            ++this.contest.period_counter;
+        },
+        get_p_name : function(idx) {
+            for (i of this.contest.period[idx].attr)
+                if (i.name == 'name')
+                    return(i.content);
+        },
+        remove_period : function(idx) {
+            if ((idx >= this.contest.period.length) || (idx < 0)) {
+                console.log('[err] No such element');
+                return;
+            }
+            this.contest.period.splice(idx, 1);
+        },
+        insert_new_question : function(pidx) {
+            var new_question = {
+                lid : this.contest.period[pidx].question_counter.toString(),
+                attr : [
+                    {
+                        name : 'description',
+                        alias : '题目描述',
+                        type : 'ltext',
+                        editable : true,
+                        content : ''
+                    },
+                    {
+                        name : 'slots',
+                        alias : '提交次数上限',
+                        type : 'number',
+                        editable : true,
+                        content : ''
+                    },
+                    {
+                        name : 'q_file',
+                        alias : '题目附件',
+                        type : 'file',
+                        editable : true,
+                        content : ''
+                    }
+                ]
+            };
+            ++this.contest.period[pidx].question_counter;
+            this.contest.period[pidx].question.push(new_question);
+        },
+        remove_question : function(pidx, qidx) {
+            if ((pidx >= this.contest.period.length || pidx < 0) || (qidx >= this.contest.period[pidx].question.length || qidx < 0)) {
+                console.log('[err] No such item');
+                return;
+            }
+            this.contest.period[pidx].question.splice(qidx, 1);
+        },
+        publish : function() {
+            //api
+        },
+        save : function() {
+            //api
         }
     }
-})
+});

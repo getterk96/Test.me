@@ -27,6 +27,10 @@
     font-weight : bold;
 }
 
+.indent-3 {
+    margin-left : 3em;
+}
+
 /* > dotted background decorator*/
 .dotted-bg {
     z-index : 0;
@@ -324,4 +328,37 @@ ul.form>li>* {
 
     border-radius: 2px;
     background-size: 35px 20px, 100% 100%, 100% 100%;
+}
+
+/* > operator button */
+button.operator {
+    width : auto;
+    display : inline-block;
+    background : transparent;
+    border-left : solid 0.2em rgba(73, 110, 193, 0.7);
+    transition : border-left 0.3s;
+}
+
+button.operator>span {
+    margin-left : 0.3em;
+}
+
+button.operator:hover {
+    border-left-color : rgba(73, 110, 193, 1);
+}
+
+button.operator[disabled],
+button.operator[disabled]:hover {
+    cursor : default;
+    border-left-color : rgba(73, 110, 193, 0.7);
+}
+
+button.operator.negative,
+button.operator.negative[disabled],
+button.operator.negative[disabled]:hover {
+    border-left-color : rgba(225, 20, 20, 0.5);
+}
+
+button.operator.negative:hover {
+    border-left-color :rgba(255, 20, 20, 1);
 }

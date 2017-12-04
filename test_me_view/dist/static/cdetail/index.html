@@ -151,9 +151,24 @@
                                                     {{ item.content }}
                                                 </template>
                                             </li>
+                                            <li>
+                                                <button v-if="p.question_modifier_available" :class="['operator', 'negative', 'indent-3']" @click="remove_question(contest.period.indexOf(p), p.question.indexOf(q))"><span>{{ '删除题目' + (parseInt(q.lid) + 1).toString() }}</span></button>
+                                            </li>
                                         </template>
+                                        <li>
+                                            <button v-if="p.question_modifier_available" :class="['operator', 'indent-3']" @click="insert_new_question(contest.period.indexOf(p))"><span>添加题目</span></button>
+                                        </li>
+                                        <li>
+                                            <button v-if='contest.period_modifier_available' :class="['operator', 'negative', 'indent-3']" @click='remove_period(contest.period.indexOf(p))'><span>{{ '删除阶段 ' + get_p_name(contest.period.indexOf(p)) }}</span></button>
+                                        </li>
                                     </ul>
+                                    <button :class="['operator', 'indent-3']" v-if="contest.period_modifier_available" @click="insert_new_period"><span>添加阶段</span></button>
+                                    <button :class="['operator', 'indent-3']" v-else disabled><span>添加阶段</span></button>
                                 </article>
+                            </div>
+                            <div :class="['s-u-resp']">
+                                <button @click="save" :class="['response-button']">暂存修改</button>
+                                <button @click="publish" :class="['response-button']">保存并发布</button>
                             </div>
                     </template>
                 </template>
