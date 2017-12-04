@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^team/detail$', PlayerTeamDetail.as_view()),
     url(r'^team/create$', PlayerTeamCreate.as_view()),
     url(r'^team/invitation$', PlayerTeamInvitation.as_view()),
+    url(r'^team/signup$', PlayerTeamSignUp.as_view()),
     url(r'^appeal/create$', PlayerAppealCreate.as_view()),
     url(r'^appeal/detail$', PlayerAppealDetail.as_view()),
     url(r'^appeal/remove$', PlayerAppealRemove.as_view()),

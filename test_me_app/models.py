@@ -156,9 +156,10 @@ class Team(models.Model):
     sign_up_attachment_url = models.CharField(max_length=256)
 
     status = models.IntegerField()
-    VERIFYING = 0
-    VERIFIED = 1
-    DISMISSED = 2
+    CREATING = 0
+    VERIFYING = 1
+    VERIFIED = 2
+    DISMISSED = -1
 
     def safeGet(id):
         try:

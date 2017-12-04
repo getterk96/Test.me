@@ -431,7 +431,7 @@ class PlayerTeamCreate(APIView):
                            avatar_url=self.input['avatarUrl'],
                            description=self.input['description'],
                            sign_up_attachment_url=self.input['signUpAttachmentUrl'],
-                           status=Team.VERIFYING)
+                           status=Team.CREATING)
         for member in members:
             team.members.add(member)
             TeamInvitation.objects.create(team=team, player=contest)
@@ -468,6 +468,22 @@ class PlayerTeamInvitation(APIView):
         elif self.input['confirm'] == 0:
             invitation.status = TeamInvitation.REFUSED
         invitation.save()
+
+
+class PlayerTeamSignUp(APIView):
+
+    @player_required
+    def post(self):
+        self.check_input('tid')
+        team = Team.safeGet(self.input['tid'])
+        player = self.request.user.player
+        if player != team.leader:
+            raise LogicError('Only team leader can sign up for team')
+        for invitation in team.teaminvitation_set:
+            if invitation.status != TeamInvitation.CONFIRMED:
+                raise LogicError('Team can sign up until all members confirm')
+        team.status = Team.VERIFYING
+        team.save()
 
 
 class PlayerAppealCreate(APIView):
