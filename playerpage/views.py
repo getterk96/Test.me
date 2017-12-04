@@ -492,7 +492,7 @@ class PlayerAppealCreate(APIView):
     def post(self):
         self.check_input('contestId', 'content', 'attachmentUrl')
         appeal = Appeal()
-        appeal.target_contest = Contest.safeGet(self.input['contestId'])
+        appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.target_organizer = appeal.target_contest.organizer
         appeal.status = 0
         appeal.content = self.input['content']
@@ -507,7 +507,7 @@ class PlayerAppealDetail(APIView):
     @player_required
     def get(self):
         self.check_input('id')
-        appeal = Appeal.safeGet(self.input['id'])
+        appeal = Appeal.safe_get(id=self.input['id'])
         data = {
             'contestName': appeal.contest.name,
             'content': appeal.content,
@@ -520,8 +520,8 @@ class PlayerAppealDetail(APIView):
     @player_required
     def post(self):
         self.check_input('id', 'contestId', 'content', 'attachmentUrl', 'status')
-        appeal = Appeal.safeGet(self.input['id'])
-        appeal.target_contest = Contest.safeGet(self.input['contestId'])
+        appeal = Appeal.safe_get(id=self.input['id'])
+        appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.target_organizer = appeal.target_contest.organizer
         appeal.status = self.input['status']
         appeal.content = self.input['content']
@@ -536,7 +536,7 @@ class PlayerAppealRemove(APIView):
     @player_required
     def post(self):
         self.check_input('id')
-        appeal = Appeal.safeGet(self.input['id'])
+        appeal = Appeal.safe_get(id=self.input['id'])
         try:
             appeal.delete()
         except:
