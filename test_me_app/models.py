@@ -55,6 +55,22 @@ class Player(UserCommon):
     HIGH_SCHOOL_STUDENT = 3
     OUTSIDER = 4
 
+    @staticmethod
+    def check_gender(gender):
+        if gender not in ['male', 'female']:
+            raise InputError('Wrong gender')
+
+    @staticmethod
+    def check_player_type(player_type):
+        if player_type < 0 or player_type > 4:
+            raise InputError('Wrong player type')
+
+    @staticmethod
+    def check_contact_phone(contact_phone):
+        for c in contact_phone:
+            if c < '0' or c > '9':
+                raise InputError('Wrong contact phone')
+
 
 class Organizer(UserCommon):
     user = models.OneToOneField(User, related_name='organizer')

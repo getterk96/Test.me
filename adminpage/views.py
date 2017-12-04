@@ -67,6 +67,55 @@ class AdminUserRecover(APIView):
             user.status = User_profile.NORMAL
 
 
+class AdminPlayerDetail(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('id')
+        try:
+            user = User.objects.get(id=self.input['id'], user_type=User_profile.PLAYER)
+        except ObjectDoesNotExist:
+            raise LogicError('No such player')
+
+        player = user.player
+        return {
+            'username': user.username,
+            'email': user.email,
+            'group': player.group,
+            'nickname': player.nickname,
+            'avatarUrl': player.avatar_url,
+            'contactPhone': player.contact_phone,
+            'description': player.description,
+            'gender': 'male' if player.gender else 'female',
+            'birthday': player.birthday.strftime("%Y-%m-%d"),
+            'playerType': player.player_type
+        }
+
+    @admin_required
+    def post(self):
+        self.check_input('id', 'email', 'group', 'nickname', 'avatarUrl', 'contactPhone',
+                         'description', 'gender', 'birthday', 'playerType')
+        try:
+            user = User.objects.get(id=self.input['id'], user_type=User_profile.PLAYER)
+        except ObjectDoesNotExist:
+            raise LogicError('No such player')
+        Player.check_contact_phone(self.input['contactPhone'])
+        Player.check_gender(self.input['gender'])
+        Player.check_player_type(self.input['playerType'])
+
+        player = user.player
+        user.email = self.input['email']
+        player.group = self.input['group']
+        player.nickname = self.input['nickname']
+        player.avatar_url = self.input['avatarUrl']
+        player.contact_phone = self.input['contactPhone']
+        player.description = self.input['description']
+        player.gender = (self.input['gender'] == 'male')
+        player.birthday = self.input['birthday']
+        player.player_type = self.input['playerType']
+        player.save()
+
+
 class AdminAppealDetail(APIView):
 
     @admin_required
