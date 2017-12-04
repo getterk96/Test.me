@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User, UserManager
 from django.db.models.signals import post_save
 from codex.baseerror import *
+from django.core.exceptions import ObjectDoesNotExist
+
 
 
 # Create your models here.
@@ -154,15 +156,33 @@ class Team(models.Model):
     sign_up_attachment_url = models.CharField(max_length=256)
 
     status = models.IntegerField()
-    VERIFYING = 0
-    VERIFIED = 1
-    DISMISSED = 2
+    CREATING = 0
+    VERIFYING = 1
+    VERIFIED = 2
+    DISMISSED = -1
 
     def safeGet(id):
         try:
             return Team.objects.get(id=id)
         except:
             raise LogicError("No Such Team")
+
+
+class TeamInvitation(models.Model):
+    team = models.ForeignKey(Team)
+    player = models.ForeignKey(Player)
+
+    status = models.IntegerField(default=0)
+    CONFIRMING = 0
+    CONFIRMED = 1
+    REFUSED = -1
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such team invitation')
 
 
 class PeriodScore(models.Model):
