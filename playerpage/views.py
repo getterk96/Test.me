@@ -438,7 +438,7 @@ class PlayerTeamCreate(APIView):
         team.save()
 
 
-class PlayerTeamInvitationList(APIView):
+class PlayerTeamInvitation(APIView):
 
     @player_required
     def get(self):
@@ -527,3 +527,15 @@ class PlayerAppealRemove(APIView):
             raise LogicError("Appeal Delete Failed")
 
         return self.input['id']
+
+
+class PlayerSearch(APIView):
+
+    @player_required
+    def get(self):
+        self.check_input('username')
+        try:
+            user = User.get(username=self.input['username'], user_type=User_profile.PLAYER)
+            return {'id': user.id}
+        except ObjectDoesNotExist:
+            return {'id': -1}

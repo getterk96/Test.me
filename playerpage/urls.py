@@ -14,8 +14,10 @@ urlpatterns = [
     url(r'^question/submit$', PlayerQuestionSubmit.as_view()),
     url(r'^team/list$', PlayerTeamList.as_view()),
     url(r'^team/detail$', PlayerTeamDetail.as_view()),
-    url('^team/create$', PlayerTeamCreate.as_view()),
-    url('^appeal/create$', PlayerAppealCreate.as_view()),
-    url('^appeal/detail$', PlayerAppealDetail.as_view()),
-    url('^appeal/remove$', PlayerAppealRemove.as_view()),
+    url(r'^team/create$', PlayerTeamCreate.as_view()),
+    url(r'^team/invitation$', PlayerTeamInvitation.as_view()),
+    url(r'^appeal/create$', PlayerAppealCreate.as_view()),
+    url(r'^appeal/detail$', PlayerAppealDetail.as_view()),
+    url(r'^appeal/remove$', PlayerAppealRemove.as_view()),
+    url(r'^player/search$', PlayerSearch.as_view())
 ]
