@@ -5,7 +5,7 @@ header_c.link_list.push({
     action : function() {
         window.logout();
     }
-});
+})
 header_c.nav_list.push({
     name : '比赛信息',
     link : '#',
@@ -45,61 +45,42 @@ window.cid = window.get_args('cid');
 window.contest = {
     name : {
         editable : true,
-        content : 'hi'
+        content : ''
     },
     description : {
         editable : true,
-        content : 'oh'
+        content : ''
     },
     time : {
         editable : true,
         content : {
-            sy : '2017',
-            sm : '11',
-            sd : '21',
-            sh : '19',
-            sx : '00',
-            ey : '2017',
-            em : '11',
-            ed : '21',
-            eh : '20',
-            ex : '00'
+            sy : '',
+            sm : '',
+            sd : '',
+            sh : '',
+            sx : '',
+            ey : '',
+            em : '',
+            ed : '',
+            eh : '',
+            ex : ''
         }
     },
     slots : {
         editable : true,
-        content : '100'
+        content : ''
     },
-    slots_filled : '50',
+    slots_filled : '0',
     attachment : {
         editable : true,
-        filename : 'wow.pdf'
+        filename : ''
     },
     period_lock : false,
     period : [],
     period_id : [],
 };
 window.user = null;
-window.playerlist = [
-    {
-        lid : 0,
-        chosen : false,
-        info : {
-            'name' : 'ica',
-            'status' : 'accepted',
-            'rank' : '1'
-        }
-    },
-    {
-        lid : 1,
-        chosen : false,
-        info : {
-            'name' : 'iris',
-            'status' : 'accepted',
-            'rank' : '-'
-        }
-    }
-];
+window.playerlist = [];
 
 var setnav_header = function() {
     if (window.contest != null)
@@ -136,7 +117,7 @@ var contest_c = new Vue({
         playerlistheader : [
             {
                 name : 'name',
-                alias : '选手名称'
+                alias : '队伍名称'
             },
             {
                 name : 'status',
@@ -144,7 +125,7 @@ var contest_c = new Vue({
             },
             {
                 name : 'rank',
-                alias : '选手目前排名/分数'
+                alias : '选手目前分数'
             }
         ],
         key_dir : {
@@ -235,7 +216,6 @@ var contest_c = new Vue({
             this.contest.period.push(new_period);
         },
         submitcontestinfo : function() {
-            //api
             for (i in window.contest['period_id']) {
                 $t('/api/o/period/remove', 'POST', {'id' : window.contest['period_id'][i]},
                     function(response) {},
@@ -402,6 +382,24 @@ var contest_c = new Vue({
             this.singleID = this.playerlist[idx].lid;
             //api
             this.single_player = window.query_player();
+        },
+        batch_manage : function(new_status) {
+            var url = '/api/o/contest/team_batch_manage';
+            var m = 'POST';
+            var data = {'status' : new_status,
+                'teamId' : []
+            };
+            for (i in playerlist) {
+                if (playerlist[i].chosen)
+                    data['teamId'].push(playerlist[i].id);
+            }
+            $t(url, m, data, this.batch_manage_succ, this.batch_manage_fail);
+        },
+        batch_manage_succ : function(response) {
+            window.location.assign('./index.html?cid=' + window.cid.toString());
+        },
+        batch_manage_fail : function(response) {
+            alert('[' + response.code.toString() + ']' + response.msg);
         }
     },
     computed : {
@@ -540,11 +538,42 @@ var org_get_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 };
 
+var player_get_succ = function(response) {
+    var list = response.data;
+    for (i in list) {
+        var status = '审核中';
+        if (list[i]['status'] == 1) {
+            status = '审核通过';
+        }
+        if (list[i]['status'] == 2) {
+            status = '无资格';
+        }
+        var player = {
+            lid : i,
+            chosen : false,
+            id : list[i]['id'],
+            info : {
+                'name' : list[i]['name'],
+                'rank' : list[i]['scores'][0].toString(),
+                'status' : status
+            }
+        };
+        window.playerlist.push(player);
+    }
+    //leader_name scores
+};
+
+var player_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
 var org_get_contest_detail = function() {
     var url = '/api/o/contest/detail';
     var m = 'GET';
     var data = {'id' : window.cid};
     $t(url, m, data, org_get_succ, org_get_fail);
+    url = '/api/o/contest/team_batch_manage';
+    $t(url, m, data, player_get_succ, player_get_fail);
 };
 
 (function () {

@@ -47,9 +47,9 @@
                                     <button @click="set_all_player_status(false)">全不选</button>
                                 </div>
                                 <div :class="['tableaction']">
-                                    <button v-if="before_all_period && in_contest">通过审核</button>
+                                    <button v-if="before_all_period && in_contest" @click="batch_manage(1)">通过审核</button>
                                     <button v-if="!in_period && in_contest && after_signup">晋级</button>
-                                    <button v-else-if="!in_contest && after_signup">加入获奖名单</button>
+                                    <button v-else-if="!in_contest && after_signup" @click="batch_manage(2)">加入获奖名单</button>
                                     <button v-if="in_contest">取消资格</button>
                                 </div>
                             </div>

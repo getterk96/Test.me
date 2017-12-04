@@ -10,7 +10,7 @@ var dev_c = new Vue({
             return this.project_name + 'v' + this.version + ' developed by ' + this.developer;
         }
     }
-});
+})
 
 window.userid = window.get_args('userid');
 
