@@ -6,7 +6,6 @@ from codex.baseerror import *
 from django.core.exceptions import ObjectDoesNotExist
 
 
-
 # Create your models here.
 
 class User_profile(models.Model):
@@ -94,10 +93,11 @@ class Contest(models.Model):
     SAVED = 0
     PUBLISHED = 1
 
+    @staticmethod
     def safe_get(**args):
         try:
             return Contest.objects.get(args)
-        except:
+        except ObjectDoesNotExist:
             raise LogicError("No Such Contest")
 
     def add_tags(self, tags):
@@ -124,10 +124,11 @@ class Period(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
 
+    @staticmethod
     def safe_get(**args):
         try:
             return Period.objects.get(args)
-        except:
+        except ObjectDoesNotExist:
             raise LogicError("No Such Period")
 
 
@@ -138,10 +139,11 @@ class ExamQuestion(models.Model):
     attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
 
+    @staticmethod
     def safe_get(**args):
         try:
             return ExamQuestion.objects.get(args)
-        except:
+        except ObjectDoesNotExist:
             raise LogicError("No Such Exam Question")
 
 
@@ -161,10 +163,11 @@ class Team(models.Model):
     VERIFIED = 2
     DISMISSED = -1
 
+    @staticmethod
     def safe_get(**args):
         try:
             return Team.objects.get(args)
-        except:
+        except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
 
@@ -191,6 +194,13 @@ class PeriodScore(models.Model):
     score = models.IntegerField()
     rank = models.IntegerField()
 
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such period score')
+
 
 class Work(models.Model):
     question = models.ForeignKey(ExamQuestion)
@@ -198,6 +208,13 @@ class Work(models.Model):
     content_url = models.CharField(max_length=256)
     score = models.IntegerField(default=-1)
     submission_times = models.IntegerField(default=1)
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such work')
 
 
 class Appeal(models.Model):
@@ -212,8 +229,9 @@ class Appeal(models.Model):
     SOLVED = 1
     ACCEPTED = 2
 
+    @staticmethod
     def safe_get(**args):
         try:
             return Appeal.objects.get(args)
-        except:
+        except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")
