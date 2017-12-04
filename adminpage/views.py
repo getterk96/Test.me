@@ -19,6 +19,22 @@ class AdminUserList(APIView):
         return user_list
 
 
+class AdminUserSearch(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('username', 'userType')
+        user_list = []
+        for user in User.objects.filter(username__contains=self.input['username'],
+                                        user_type=self.input['userType']):
+            user_list.append({
+                'id': user.id,
+                'username': user.username,
+                'userType': user.user_type
+            })
+        return user_list
+
+
 class AdminAppealDetail(APIView):
 
     @admin_required
