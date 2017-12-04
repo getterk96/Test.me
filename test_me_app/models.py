@@ -92,13 +92,13 @@ class Contest(models.Model):
     SAVED = 0
     PUBLISHED = 1
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Contest.objects.get(id=id)
+            return Contest.objects.get(args)
         except:
             raise LogicError("No Such Contest")
 
-    def addTags(self, tags):
+    def add_tags(self, tags):
         for content in tags:
             if not content:
                 continue
@@ -122,9 +122,9 @@ class Period(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Period.objects.get(id=id)
+            return Period.objects.get(args)
         except:
             raise LogicError("No Such Period")
 
@@ -136,9 +136,9 @@ class ExamQuestion(models.Model):
     attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return ExamQuestion.objects.get(id=id)
+            return ExamQuestion.objects.get(args)
         except:
             raise LogicError("No Such Exam Question")
 
@@ -158,9 +158,9 @@ class Team(models.Model):
     VERIFIED = 1
     DISMISSED = 2
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Team.objects.get(id=id)
+            return Team.objects.get(args)
         except:
             raise LogicError("No Such Team")
 
@@ -192,8 +192,8 @@ class Appeal(models.Model):
     SOLVED = 1
     ACCEPTED = 2
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Appeal.objects.get(id=id)
+            return Appeal.objects.get(args)
         except:
             raise LogicError("No Such Appeal")

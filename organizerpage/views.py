@@ -91,7 +91,7 @@ class OrganizingContests(APIView):
 class ContestDetail(APIView):
     @organizer_required
     def get(self):
-        contest = Contest.safeGet(self.input['id'])
+        contest = Contest.safe_get(id=self.input['id'])
         tags = ""
         for tag in contest.tags.all():
             tags += tag.content
@@ -120,7 +120,7 @@ class ContestDetail(APIView):
     def post(self):
         self.check_input('id', 'name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
-        contest = Contest.safeGet(self.input['id'])
+        contest = Contest.safe_get(id=self.input['id'])
         contest.name = self.input['name']
         contest.status = self.input['status']
         contest.description = self.input['description']
@@ -134,7 +134,7 @@ class ContestDetail(APIView):
         contest.level = self.input['level']
         contest.save()
         tags = self.input['tags'].split(',')
-        contest.addTags(tags)
+        contest.add_tags(tags)
 
 
 
@@ -158,7 +158,7 @@ class ContestCreate(APIView):
         contest.status = 0
         contest.save()
         tags = self.input['tags'].split(',')
-        contest.addTags(tags)
+        contest.add_tags(tags)
 
         return contest.id
 
@@ -167,7 +167,7 @@ class ContestRemove(APIView):
     @organizer_required
     def post(self):
         self.check_input('id')
-        contest = Contest.safeGet(self.input['id'])
+        contest = Contest.safe_get(id=self.input['id'])
         periods = Period.objects.filter(contest=contest)
         if not periods.empty:
             for period in periods:
@@ -181,7 +181,7 @@ class ContestBatchRemove(APIView):
     def post(self):
         self.check_input('contest_id')
         for id in self.input['contest_id']:
-            contest = Contest.safeGet(id)
+            contest = Contest.safe_get(id=id)
             periods = Period.objects.filter(contest=contest)
             if not periods.empty():
                 for period in periods:
@@ -194,7 +194,7 @@ class ContestTeamBatchManage(APIView):
     @organizer_required
     def get(self):
         self.check_input('id')
-        team = Team.safeGet(self.input['id'])
+        team = Team.safe_get(id=self.input['id'])
         scores = []
         if not team.periodscore_set.all().empty():
             for score in team.periodscore_set.all():
@@ -211,7 +211,7 @@ class ContestTeamBatchManage(APIView):
     def post(self):
         self.check_input('teamId', 'status')
         for id in self.input['teamId']:
-            team = Team.safeGet(id)
+            team = Team.safe_get(id=id)
             team.status = self.input['status']
             team.save()
 
@@ -222,7 +222,7 @@ class ContestTeam(APIView):
     @organizer_required
     def get(self):
         self.check_input('id')
-        team = Team.safeGet(self.input['id'])
+        team = Team.safe_get(id=self.input['id'])
         data = {
             'playerNickname': team.members.values_list('nickname', flat=True),
             'playersId': team.members.values_list('id', flat=True),
@@ -240,7 +240,7 @@ class ContestTeam(APIView):
 
     def post(self):
         self.check_input('id', 'status', 'periodScore', 'workScore')
-        team = Team.safeGet(self.input['id'])
+        team = Team.safe_get(id=self.input['id'])
         team.status = self.input['status']
         for index in range(len(self.input['periodScore'])):
             try:
@@ -273,11 +273,11 @@ class PeriodCreate(APIView):
         period.end_time = self.input['endTime']
         period.available_slots = self.input['availableSlots']
         period.attachment_url = self.input['attachmentUrl']
-        period.contest = Contest.safeGet(self.input['id'])
+        period.contest = Contest.safe_get(id=self.input['id'])
         questions_id = self.input['questionId']
         period.save()
         for question_id in questions_id:
-            question = ExamQuestion.safeGet(question_id)
+            question = ExamQuestion.safe_get(id=question_id)
             question.period = period
             question.save()
 
@@ -288,7 +288,7 @@ class PeriodDetail(APIView):
     @organizer_required
     def get(self):
         self.check_input('id')
-        period = Period.safeGet(self.input['id'])
+        period = Period.safe_get(id=self.input['id'])
         question_id = []
         if not period.examquestion_set.all().empty():
             for question in period.examquestion_set.all():
@@ -312,7 +312,7 @@ class PeriodDetail(APIView):
                          , 'attachmentUrl', 'questionId')
         # user = self.request.user
         # if user.is_authenticated:
-        period = Period.safeGet(self.input['id'])
+        period = Period.safe_get(id=self.input['id'])
         period.name = self.input['name']
         period.index = self.input['index']
         period.description = self.input['description']
@@ -323,7 +323,7 @@ class PeriodDetail(APIView):
         questions_id = self.input['questionId'].split(' ')
         period.save()
         for question_id in questions_id:
-            question = ExamQuestion.safeGet(question_id)
+            question = ExamQuestion.safe_get(id=question_id)
             period.examquestion_set.add(question)
             period.save()
 
@@ -334,7 +334,7 @@ class PeriodRemove(APIView):
     @organizer_required
     def post(self):
         self.check_input('id')
-        period = Period.safeGet(self.input['id'])
+        period = Period.safe_get(id=self.input['id'])
         period.delete()
         return 0
 
@@ -358,7 +358,7 @@ class QuestionDetail(APIView):
     @organizer_required
     def get(self):
         self.check_input('id')
-        question = ExamQuestion.safeGet(self.input['id'])
+        question = ExamQuestion.safe_get(id=self.input['id'])
         data = {
             'description': question.description,
             'attachmentUrl': question.attachment_url,
@@ -372,11 +372,11 @@ class QuestionDetail(APIView):
         self.check_input('id', 'periodId', 'description', 'startTime', 'attachmentUrl', 'submissionLimit')
         # user = self.request.user
         # if user.is_authenticated:
-        question = ExamQuestion.safeGet(self.input['id'])
+        question = ExamQuestion.safe_get(id=self.input['id'])
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
         question.submission_limit = self.input['submissionLimit']
-        question.period = Period.safeGet(self.input['periodId'])
+        question.period = Period.safe_get(id=self.input['periodId'])
         question.save()
 
         return question.id
@@ -386,7 +386,7 @@ class QuestionRemove(APIView):
     @organizer_required
     def post(self):
         self.check_input('id')
-        question = ExamQuestion.safeGet(self.input['id'])
+        question = ExamQuestion.safe_get(id=self.input['id'])
         question.delete()
         return 0
 
@@ -396,7 +396,7 @@ class AppealDetail(APIView):
     @organizer_required
     def get(self):
         self.check_input('id')
-        appeal = Appeal.safeGet(self.input['id'])
+        appeal = Appeal.safe_get(id=self.input['id'])
         data = {
             'contestName': appeal.contest.name,
             'content': appeal.content,
@@ -409,7 +409,7 @@ class AppealDetail(APIView):
     @organizer_required
     def post(self):
         self.check_input('id', 'status')
-        appeal = Appeal.safeGet(self.input['id'])
+        appeal = Appeal.safe_get(id=self.input['id'])
         appeal.status = self.input['status']
         appeal.save()
 
