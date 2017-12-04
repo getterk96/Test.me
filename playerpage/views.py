@@ -301,12 +301,13 @@ class PlayerTeamList(APIView):
         player = self.request.user.player
         teams = []
         for team in (player.lead_teams + player.join_teams):
-            teams.append({
-                'id': team.id,
-                'name': team.name,
-                'leaderName': team.leader.name,
-                'contestName': team.contest.name
-            })
+            if team.status == Team.VERIFIED:
+                teams.append({
+                    'id': team.id,
+                    'name': team.name,
+                    'leaderName': team.leader.name,
+                    'contestName': team.contest.name
+                })
         return teams
 
 
@@ -325,9 +326,14 @@ class PlayerTeamDetail(APIView):
             raise ValidateError('You are not in this team')
 
         # member
-        memberNames = []
+        members = []
         for member in team.members:
-            memberNames.append(member.nickname)
+            invitation = TeamInvitation.safe_get(player=member)
+            members.append({
+                'id': member.id,
+                'name': member.user.username,
+                'invitationStatus': invitation.status,
+            })
 
         # period
         try:
@@ -340,8 +346,8 @@ class PlayerTeamDetail(APIView):
 
         return {
             'name': team.name,
-            'leaderName': team.leader.nickname,
-            'memberNames': memberNames,
+            'leader': {'id': team.leader.id, 'name': team.leader.user.username},
+            'members': members,
             'contestId': team.contest.id,
             'contestName': team.contest.name,
             'periodId': period_id,
@@ -366,22 +372,30 @@ class PlayerTeamDetail(APIView):
             raise ValidateError('Only team leader can change team info')
 
         try:
-            leader = User.objects.get(id=self.input['leaderId'])
-            if leader.user_type != User_profile.PLAYER:
+            new_leader = User.objects.get(id=self.input['leaderId'])
+            if new_leader.user_type != User_profile.PLAYER:
                 raise InputError('Player Required')
-            members = []
+            new_members = []
             for memberId in self.input['memberIds']:
                 member = User.objects.get(id=memberId)
                 if member.user_type != User_profile.PLAYER:
                     raise InputError('Player Required')
-                members.append(member)
+                new_members.append(member)
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
 
-        team.leader = leader.player
+        team.leader = new_leader.player
+        # delete old members with invitations
+        for member in team.members:
+            if member not in new_members:
+                invitation = TeamInvitation.safe_get(team=team, player=member)
+                invitation.delete()
         team.members.clear()
-        for member in members:
+        # add new members
+        for member in new_members:
             team.members.add(member.player)
+            if not TeamInvitation.safe_get(team=team, player=member):
+                TeamInvitation.objects.create(team=team, player=member)
         team.avatar_url = self.input['avatarUrl']
         team.description = self.input['description']
         team.sign_up_attachment_url = self.input['signUpAttachmentUrl']
