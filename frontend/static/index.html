@@ -1,36 +1,44 @@
-<!-- Created by Ica Riluci-->
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset='utf-8' />
+        <meta charset="utf-8" />
         <title>欢迎来到Test.Me</title>
         <script src="https://unpkg.com/vue"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="css/common.css" />
-        <script src="js/common.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <script src="js/uni.js"></script>
+        <link type="text/css" rel="stylesheet" href="css/uni.css" />
         <link type="text/css" rel="stylesheet" href="css/login.css" />
     </head>
-    <body class="dotted-bg">
-        <div id="slogan-box"><div id="slogan">{{ slogan }}</div></div>
-        <div id="login-box">
-            <div :class="['logininput']">
-                <span>用户名</span>
-                <input autofocus='on' v-model='username' />
-            </div>
-            <div :class="['logininput']">
-                <span>密码</span>
-                <input type='password' v-model='password' />
-            </div>
-            <button :class="['loginsubmit']" @click="log_in">登录</button>
-            <div :class="['links']">
-                <ul>
-                    <li><a href="sign-up/index.html">注册</a></li>
-                    <li><a>游客登录</a></li>
-                </ul>
-            </div>
+    <body>
+        <div class="dotted-bg"></div>
+        <div id="viewport" class="bg-filled">
+            <ul>
+                <template v-for="item in r">
+                    <li>
+                        <img :src="item.url" :class="[item.show ? '' : 'hidden']"/>
+                    </li>
+                </template>
+            </ul>
         </div>
-        <div id="dev-info">{{ info }}</div>
+        <div id="login-box">
+            <template v-if="username != ''">
+                <input placeholder="用户名" :class="['un']" v-model="username" v-focus="username_empty" />
+                <input placeholder="密码" :class="['pw']" type="password" @keydown="sendlogin" v-model="password" autofocus />
+            </template>
+            <template v-else>
+                <input placeholder="用户名" :class="['un']" v-model="username" autofocus v-focus="username_empty" />
+                <input placeholder="密码" :class="['pw']" type="password" @keydown="sendlogin" v-model="password" />
+            </template>
+            <div><img v-if="show_warning" id="warning-sign" src="img/warning.png"/><span v-if="show_warning" id="login-warning">{{ warning }}</span></div>
+            <button id="login" :class="" @click="login">登录</button>
+            <ul>
+                <li><a id="sign-up" href="sign-up/index.html">注册</a></li>
+                <li><a id="guest">游客登录</a></li>
+            </ul>
+        </div>
     </body>
-    <script src="js/common_control.js"></script>
-    <script src="js/login_control.js"></script>
+    <script src="js/uni_c.js"></script>
+    <script src="js/login_c.js"></script>
 </html>
+<!-- template -->

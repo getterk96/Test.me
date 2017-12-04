@@ -1,0 +1,57 @@
+nav#side-nav {
+    position : fixed;
+    width : 10vw;
+    display : block;
+    top : 30vh;
+    left : 5vw;
+}
+
+nav#side-nav label {
+    width : 10vw;
+    display : block;
+    position : relative;
+    text-align : center;
+    margin : 0.5em auto;
+}
+
+.label {
+    width : 6em;
+}
+
+.input.long {
+    width : calc(50vw - 13em);
+}
+
+.input.short {
+    width : 2em;
+}
+
+.input.mid {
+    width : 9em;
+}
+
+.input {
+    vertical-align : middle;
+}
+
+.input[type='date'] {
+    padding-top : 0em;
+    padding-bottom : 0em;
+}
+
+textarea.input {
+    vertical-align : top;
+}
+
+label.fileuploader {
+    height : 1.5em;
+    width : 1.5em;
+}
+
+button.response-button {
+    margin-left : 1em;
+}
+
+div.s-u-resp {
+    padding-bottom : 2em;
+}
