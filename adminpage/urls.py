@@ -9,6 +9,7 @@ urlpatterns = [
     url(r'^user/delete$', AdminUserDelete.as_view()),
     url(r'^user/recover$', AdminUserRecover.as_view()),
     url(r'^player/detail$', AdminPlayerDetail.as_view()),
+    url(r'^organizer/detail$', AdminOrganizerDetail.as_view()),
     url(r'^appeal/detail$', AdminAppealDetail.as_view()),
     url(r'^appeal/remove$', AdminAppealRemove.as_view()),
 ]

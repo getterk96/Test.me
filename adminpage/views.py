@@ -116,6 +116,49 @@ class AdminPlayerDetail(APIView):
         player.save()
 
 
+class AdminOrganizerDetail(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('id')
+        try:
+            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+        except ObjectDoesNotExist:
+            raise LogicError('No such organizer')
+
+        organizer = user.organizer
+        return {
+            'username': user.username,
+            'email': user.email,
+            'group': organizer.group,
+            'nickname': organizer.nickname,
+            'avatarUrl': organizer.avatar_url,
+            'contactPhone': organizer.contact_phone,
+            'description': organizer.description,
+            'verifyUrl': organizer.verify_file_url,
+            'verifyStatus': organizer.verify_status,
+        }
+
+    @admin_required
+    def post(self):
+        self.check_input('id', 'email', 'group', 'nickname', 'avatarUrl', 'description',
+                         'contactPhone', 'email', 'verifyUrl')
+        try:
+            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+        except ObjectDoesNotExist:
+            raise LogicError('No such organizer')
+
+        organizer = user.organizer
+        user.email = self.input['email']
+        organizer.group = self.input['group']
+        organizer.nickname = self.input['nickname']
+        organizer.avatar_url = self.input['avatarUrl']
+        organizer.contact_phone = self.input['contactPhone']
+        organizer.description = self.input['description']
+        organizer.verify_file_url = self.input['verifyUrl']
+        organizer.save()
+
+
 class AdminAppealDetail(APIView):
 
     @admin_required
