@@ -18,7 +18,6 @@ window.get_args = function(name) {
 };
 
 window.empty_f = function() {};
-//window.site_domain = "http://127.0.0.1:8000";
 
 //wrapped up request sender
 (function(window, undefined) {
@@ -40,15 +39,6 @@ window.empty_f = function() {};
     testme.fn = testme.prototype = {
         init : function(url, method, data, proc, exception) {
             if (typeof url == 'string') {
-                /*if (window.XMLHttpRequest) {
-                    t_request = new XMLHttpRequest();
-                    console.log('3!');
-                }
-                else {
-                    alert('Explorer unsupported! Chrome or Firefox suggested. 您的浏览器不再被支持，建议使用Chrome或Firefox浏览器.');
-                    console.log('[err] explorer unsupported');
-                    return undefined;
-                }*/
                 if ((method != 'POST') && (method !='GET')) {
                     console.log('[err] invlalid method');
                     return undefined;
