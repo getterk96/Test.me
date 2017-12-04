@@ -25,6 +25,83 @@ window.contest = {
         console.log('[err] No such attr');
         return null;
     },
+    period : [
+        {
+            lid : '0',
+            attr : [
+                {
+                    name : 'name',
+                    alias : '阶段名称',
+                    type : 'text',
+                    content : 'period 1',
+                    editable : true
+                },
+                {
+                    name : 'description',
+                    alias : '阶段简介',
+                    type : 'ltext',
+                    content : 'description 1',
+                    editable : true
+                },
+                {
+                    name : 'time',
+                    alias : '阶段时间',
+                    type : 'datetime',
+                    content : {
+                        sd : '1977-03-11',
+                        ed : '1997-05-22',
+                        sh : '19',
+                        sm : '00',
+                        eh : '19',
+                        em : '00'
+                    },
+                    editable : true
+                },
+                {
+                    name : 'slots',
+                    alias : '可参与团队数',
+                    type : 'number',
+                    content : '100',
+                    editable : true
+                },
+                {
+                    name : 'p_file',
+                    alias : '阶段附件',
+                    editable : true,
+                    type : 'file',
+                    content : ''
+                }
+            ],
+            question : [
+                {
+                    lid : '0',
+                    attr : [
+                        {
+                            name : 'description',
+                            alias : '题目描述',
+                            type : 'ltext',
+                            editable : true,
+                            content : ''
+                        },
+                        {
+                            name : 'slots',
+                            alias : '提交次数上限',
+                            type : 'number',
+                            editable : true,
+                            content : ''
+                        },
+                        {
+                            name : 'q_file',
+                            alias : '题目附件',
+                            type : 'file',
+                            editable : true,
+                            content : ''
+                        }
+                    ]
+                }
+            ],
+        }
+    ],
     attr : [
         {
             name : 'name',
@@ -70,7 +147,7 @@ window.contest = {
         },
         {
             name : 'slots',
-            alias : '可团队报名数',
+            alias : '可报名团队数',
             type : 'number',
             content : '100',
             editable : true
@@ -87,10 +164,10 @@ window.contest = {
         },
         {
             name : 'c_file',
-            alias : '验证文档',
+            alias : '比赛附件',
             type : 'file',
             content : ''
-        },
+        }
     ],
     is_guest : false
 };
@@ -154,6 +231,7 @@ var info = new Vue({
     el : '#body',
     data : {
         show_basic_info : true,
+        show_period_info : true,
         contest : window.contest
     },
     computed : {
@@ -178,6 +256,30 @@ var info = new Vue({
             for (i of this.contest.attr)
                 if (i.name == 'c_file')
                     i.content = files[0].name;
+        },
+        switch_period_info : function() {
+            this.show_period_info = !this.show_period_info;
+        },
+        p_file_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            for (i of this.contest.period)
+                if ('p' + i.lid == e.target.id)
+                    for (j of i.attr)
+                        if (j.name == 'p_file')
+                            j.content = files[0].name;
+        },
+        q_file_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            for (i of this.contest.period)
+                for (j of i.question)
+                    if ('q' + i.lid + '-' + (parseInt(j.lid) + 1).toString() == e.target.id)
+                        for (k of j.attr)
+                            if (k.name == 'q_file')
+                                k.content = files[0].name;
         }
     }
 })

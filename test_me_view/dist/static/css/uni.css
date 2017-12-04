@@ -23,6 +23,10 @@
     -moz-user-select : none;
 }
 
+.bold {
+    font-weight : bold;
+}
+
 /* > dotted background decorator*/
 .dotted-bg {
     z-index : 0;
@@ -77,6 +81,7 @@ a {
     background-color : rgb(73, 110, 193);
     height : 4em;
     width : 100vw;
+    z-index : 99;
 }
 
 #header-content {
@@ -204,7 +209,7 @@ div.s-u-resp {
 #body {
     width :  50vw;
     display : block;
-    position : fixed;
+    position : absolute;
     top : 7em;
     left : 25vw;
 }

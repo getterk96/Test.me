@@ -57,6 +57,12 @@
                                                 <input  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
                                             </div>
                                             <div v-else>
+                                                <input disabled :class="['input', 'mid']" type="date" v-model="item.content.sd" />
+                                                <input disabled  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                <input disabled  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
+                                                <input disabled :class="['input', 'mid']" type="date" v-model="item.content.ed" />
+                                                <input disabled  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                <input disabled  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
                                             </div>
                                         </template>
                                         <template v-else-if="item.type == 'number'">
@@ -78,8 +84,75 @@
                             </article>
                         </div>
                             <div :class="['session']">
-                                <button :class="['s-title']" @click=""><span :class="['title']">aaaa</span></button>
-                                <article :class="['s-body']">
+                                <button :class="['s-title', show_period_info ? '' : 'collapse']" @click="switch_period_info"><span :class="['title']">阶段信息</span></button>
+                                <article :class="['s-body']" v-if="show_period_info">
+                                    <ul :class="['form']" v-for="p in contest.period">
+                                        <li v-for='item in p.attr'>
+                                            <div :class="['label']">{{ item.alias }}</div>
+                                            <template v-if="item.type == 'text'">
+                                                <input v-if="item.editable" v-model="item.content" :class="['input', 'long']" />
+                                                <input v-else disabled v-model="item.content" :class="['input', 'long']" />
+                                            </template>
+                                            <template v-else-if="item.type == 'ltext'">
+                                                <textarea v-if="item.editable" v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
+                                                <textarea v-else disabled v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
+                                            </template>
+                                            <template v-else-if="item.type == 'datetime'">
+                                                <div v-if="item.editable">
+                                                    <input :class="['input', 'mid']" type="date" v-model="item.content.sd" />
+                                                    <input  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                    <input  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
+                                                    <input :class="['input', 'mid']" type="date" v-model="item.content.ed" />
+                                                    <input  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                    <input  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                                </div>
+                                                <div v-else>
+                                                    <input disabled :class="['input', 'mid']" type="date" v-model="item.content.sd" />
+                                                    <input disabled  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                    <input disabled  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
+                                                    <input disabled :class="['input', 'mid']" type="date" v-model="item.content.ed" />
+                                                    <input disabled  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                                    <input disabled  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                                </div>
+                                            </template>
+                                            <template v-else-if="item.type == 'number'">
+                                                <input v-if="item.editable" v-model="item.content" :class="['input']" type="number" />
+                                                <input v-else disabled v-model="item.content" :class="['input']" type="number" />
+                                            </template>
+                                            <template v-else-if="item.type == 'progress'">
+                                                <progress :max="contest.getAttr(item.content.base)" :value="item.content.value" :class="['progressbar']"></progress>
+                                                <span>{{ item.content.value + "/" + contest.getAttr(item.content.base) }}</span>
+                                            </template>
+                                            <template v-else-if="item.type == 'file'">
+                                                <label :class="['fileuploader']">
+                                                    <input type="file" :id="'p' + p.lid" @change="p_file_change" required/>
+                                                </label>
+                                                {{ item.content }}
+                                            </template>
+                                        </li>
+                                        <template v-for="q in p.question">
+                                            <li>
+                                                <div :class="['label', 'bold']">{{ '题目' + (parseInt(q.lid) + 1).toString() }}</div>
+                                            </li>
+                                            <li v-for="item in q.attr">
+                                                <div :class="['label']">{{ item.alias }}</div>
+                                                <template v-if="item.type == 'ltext'">
+                                                    <textarea v-if="item.editable" v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
+                                                    <textarea v-else disabled v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
+                                                </template>
+                                                <template v-else-if="item.type == 'number'">
+                                                    <input v-if="item.editable" v-model="item.content" :class="['input']" type="number" />
+                                                    <input v-else disabled v-model="item.content" :class="['input']" type="number" />
+                                                </template>
+                                                <template v-else-if="item.type == 'file'">
+                                                    <label :class="['fileuploader']">
+                                                        <input type="file" :id="'q' + q.lid + '-' + (parseInt(p.lid) + 1).toString()" @change="q_file_change" required/>
+                                                    </label>
+                                                    {{ item.content }}
+                                                </template>
+                                            </li>
+                                        </template>
+                                    </ul>
                                 </article>
                             </div>
                     </template>
