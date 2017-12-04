@@ -122,10 +122,7 @@ class PlayerContestDetail(APIView):
     def get(self):
         # check
         self.check_input('cid')
-        try:
-            contest = Contest.objects.get(id=self.input['cid'])
-        except ObjectDoesNotExist:
-            raise InputError('Contest does not exist')
+        contest = Contest.safeGet(id=self.input['cid'])
 
         # already sign up
         player = self.request.user.player
@@ -166,16 +163,37 @@ class PlayerContestDetail(APIView):
         }
 
 
+class PlayerContestSearchSimple(APIView):
+
+    @player_required
+    def get(self):
+        # check
+        self.check_input('keyword')
+
+        # search
+        results = Contest.objects.filter(name__contains=self.input['keyword'], status=Contest.PUBLISHED)
+
+        # return
+        contests = []
+        for result in results:
+            contests.append({
+                'id': result.id,
+                'name': result.name,
+                'logoUrl': result.logo_url,
+                'organizerName': result.organizer.nickname,
+                'level': result.level,
+                'signUpStartTime': time.mktime(result.sign_up_start_time.timetuple()),
+                'signUpEndTime': time.mktime(result.sign_up_end_time.timetuple()),
+            })
+        return contests
+
+
 class PlayerPeriodDetail(APIView):
 
     @player_required
     def get(self):
         # check
-        self.check_input('pid')
-        try:
-            period = Period.objects.get(id=self.input['pid'])
-        except ObjectDoesNotExist:
-            raise InputError('Period does not exist')
+        period = Period.safeGet(id=self.input['pid'])
 
         player = self.request.user.player
         team = player_signup_contest(player, period.contest)
@@ -391,7 +409,7 @@ class PlayerTeamCreate(APIView):
             if team.contest == contest:
                 raise LogicError('You are already in a team of this contest')
 
-        team = Team.create(name=self.input['name'],
+        team = Team.objects.create(name=self.input['name'],
                            leader=player,
                            contest=contest,
                            avatar_url=self.input['avatarUrl'],
