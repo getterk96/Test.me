@@ -172,7 +172,48 @@
                             </div>
                     </template>
                 </template>
-                <template v-else></template>
+                <template v-else>
+                    <template v-if="page == '小队信息'">
+                        <div :cĺass="['session']">
+                            <button :class="['s-title', 'no-border']" disabled><span :class="['title']">{{ team.name }}</span></button>
+                            <article :class="['s-body']">
+                                <ul>
+                                    <template v-for="user in team.member">
+                                        <li v-if="user.id == team.leader_id" :class="['userbox', 'leader']" @click="visit_user(user.id)">
+                                            <img :src="user.avatar_url" />
+                                            <div :class="['info']">
+                                                <ul>
+                                                    <li :class="['name']">{{ user.nickname }}<span v-if="is_self(user.id)">(你)</span></li>
+                                                    <li>{{ user.school }}</li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    </template>
+                                    <template v-for="user in team.member">
+                                        <li v-if="user.id != team.leader_id" :class="['userbox']" @click="visit_user(user.id)">
+                                            <img :src="user.avatar_url" />
+                                            <div :class="['info']">
+                                                <ul>
+                                                    <li :class="['name']">{{ user.nickname }}<span v-if="is_self(user.id)">(你)</span></li>
+                                                    <li>{{ user.school }}</li>
+                                                </ul>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                                <div v-if="is_self(team.leader_id)" id="switch-leader">
+                                    <div :class="['label']">移交队长至</div>
+                                    <select :class="['input']" v-model="team.new_leader">
+                                        <template v-for="user in team.member">
+                                            <option v-if="user.id != team.leader_id">{{ user.nickname + '(' + user.id + ')' }}</option>
+                                        </template>
+                                    </select>
+                                    <button :class="['operator', 'indent-3']" @click="switch_team_ownership"><span>确认</span></button>
+                                </div>
+                            </article>
+                        </div>
+                    </template>
+                </template>
             </template>
             <template v-else>
             </template>

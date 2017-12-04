@@ -55,3 +55,26 @@ button.response-button {
 div.s-u-resp {
     padding-bottom : 2em;
 }
+
+li.userbox {
+    width : 40%;
+    height : 5em;
+    margin : 1em 3%;
+}
+
+li.userbox>img {
+    width : 5em;
+}
+
+li.userbox>div.info li {
+    margin : 5px 0;
+}
+
+#switch-leader {
+    margin-top : 2em;
+}
+
+#switch-leader select,
+#switch-leader .label {
+    display : inline-block;
+}

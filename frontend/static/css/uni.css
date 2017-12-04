@@ -362,3 +362,38 @@ button.operator.negative[disabled]:hover {
 button.operator.negative:hover {
     border-left-color :rgba(255, 20, 20, 1);
 }
+
+/* > userbox */
+li.userbox {
+    display : inline-block;
+    border-left : solid 5px rgba(73, 110, 193, 0.7);
+    transition : border 0.3s;
+}
+
+li.userbox:hover {
+    border-left-color : rgba(73, 110, 193, 1);
+}
+
+li.userbox.leader {
+    border-left-color : rgba(20, 110, 20, 0.3);
+}
+
+li.userbox.leader:hover {
+    border-left-color : rgba(50, 180, 50, 1);
+}
+
+li.userbox>img,
+li.userbox>div.info {
+    display : inline-block;
+    height : 100%;
+    margin : 0;
+    vertical-align : top;
+}
+
+li.userbox>div.info li {
+    text-overflow : ellipsis;
+}
+
+li.userbox>div.info .name {
+    font-weight : bold;
+}
