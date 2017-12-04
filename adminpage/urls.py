@@ -4,6 +4,10 @@ from django.conf.urls import url
 from adminpage.views import *
 
 urlpatterns = [
-    url(r'^appeal/detail$', AppealDetail.as_view()),
-    url(r'^appeal/remove$', AppealRemove.as_view()),
+    url(r'^user/list$', AdminUserList.as_view()),
+    url(r'^user/search$', AdminUserSearch.as_view()),
+    url(r'^user/delete$', AdminUserDelete.as_view()),
+    url(r'^user/recover$', AdminUserRecover.as_view()),
+    url(r'^appeal/detail$', AdminAppealDetail.as_view()),
+    url(r'^appeal/remove$', AdminAppealRemove.as_view()),
 ]

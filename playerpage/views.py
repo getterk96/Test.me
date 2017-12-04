@@ -122,7 +122,7 @@ class PlayerContestDetail(APIView):
     def get(self):
         # check
         self.check_input('cid')
-        contest = Contest.safeGet(id=self.input['cid'])
+        contest = Contest.safe_get(id=self.input['cid'])
 
         # already sign up
         player = self.request.user.player
@@ -193,7 +193,7 @@ class PlayerPeriodDetail(APIView):
     @player_required
     def get(self):
         # check
-        period = Period.safeGet(id=self.input['pid'])
+        period = Period.safe_get(id=self.input['pid'])
 
         player = self.request.user.player
         team = player_signup_contest(player, period.contest)
@@ -201,12 +201,9 @@ class PlayerPeriodDetail(APIView):
         # get period score
         try:
             period_score = PeriodScore.objects.get(period=period, team=team)
-        except ObjectDoesNotExist:
-            period_score = None
-        if period_score:
             score = period_score.score
             rank = period_score.rank
-        else:
+        except ObjectDoesNotExist:
             score = -1
             rank = -1
 
@@ -228,10 +225,7 @@ class PlayerQuestionDetail(APIView):
     def get(self):
         # check
         self.check_input('pid')
-        try:
-            period = Period.objects.get(id=self.input['pid'])
-        except ObjectDoesNotExist:
-            raise InputError('Period does not exist')
+        period = Period.safe_get(id=self.input['pid'])
 
         player = self.request.user.player
         team = player_signup_contest(player, period.contest)
@@ -267,10 +261,7 @@ class PlayerQuestionSubmit(APIView):
     def post(self):
         # check input
         self.check_input('qid', 'workUrl')
-        try:
-            question = ExamQuestion.objects.get(id=self.input['qid'])
-        except ObjectDoesNotExist:
-            raise InputError('Question does not exist')
+        question = ExamQuestion.safe_get(id=self.input['qid'])
 
         # check signup
         player = self.request.user.player
@@ -316,11 +307,7 @@ class PlayerTeamDetail(APIView):
     @player_required
     def get(self):
         self.check_input('tid')
-        try:
-            team = Team.objects.get(id=self.input['tid'])
-        except ObjectDoesNotExist:
-            raise InputError('Team does not exist')
-
+        team = Team.safe_get(id=self.input['tid'])
         player = self.request.user.player
         if player not in (team.leader + team.members):
             raise ValidateError('You are not in this team')
@@ -362,10 +349,7 @@ class PlayerTeamDetail(APIView):
     def post(self):
         self.check_input('tid', 'leaderId', 'memberIds', 'avatarUrl',
                          'description', 'signUpAttachmentUrl')
-        try:
-            team = Team.objects.get(id=self.input['tid'])
-        except ObjectDoesNotExist:
-            raise InputError('Team does not exist')
+        team = Team.safe_get(id=self.input['tid'])
 
         player = self.request.user.player
         if team.leader != player:
@@ -408,10 +392,7 @@ class PlayerTeamCreate(APIView):
     def post(self):
         self.check_input('name', 'memberIds', 'contestId', 'avatarUrl',
                          'description', 'signUpAttachmentUrl')
-        try:
-            contest = Contest.objects.get(id=self.input['contestId'])
-        except ObjectDoesNotExist:
-            raise InputError('Contest does not exist')
+        contest = Contest.safe_get(id=self.input['contestId'])
 
         members = []
         for memberId in self.input['memberIds']:
@@ -475,7 +456,7 @@ class PlayerTeamSignUp(APIView):
     @player_required
     def post(self):
         self.check_input('tid')
-        team = Team.safeGet(self.input['tid'])
+        team = Team.safe_get(self.input['tid'])
         player = self.request.user.player
         if player != team.leader:
             raise LogicError('Only team leader can sign up for team')

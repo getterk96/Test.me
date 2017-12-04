@@ -2,10 +2,72 @@ from codex.baseerror import *
 from codex.baseview import APIView
 
 from codex.basedecorator import admin_required
-from test_me_app.models import Appeal, Contest
+from test_me_app.models import *
 
 
-class AppealDetail(APIView):
+class AdminUserList(APIView):
+
+    @admin_required
+    def get(self):
+        user_list = []
+        for user in User.objects.all():
+            user_list.append({
+                'id': user.id,
+                'username': user.username,
+                'userType': user.user_type
+            })
+        return user_list
+
+
+class AdminUserSearch(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('username', 'userType')
+        user_list = []
+        for user in User.objects.filter(username__contains=self.input['username'],
+                                        user_type=self.input['userType']):
+            user_list.append({
+                'id': user.id,
+                'username': user.username,
+                'userType': user.user_type
+            })
+        return user_list
+
+
+class AdminUserDelete(APIView):
+
+    @admin_required
+    def post(self):
+        self.check_input('ids')
+        user_list = []
+        try:
+            for id in self.input['ids']:
+                user_list.append(User.objects.get(id=id))
+        except ObjectDoesNotExist:
+            raise LogicError('No such user')
+
+        for user in user_list:
+            user.status = User_profile.CANCELED
+
+
+class AdminUserRecover(APIView):
+
+    @admin_required
+    def post(self):
+        self.check_input('ids')
+        user_list = []
+        try:
+            for id in self.input['ids']:
+                user_list.append(User.objects.get(id=id))
+        except ObjectDoesNotExist:
+            raise LogicError('No such user')
+
+        for user in user_list:
+            user.status = User_profile.NORMAL
+
+
+class AdminAppealDetail(APIView):
 
     @admin_required
     def get(self):
@@ -34,7 +96,7 @@ class AppealDetail(APIView):
         return appeal.id
 
 
-class AppealRemove(APIView):
+class AdminAppealRemove(APIView):
 
     @admin_required
     def post(self):
@@ -46,6 +108,3 @@ class AppealRemove(APIView):
             raise LogicError("Appeal Delete Failed")
 
         return self.input['id']
-
-
-# Create your views here.
