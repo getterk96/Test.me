@@ -134,6 +134,13 @@ class Contest(models.Model):
 
         self.save()
 
+    def get_tags(self):
+        tags = ""
+        for tag in self.tags.all():
+            tags += tag.content
+            tags += ","
+        return tags
+
 
 class Period(models.Model):
     contest = models.ForeignKey(Contest)

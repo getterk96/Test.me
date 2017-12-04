@@ -92,12 +92,6 @@ class ContestDetail(APIView):
     @organizer_required
     def get(self):
         contest = Contest.safe_get(id=self.input['id'])
-        tags = ""
-        for tag in contest.tags.all():
-            tags += tag.content
-            tags += ","
-        if tags:
-            tags = tags[:-1]
         data = {
             'name': contest.name,
             'description': contest.description,
@@ -110,7 +104,7 @@ class ContestDetail(APIView):
             'signUpAttachmentUrl': contest.sign_up_attachment_url,
             'level': contest.level,
             'currentTime': int(time.time()),
-            'tags': tags,
+            'tags': contest.get_tags(),
             'periods': contest.period_set.values_list('id', flat=True)
         }
 
@@ -118,11 +112,10 @@ class ContestDetail(APIView):
 
     @organizer_required
     def post(self):
-        self.check_input('id', 'name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
+        self.check_input('id', 'name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         contest = Contest.safe_get(id=self.input['id'])
         contest.name = self.input['name']
-        contest.status = self.input['status']
         contest.description = self.input['description']
         contest.logo_url = self.input['logoUrl']
         contest.banner_url = self.input['bannerUrl']
