@@ -183,7 +183,7 @@
                                             <img :src="user.avatar_url" />
                                             <div :class="['info']">
                                                 <ul>
-                                                    <li :class="['name']">{{ user.nickname }}<span v-if="is_self(user.id)">(你)</span></li>
+                                                    <li :class="['name']">{{ user.nickname + '(队长)'}}<span v-if="is_self(user.id)">(你)</span></li>
                                                     <li>{{ user.school }}</li>
                                                 </ul>
                                             </div>

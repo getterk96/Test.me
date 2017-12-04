@@ -368,6 +368,7 @@ li.userbox {
     display : inline-block;
     border-left : solid 5px rgba(73, 110, 193, 0.7);
     transition : border 0.3s;
+    cursor : pointer;
 }
 
 li.userbox:hover {
