@@ -6,6 +6,7 @@ from adminpage.views import *
 urlpatterns = [
     url(r'^user/list$', AdminUserList.as_view()),
     url(r'^user/search$', AdminUserSearch.as_view()),
+    url(r'^user/delete$', AdminUserDelete.as_view()),
     url(r'^appeal/detail$', AdminAppealDetail.as_view()),
     url(r'^appeal/remove$', AdminAppealRemove.as_view()),
 ]

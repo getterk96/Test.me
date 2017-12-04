@@ -35,6 +35,22 @@ class AdminUserSearch(APIView):
         return user_list
 
 
+class AdminUserDelete(APIView):
+
+    @admin_required
+    def post(self):
+        self.check_input('ids')
+        user_list = []
+        try:
+            for id in self.input['ids']:
+                user_list.append(User.objects.get(id=id))
+        except ObjectDoesNotExist:
+            raise LogicError('No such user')
+
+        for user in user_list:
+            user.status = User_profile.CANCELED
+
+
 class AdminAppealDetail(APIView):
 
     @admin_required

@@ -15,6 +15,10 @@ class User_profile(models.Model):
     ORGANIZER = 1
     ADMINISTRATOR = 2
 
+    status = models.IntegerField(default=0)
+    NORMAL = 0
+    CANCELED = 1
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
