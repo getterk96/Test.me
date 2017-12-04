@@ -191,6 +191,23 @@ class AdminContestList(APIView):
         return contests
 
 
+class AdminContestSearch(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('contestName', 'organizerName')
+        contests = []
+        for contest in Contest.objects.filter(name__contains=self.input['contestName'],
+                                              organizer__nickname__contains=self.input['organizerName'])
+            contests.append({
+                'id': contest.id,
+                'contestName': contest.name,
+                'organizerName': contest.organizer.nickname,
+                'status': contest.status
+            })
+        return contests
+
+
 class AdminAppealDetail(APIView):
 
     @admin_required
