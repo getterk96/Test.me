@@ -175,6 +175,7 @@ class AdminOrganizerVerification(APIView):
             organizer.verify_status = Organizer.VERIFIED
         else:
             organizer.verify_status = Organizer.REJECTED
+        organizer.save()
 
 
 class AdminContestList(APIView):
@@ -249,6 +250,19 @@ class AdminContestDetail(APIView):
         contest.save()
         tags = self.input['tags'].split(',')
         contest.add_tags(tags)
+
+
+class AdminContestVerification(APIView):
+
+    @admin_required
+    def post(self):
+        self.check_input('cid', 'verify')
+        contest = Contest.safe_get(id=self.input['cid'])
+        if self.input['verify'] == 1:
+            contest.status = Contest.PUBLISHED
+        elif self.input['verify'] == 0:
+            contest.status = Contest.CANCELLED
+        contest.save()
 
 
 class AdminAppealDetail(APIView):
