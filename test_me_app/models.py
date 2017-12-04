@@ -111,7 +111,8 @@ class Contest(models.Model):
     status = models.IntegerField()
     CANCELLED = -1
     SAVED = 0
-    PUBLISHED = 1
+    VERIFYING = 1
+    PUBLISHED = 2
 
     @staticmethod
     def safe_get(**args):

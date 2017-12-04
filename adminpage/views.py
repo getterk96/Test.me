@@ -9,14 +9,14 @@ class AdminUserList(APIView):
 
     @admin_required
     def get(self):
-        user_list = []
+        users = []
         for user in User.objects.all():
-            user_list.append({
+            users.append({
                 'id': user.id,
                 'username': user.username,
                 'userType': user.user_type
             })
-        return user_list
+        return users
 
 
 class AdminUserSearch(APIView):
@@ -24,15 +24,15 @@ class AdminUserSearch(APIView):
     @admin_required
     def get(self):
         self.check_input('username', 'userType')
-        user_list = []
+        users = []
         for user in User.objects.filter(username__contains=self.input['username'],
                                         user_type=self.input['userType']):
-            user_list.append({
+            users.append({
                 'id': user.id,
                 'username': user.username,
                 'userType': user.user_type
             })
-        return user_list
+        return users
 
 
 class AdminUserDelete(APIView):
@@ -174,6 +174,21 @@ class AdminOrganizerVerification(APIView):
             organizer.verify_status = Organizer.VERIFIED
         else:
             organizer.verify_status = Organizer.REJECTED
+
+
+class AdminContestList(APIView):
+
+    @admin_required
+    def get(self):
+        contests = []
+        for contest in Contest.objects.all():
+            contests.append({
+                'id': contest.id,
+                'contestName': contest.name,
+                'organizerName': contest.organizer.nickname,
+                'status': contest.status
+            })
+        return contests
 
 
 class AdminAppealDetail(APIView):

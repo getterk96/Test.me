@@ -137,7 +137,6 @@ class ContestDetail(APIView):
         contest.add_tags(tags)
 
 
-
 class ContestCreate(APIView):
     @organizer_required
     def post(self):
@@ -155,7 +154,7 @@ class ContestCreate(APIView):
         contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
         contest.level = self.input['level']
         contest.organizer_id = self.request.user.organizer.id
-        contest.status = 0
+        contest.status = Contest.SAVED
         contest.save()
         tags = self.input['tags'].split(',')
         contest.add_tags(tags)
@@ -259,6 +258,7 @@ class ContestTeam(APIView):
         team.save()
 
         return 0
+
 
 class PeriodCreate(APIView):
     @organizer_required
