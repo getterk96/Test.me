@@ -11,6 +11,10 @@ urlpatterns = [
     url(r'^player/detail$', AdminPlayerDetail.as_view()),
     url(r'^organizer/detail$', AdminOrganizerDetail.as_view()),
     url(r'^organizer/verification$', AdminOrganizerVerification.as_view()),
+    url(r'^contest/list$', AdminContestList.as_view()),
+    url(r'^contest/search$', AdminContestSearch.as_view()),
+    url(r'^contest/detail$', AdminContestDetail.as_view()),
+    url(r'^contest/verification$', AdminContestVerification.as_view()),
     url(r'^appeal/detail$', AdminAppealDetail.as_view()),
     url(r'^appeal/remove$', AdminAppealRemove.as_view()),
 ]

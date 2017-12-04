@@ -92,12 +92,6 @@ class ContestDetail(APIView):
     @organizer_required
     def get(self):
         contest = Contest.safe_get(id=self.input['id'])
-        tags = ""
-        for tag in contest.tags.all():
-            tags += tag.content
-            tags += ","
-        if tags:
-            tags = tags[:-1]
         data = {
             'name': contest.name,
             'description': contest.description,
@@ -110,7 +104,7 @@ class ContestDetail(APIView):
             'signUpAttachmentUrl': contest.sign_up_attachment_url,
             'level': contest.level,
             'currentTime': int(time.time()),
-            'tags': tags,
+            'tags': contest.get_tags(),
             'periods': contest.period_set.values_list('id', flat=True)
         }
 
@@ -118,11 +112,10 @@ class ContestDetail(APIView):
 
     @organizer_required
     def post(self):
-        self.check_input('id', 'name', 'status', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
+        self.check_input('id', 'name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         contest = Contest.safe_get(id=self.input['id'])
         contest.name = self.input['name']
-        contest.status = self.input['status']
         contest.description = self.input['description']
         contest.logo_url = self.input['logoUrl']
         contest.banner_url = self.input['bannerUrl']
@@ -135,7 +128,6 @@ class ContestDetail(APIView):
         contest.save()
         tags = self.input['tags'].split(',')
         contest.add_tags(tags)
-
 
 
 class ContestCreate(APIView):
@@ -155,7 +147,7 @@ class ContestCreate(APIView):
         contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
         contest.level = self.input['level']
         contest.organizer_id = self.request.user.organizer.id
-        contest.status = 0
+        contest.status = Contest.SAVED
         contest.save()
         tags = self.input['tags'].split(',')
         contest.add_tags(tags)
@@ -259,6 +251,7 @@ class ContestTeam(APIView):
         team.save()
 
         return 0
+
 
 class PeriodCreate(APIView):
     @organizer_required

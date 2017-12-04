@@ -3,20 +3,21 @@ from codex.baseview import APIView
 
 from codex.basedecorator import admin_required
 from test_me_app.models import *
+import time
 
 
 class AdminUserList(APIView):
 
     @admin_required
     def get(self):
-        user_list = []
+        users = []
         for user in User.objects.all():
-            user_list.append({
+            users.append({
                 'id': user.id,
                 'username': user.username,
                 'userType': user.user_type
             })
-        return user_list
+        return users
 
 
 class AdminUserSearch(APIView):
@@ -24,15 +25,15 @@ class AdminUserSearch(APIView):
     @admin_required
     def get(self):
         self.check_input('username', 'userType')
-        user_list = []
+        users = []
         for user in User.objects.filter(username__contains=self.input['username'],
                                         user_type=self.input['userType']):
-            user_list.append({
+            users.append({
                 'id': user.id,
                 'username': user.username,
                 'userType': user.user_type
             })
-        return user_list
+        return users
 
 
 class AdminUserDelete(APIView):
@@ -174,6 +175,94 @@ class AdminOrganizerVerification(APIView):
             organizer.verify_status = Organizer.VERIFIED
         else:
             organizer.verify_status = Organizer.REJECTED
+        organizer.save()
+
+
+class AdminContestList(APIView):
+
+    @admin_required
+    def get(self):
+        contests = []
+        for contest in Contest.objects.all():
+            contests.append({
+                'id': contest.id,
+                'contestName': contest.name,
+                'organizerName': contest.organizer.nickname,
+                'status': contest.status
+            })
+        return contests
+
+
+class AdminContestSearch(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('contestName', 'organizerName')
+        contests = []
+        for contest in Contest.objects.filter(name__contains=self.input['contestName'],
+                                              organizer__nickname__contains=self.input['organizerName']):
+            contests.append({
+                'id': contest.id,
+                'contestName': contest.name,
+                'organizerName': contest.organizer.nickname,
+                'status': contest.status
+            })
+        return contests
+
+
+class AdminContestDetail(APIView):
+
+    @admin_required
+    def get(self):
+        self.check_input('cid')
+        contest = Contest.safe_get(id=self.input['cid'])
+        return {
+            'name': contest.name,
+            'description': contest.description,
+            'logoUrl': contest.logo_url,
+            'bannerUrl': contest.banner_url,
+            'signUpStartTime': time.mktime(contest.sign_up_start_time.timetuple()),
+            'signUpEndTime': time.mktime(contest.sign_up_end_time.timetuple()),
+            'availableSlots': contest.available_slots,
+            'maxTeamMembers': contest.max_team_members,
+            'signUpAttachmentUrl': contest.sign_up_attachment_url,
+            'level': contest.level,
+            'tags': contest.get_tags(),
+            'status': contest.status
+        }
+
+    @admin_required
+    def post(self):
+        self.check_input('cid', 'name', 'organizerId', 'description', 'logoUrl', 'bannerUrl', 'signUpStartTime',
+                         'signUpEndTime', 'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
+        contest = Contest.safe_get(id=self.input['cid'])
+
+        contest.name = self.input['name']
+        contest.description = self.input['description']
+        contest.logo_url = self.input['logoUrl']
+        contest.banner_url = self.input['bannerUrl']
+        contest.sign_up_start_time = self.input['signUpStartTime']
+        contest.sign_up_end_time = self.input['signUpEndTime']
+        contest.available_slots = self.input['availableSlots']
+        contest.max_team_members = self.input['maxTeamMembers']
+        contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+        contest.level = self.input['level']
+        contest.save()
+        tags = self.input['tags'].split(',')
+        contest.add_tags(tags)
+
+
+class AdminContestVerification(APIView):
+
+    @admin_required
+    def post(self):
+        self.check_input('cid', 'verify')
+        contest = Contest.safe_get(id=self.input['cid'])
+        if self.input['verify'] == 1:
+            contest.status = Contest.PUBLISHED
+        elif self.input['verify'] == 0:
+            contest.status = Contest.CANCELLED
+        contest.save()
 
 
 class AdminAppealDetail(APIView):
