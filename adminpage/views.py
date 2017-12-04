@@ -2,10 +2,24 @@ from codex.baseerror import *
 from codex.baseview import APIView
 
 from codex.basedecorator import admin_required
-from test_me_app.models import Appeal, Contest
+from test_me_app.models import *
 
 
-class AppealDetail(APIView):
+class AdminUserList(APIView):
+
+    @admin_required
+    def get(self):
+        user_list = []
+        for user in User.objects.all():
+            user_list.append({
+                'id': user.id,
+                'username': user.username,
+                'userType': user.user_type
+            })
+        return user_list
+
+
+class AdminAppealDetail(APIView):
 
     @admin_required
     def get(self):
@@ -34,7 +48,7 @@ class AppealDetail(APIView):
         return appeal.id
 
 
-class AppealRemove(APIView):
+class AdminAppealRemove(APIView):
 
     @admin_required
     def post(self):
@@ -46,6 +60,3 @@ class AppealRemove(APIView):
             raise LogicError("Appeal Delete Failed")
 
         return self.input['id']
-
-
-# Create your views here.
