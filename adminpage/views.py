@@ -159,6 +159,23 @@ class AdminOrganizerDetail(APIView):
         organizer.save()
 
 
+class AdminOrganizerVerification(APIView):
+
+    @admin_required
+    def post(self):
+        self.check_input('id', 'verify')
+        try:
+            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+        except ObjectDoesNotExist:
+            raise LogicError('No such organizer')
+
+        organizer = user.organizer
+        if self.input['verify'] == 1:
+            organizer.verify_status = Organizer.VERIFIED
+        else:
+            organizer.verify_status = Organizer.REJECTED
+
+
 class AdminAppealDetail(APIView):
 
     @admin_required
