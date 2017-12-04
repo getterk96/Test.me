@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.contrib.auth.models import User, UserManager
 from django.db.models.signals import post_save
 from codex.baseerror import *
+from django.core.exceptions import ObjectDoesNotExist
+
 
 
 # Create your models here.
@@ -92,13 +94,13 @@ class Contest(models.Model):
     SAVED = 0
     PUBLISHED = 1
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Contest.objects.get(id=id)
+            return Contest.objects.get(args)
         except:
             raise LogicError("No Such Contest")
 
-    def addTags(self, tags):
+    def add_tags(self, tags):
         for content in tags:
             if not content:
                 continue
@@ -122,9 +124,9 @@ class Period(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Period.objects.get(id=id)
+            return Period.objects.get(args)
         except:
             raise LogicError("No Such Period")
 
@@ -136,9 +138,9 @@ class ExamQuestion(models.Model):
     attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return ExamQuestion.objects.get(id=id)
+            return ExamQuestion.objects.get(args)
         except:
             raise LogicError("No Such Exam Question")
 
@@ -154,15 +156,33 @@ class Team(models.Model):
     sign_up_attachment_url = models.CharField(max_length=256)
 
     status = models.IntegerField()
-    VERIFYING = 0
-    VERIFIED = 1
-    DISMISSED = 2
+    CREATING = 0
+    VERIFYING = 1
+    VERIFIED = 2
+    DISMISSED = -1
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Team.objects.get(id=id)
+            return Team.objects.get(args)
         except:
             raise LogicError("No Such Team")
+
+
+class TeamInvitation(models.Model):
+    team = models.ForeignKey(Team)
+    player = models.ForeignKey(Player)
+
+    status = models.IntegerField(default=0)
+    CONFIRMING = 0
+    CONFIRMED = 1
+    REFUSED = -1
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such team invitation')
 
 
 class PeriodScore(models.Model):
@@ -192,8 +212,8 @@ class Appeal(models.Model):
     SOLVED = 1
     ACCEPTED = 2
 
-    def safeGet(id):
+    def safe_get(**args):
         try:
-            return Appeal.objects.get(id=id)
+            return Appeal.objects.get(args)
         except:
             raise LogicError("No Such Appeal")

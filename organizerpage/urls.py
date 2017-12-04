@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 #
 from django.conf.urls import url
-
 from organizerpage.views import *
 
 urlpatterns = [
@@ -20,4 +19,5 @@ urlpatterns = [
     url(r'^question/create?$', QuestionCreate.as_view()),
     url(r'^question/detail?$', QuestionDetail.as_view()),
     url(r'^question/remove?$', QuestionRemove.as_view()),
+    url(r'^appeal/detail$', AppealDetail.as_view()),
 ]

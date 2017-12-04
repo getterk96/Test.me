@@ -1,5 +1,5 @@
 window.my_root_path = 'home/quincy/Work/test.me.view/'
-axios.defaults.baseURL = 'http://139.199.98.74:8000';
+axios.defaults.baseURL = 'http://127.0.0.1:8000';
 axios.defaults.withCredentials = true;
 
 window.sendresp404 = function() {
@@ -75,7 +75,7 @@ window.empty_f = function() {};
                         });
                 }
                 if (method == 'GET') {
-                    axios.get(url, data).
+                    axios.get(url, {params:data}).
                         then(function(response) {
                             if (response['data']['code'] == 0) {
                                 proc(response['data']);
