@@ -36,7 +36,6 @@ class Logout(APIView):
 
 class Upload(APIView):
 
-    #@login_required
     def post(self):
         self.check_input('file', 'destination')
         file = self.input['file'][0]

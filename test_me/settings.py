@@ -64,7 +64,7 @@ ROOT_URLCONF = 'test_me.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['test_me_view/dist'],
+        'DIRS': ['frontend/dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -143,7 +143,7 @@ def get_url(path, params=None):
 
 STATIC_URL = '/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'test_me_view/dist/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
 
 # Media files
 
