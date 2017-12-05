@@ -233,8 +233,28 @@ var info = new Vue({
         switch_invitation : function() {
             this.show_invitations = !this.show_invitations;
         },
+        c_file_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            for (i of this.contest.attr)
+                if (i.name == 'c_file')
+                    i.content = files[0].name;
+                    //api
+        },
         switch_period_info : function(idx) {
             this.contest.period[idx].show = !this.contest.period[idx].show;
+        },
+        p_file_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            for (i of this.contest.period)
+                if ('p' + i.lid == e.target.id)
+                    for (j of i.attr)
+                        if (j.name == 'p_file')
+                            j.content = files[0].name;
+                            //api
         },
         get_p_name : function(idx) {
             for (i of this.contest.period[idx].attr)
@@ -252,5 +272,24 @@ var info = new Vue({
             var new_member = { username : ''};
             this.new_team.member.push(new_member);
         }
+/*
+        //for page of contest info for participants
+        is_self : function(id) {
+            for (i of team.member)
+                if (i.id == id)
+                    return user_id == id;
+            console.log('[err] No such user');
+            return false;
+        },
+        visit_user : function(id) {
+            if (this.is_self(id)) {
+                //visit myaccount
+            } else {
+                //guest visit
+            }
+        },
+        switch_team_ownership : function() {
+            //api
+        }*/
     }
 });
