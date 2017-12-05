@@ -153,19 +153,22 @@
                             </li>
                             <li>
                                 <div :class="['label']">报名附件</div>
-                                <label :class="['fileuploader']">
-                                    <input type="file" v-if="team.status == '未报名'" @change="t_file_change" />
-                                    <input type="file" v-else disabled />
-                                </label>
-                                {{ signup_material.attachment }}
-                                <div v-if="team.status != '未报名'" :class="['urgent-info']">
-                                    现在无法修改报名附件
-                                </div>
+                                <template v-if="is_self(team.leader_id)">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" v-if="team.status == '未报名'" @change="t_file_change" />
+                                        <input type="file" v-else disabled />
+                                    </label>
+                                    {{ signup_material.attachment }}
+                                    <div v-if="team.status != '未报名'" :class="['urgent-info']">
+                                        现在无法修改报名附件
+                                    </div>
+                                </template>
+                                <input v-else disabled :class="['display']" v-model="signup_material.attachment"/>
                             </li>
                         </ul>
                     </article>
                 </div>
-                <div :class="['s-u-resp']">
+                <div :class="['s-u-resp']" v-if="is_self(team.leader_id)">
                     <button @click="save" :class="['response-button']">暂存修改</button>
                     <button @click="post" :class="['response-button']">提交报名</button>
                 </div>

@@ -139,7 +139,7 @@ window.contest = {
 };
 
 //api
-window.user_id = '1';
+window.user_id = '2';
 
 window.team = {
     name : '405',
