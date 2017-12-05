@@ -7,8 +7,8 @@
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
         <script src="../js/uni.js"></script>
-        <link type="text/css" rel="stylesheet" href="../css/uni.css" />
-        <link type="text/css" rel="stylesheet" href="../css/cdetail.css" />
+        <link type="text/css" rel="stylesheet" href="~/project/TestMe/frontend/static/css/uni.css" />
+        <link type="text/css" rel="stylesheet" href="~/project/TestMe/frontend/static/css/cdetail.css" />
     </head>
     <body>
         <div id="header">
@@ -213,14 +213,32 @@
                             </article>
                         </div>
                     </template>
+                    <template v-if="page == '比赛信息'">
+                        <div :class="['session']">
+                            <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">比赛基本信息</span></button>
+                            <ul :class="['form']">
+                                <template v-for="item in contest.attr">
+                                    <li v-if="item.name != 'name'">
+                                        <div :class="['label']">{{ item.alias }}</div>
+                                        <template v-if="item.type == 'ltext'">
+                                            <textarea :class="['display', 'long']" disabled v-model="item.content" rows="5"></textarea>
+                                        </template>
+                                        <template v-else-if="item.type == 'file'">
+                                            <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
+                                        </template>
+                                    </li>
+                                </template>
+                            </ul>
+                        </div>
+                    </template>
                 </template>
             </template>
             <template v-else>
             </template>
         </div>
     </body>
-    <script src="../js/uni_c.js"></script>
-    <script src="../js/header_c.js"></script>
-    <script src="../js/cdetail_c.js"></script>
+    <script src="~/project/TestMe/frontend/static/js/uni_c.js"></script>
+    <script src="~/project/TestMe/frontend/static/js/header_c.js"></script>
+    <script src="~/project/TestMe/frontend/static/js/cdetail_c.js"></script>
 </html>
 <!-- template -->

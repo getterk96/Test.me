@@ -79,6 +79,11 @@ a {
     text-decoration : none;
 }
 
+a.underlined {
+    text-decoration : underline;
+}
+
+
 /* > header */
 #header {
     position : fixed;
@@ -260,6 +265,21 @@ ul.form>li>* {
     background-color : rgba(230, 230, 230, 0.6);
     border-color : rgba(230, 230, 230, 0.6);
     color : rgba(130, 130, 130, 0.8);
+}
+
+.display {
+    vertical-align : top;
+    background-color : transparent;
+    box-shadow : 0px 0px 5px rgba(0, 0, 0, 0.3) inset;
+    padding : 0.2em 0.5em;
+    font-size : 1.1em;
+    line-height : 1.05em;
+    border-radius : 0.3em;
+    border-style : none;
+}
+
+.display.long {
+    width : calc(50vw - 13em);
 }
 
 .input-warning {
