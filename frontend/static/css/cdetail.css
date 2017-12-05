@@ -18,15 +18,18 @@ nav#side-nav label {
     width : 6em;
 }
 
-.input.long {
+.input.long,
+.display.long {
     width : calc(50vw - 13em);
 }
 
-.input.short {
+.input.short,
+.display.short {
     width : 2em;
 }
 
-.input.mid {
+.input.mid,
+.display.mid {
     width : 9em;
 }
 
@@ -34,12 +37,14 @@ nav#side-nav label {
     vertical-align : middle;
 }
 
-.input[type='date'] {
+.input[type='date'],
+.display[type='date'] {
     padding-top : 0em;
     padding-bottom : 0em;
 }
 
-textarea.input {
+textarea.input,
+textarea.display {
     vertical-align : top;
 }
 
@@ -70,11 +75,18 @@ li.userbox>div.info li {
     margin : 5px 0;
 }
 
-#switch-leader {
+.team-select {
     margin-top : 2em;
+    padding-bottom : 2em;
 }
 
-#switch-leader select,
-#switch-leader .label {
+.team-select select,
+.team-select .label {
     display : inline-block;
+}
+
+.urgent-info {
+    padding : 0.5em 0.8em;
+    background-color : rgba(200, 200, 200, 0.3);
+    margin : 0em auto 1em auto;
 }
