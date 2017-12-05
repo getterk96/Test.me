@@ -137,13 +137,6 @@ window.contest = {
             editable : true
         },
         {
-            name : 'minteam',
-            alias : '团队人数下限',
-            type : 'number',
-            content : '100',
-            editable : true
-        },
-        {
             name : 'maxteam',
             alias : '团队人数上限',
             type : 'number',

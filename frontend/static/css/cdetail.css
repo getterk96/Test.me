@@ -18,6 +18,10 @@ nav#side-nav label {
     width : 6em;
 }
 
+.label span {
+    font-size : 1em;
+}
+
 .input.long,
 .display.long {
     width : calc(50vw - 13em);
@@ -89,4 +93,5 @@ li.userbox>div.info li {
     padding : 0.5em 0.8em;
     background-color : rgba(200, 200, 200, 0.3);
     margin : 0em auto 1em auto;
+    width : 100%;
 }

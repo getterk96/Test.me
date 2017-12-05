@@ -110,12 +110,9 @@ window.contest = {
         },
         {
             name : 'team_lim',
-            alias : '团队人数limit',
-            type : 'interval',
-            content : {
-                min : '5',
-                max : '200'
-            },
+            alias : '团队人数上限',
+            type : 'number',
+            content : '5',
             editable : true
         },
         {
@@ -142,10 +139,6 @@ window.new_team = {
     name : '',
     member : []
 }
-
-var tmp = parseInt(window.contest.getAttr('team_lim').min);
-for (var i = 1; i < tmp; ++i)
-    window.new_team.member.push({ username : ''});
 
 window.invitation = [
     {
@@ -207,8 +200,8 @@ window.show_period = [true];
 
 if (usertype == type_p) {
     // >>>mod>>>> to chinese
-    nav.list = ['contest info', 'team info'];
-    nav.choice = 'contest info';
+    nav.list = ['比赛信息', '组队信息'];
+    nav.choice = '比赛信息';
 }
 
 var info = new Vue({
@@ -251,6 +244,14 @@ var info = new Vue({
         insert_new_member : function() {
             var new_member = { username : ''};
             this.new_team.member.push(new_member);
+        },
+        setpage : function(p) {
+            for (np of nav.list)
+                if (np == p) {
+                    nav.choice = p;
+                    return;
+                }
+            console.log('[err] No such page!');
         }
     }
 });

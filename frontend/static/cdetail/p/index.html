@@ -30,10 +30,7 @@
             </ul>
         </nav>
         <div id="body">
-            <template v-if="page == '[null]' || page == 'contest info'">
-                <div v-if="page == 'contest info' && invitation.length > 0" :class="['urgent-info']">
-                    {{ 'You have ' + invitation.length.toString() + ' invitations. Check it by clicking "team info".' }}
-                </div>
+            <template v-if="page == 'contest info'">
                 <div :class="['session']">
                     <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">Basic Information</span></button>
                     <article :class="['s-body']" v-if="show_basic_info">
@@ -105,69 +102,78 @@
                     </template>
                 </div>
             </template>
-            <template v-else-if="page == 'team info'">
+            <template v-else-if="page == '队伍信息'">
                 <div :class="['session']">
-                    <button :class="['s-title', show_invitations ? '' : 'collapse']" @click="switch_invitation"><span :class="['title']">Invitations</span></button>
-                    <article :class="['s-title']" v-if="show_invitations">
+                    <button :class="['s-title', show_member ? '' : 'collapse']" @click="switch_member"><span :class="['title']">{{ team.name }}</span></button>
+                    <article :class="['s-body']" v-if="show_member">
                         <ul>
-                            <li v-for="i in invitation" :class="['userbox']">
-                                <img :src="i.leader_avatar_url" />
-                                <div :class="['info']">
-                                    <ul>
-                                        <li :class="['name']">{{ 'From ' + i.teamname }}</li>
-                                        <li>{{ 'Leader : ' + i.leadername }}</li>
-                                        <li>{{ 'Team ID : ' + i.tid }}</li>
-                                    </ul>
-                                </div>
-                            </li>
+                            <template v-for="user in team.member">
+                                <li v-if="user.id == team.leader_id" :class="['userbox', 'leader']" @click="visit_user(user.id)">
+                                    <img :src="user.avatar_url" />
+                                    <div :class="['info']">
+                                        <ul>
+                                            <li :class="['name']">{{ user.nickname + '(队长)'}}<span v-if="is_self(user.id)">(你)</span></li>
+                                            <li>{{ 'ID : ' + user.id }}</li>
+                                            <li>{{ user.school }}</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </template>
+                            <template v-for="user in team.member">
+                                <li v-if="user.id != team.leader_id" :class="['userbox', user.accept ? '' : 'unaccepted']" @click="visit_user(user.id)">
+                                    <img :src="user.avatar_url" />
+                                    <div :class="['info']">
+                                        <ul>
+                                            <li :class="['name']">{{ user.nickname }}<span v-if="is_self(user.id)">(你)</span><span v-if="!user.accept">(未通过邀请)</span></li>
+                                            <li>{{ 'ID : ' + user.id }}</li>
+                                            <li>{{ user.school }}</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </template>
                         </ul>
-                        <div :class="['team-select']">
-                            <div :class="['label']">Join </div>
-                            <select :class="['input']" v-model="accept_team">
-                                <template v-for="team in invitation">
-                                    <option>{{ team.teamname + '(id : ' + team.tid + ')' }}</option>
+                        <div v-if="is_self(team.leader_id)" :class="['team-select']">
+                            <div :class="['label']">移交队长至</div>
+                            <select :class="['input']" v-model="team.new_leader">
+                                <template v-for="user in team.member">
+                                    <option v-if="user.id != team.leader_id && user.accept">{{ user.nickname + '(ID:' + user.id + ')' }}</option>
                                 </template>
                             </select>
-                            <button :class="['operator', 'indent-3']" @click=""><span>确认</span></button>
+                            <button :class="['operator', 'indent-3']" @click="switch_team_ownership"><span>确认</span></button>
                         </div>
                     </article>
                 </div>
                 <div :class="['session']">
-                    <button :class="['s-title', 'collapse']"><span :class="['title']">Make my team</span></button>
-                    <article :class="['s-title']">
+                    <button :class="['s-title', 'collapse']"><span :class="['title']">报名</span></button>
+                    <article :class="['s-body']">
                         <ul :class="['form']">
                             <li>
-                                <div :class="['label']">People lims</div>
-                                <input type="number" disabled :class="['display', 'mid']" v-model="contest.getAttr('team_lim').min" />-
-                                <input type="number" disabled :class="['display', 'mid']" v-model="contest.getAttr('team_lim').max" /> peoples
+                                <div :class="['label']">报名状态</div>
+                                <input :class="['display', 'mid', team.status == '审核通过' ? 'green' : 'red']" disabled v-model="team.status"/>
                             </li>
                             <li>
-                                <div :class="['label']">Team Name</div>
-                                <input :class="['input']" v-model="new_team.name" />
-                                <div :class="['input-warning']">You cannot modify your team name</div>
-                            </li>
-                            <li v-for="m in new_team.member">
-                                <div :class="['label']">
-                                    <span v-if="new_team.member.indexOf(m) == 0">Other Members</span>
+                                <div :class="['label']">报名附件</div>
+                                <label :class="['fileuploader']">
+                                    <input type="file" v-if="team.status == '未报名'" @change="t_file_change" />
+                                    <input type="file" v-else disabled />
+                                </label>
+                                {{ signup_material.attachment }}
+                                <div v-if="team.status != '未报名'" :class="['urgent-info']">
+                                    现在无法修改报名附件
                                 </div>
-                                <input :class="['input']" placeholder="your ideal teammate's username" v-model="m.username" />
-                                <button :class="['operator', 'indent-3', 'negative']" @click="remove_member(new_team.member.indexOf(m))"><span>remove this member</span></button>
-                            </li>
-                            <li>
-                                <div :class="['label']"></div>
-                                <button :class="['operator']" @click="insert_new_member"><span>add a new slot</span></button>
                             </li>
                         </ul>
                     </article>
-                    <div :class="['s-u-resp']">
-                        <button :class="['response-button']">Build my team</button>
-                    </div>
+                </div>
+                <div :class="['s-u-resp']">
+                    <button @click="save" :class="['response-button']">暂存修改</button>
+                    <button @click="post" :class="['response-button']">提交报名</button>
                 </div>
             </template>
         </div>
     </body>
     <script src="../../js/uni_c.js"></script>
     <script src="../../js/header_c.js"></script>
-    <script src="../../js/cdetail_guest_c.js"></script>
+    <script src="../../js/cdetail_player_c.js"></script>
 </html>
 <!-- template -->

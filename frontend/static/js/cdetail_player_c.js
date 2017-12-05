@@ -138,24 +138,31 @@ window.contest = {
     period_modifier_available : true
 };
 
-window.new_team = {
-    name : '',
-    member : []
+//api
+window.user_id = '1';
+
+window.team = {
+    name : '405',
+    status : '未报名',
+    member : [
+        {
+            nickname : 'hentaiZYN',
+            avatar_url : '../../img/user.png',
+            school : 'THU',
+            id : '1',
+            accept : true,
+        },
+        {
+            nickname : 'o,manGJH',
+            avatar_url : '../../img/user.png',
+            school : 'THU',
+            id : '2',
+            accept : true
+        }
+    ],
+    leader_id : '1',
+    new_leader : ''
 }
-
-var tmp = parseInt(window.contest.getAttr('team_lim').min);
-for (var i = 1; i < tmp; ++i)
-    window.new_team.member.push({ username : ''});
-
-window.invitation = [
-    {
-        teamname : '405',
-        leadername : 'Hentai ZYN',
-        leader_avatar_url : '../../img/user.png',
-        tid : '1'
-    }
-]
-
 
 header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
 header.title = '比赛详情';
@@ -203,23 +210,21 @@ var nav = new Vue({
     }
 });
 
-window.show_period = [true];
+nav.list = ['队伍信息'];
+nav.choice = '队伍信息';
 
-if (usertype == type_p) {
-    // >>>mod>>>> to chinese
-    nav.list = ['contest info', 'team info'];
-    nav.choice = 'contest info';
-}
+window.show_period = [true];
 
 var info = new Vue({
     el : '#body',
     data : {
         show_basic_info : true,
-        show_invitations : true,
-        invitation : window.invitation,
-        new_team : window.new_team,
-        accept_team : '',
-        contest : window.contest
+        show_member : true,
+        team : window.team,
+        contest : window.contest,
+        signup_material : {
+            attachment : ''
+        }
     },
     computed : {
         page : function() {
@@ -230,56 +235,26 @@ var info = new Vue({
         switch_basic_info : function() {
             this.show_basic_info = !this.show_basic_info;
         },
-        switch_invitation : function() {
-            this.show_invitations = !this.show_invitations;
+        switch_member : function() {
+            this.show_member = !this.show_member;
         },
-        c_file_change : function(e) {
+        t_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
                 return;
-            for (i of this.contest.attr)
-                if (i.name == 'c_file')
-                    i.content = files[0].name;
-                    //api
+            this.signup_material.attachment = files[0].name;
+            //api
         },
         switch_period_info : function(idx) {
             this.contest.period[idx].show = !this.contest.period[idx].show;
-        },
-        p_file_change : function(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length)
-                return;
-            for (i of this.contest.period)
-                if ('p' + i.lid == e.target.id)
-                    for (j of i.attr)
-                        if (j.name == 'p_file')
-                            j.content = files[0].name;
-                            //api
         },
         get_p_name : function(idx) {
             for (i of this.contest.period[idx].attr)
                 if (i.name == 'name')
                     return(i.content);
         },
-        remove_member : function(idx) {
-            if ((idx >= this.new_team.length) || (idx < 0)) {
-                console.log('[err] No such element');
-                return;
-            }
-            this.new_team.member.splice(idx, 1);
-        },
-        insert_new_member : function() {
-            var new_member = { username : ''};
-            this.new_team.member.push(new_member);
-        }
-/*
-        //for page of contest info for participants
         is_self : function(id) {
-            for (i of team.member)
-                if (i.id == id)
-                    return user_id == id;
-            console.log('[err] No such user');
-            return false;
+            return window.user_id == id;
         },
         visit_user : function(id) {
             if (this.is_self(id)) {
@@ -290,6 +265,12 @@ var info = new Vue({
         },
         switch_team_ownership : function() {
             //api
-        }*/
+        },
+        save : function() {
+            //api
+        },
+        post : function() {
+            //api
+        }
     }
 });
