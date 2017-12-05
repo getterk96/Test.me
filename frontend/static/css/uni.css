@@ -31,6 +31,14 @@
     margin-left : 3em;
 }
 
+.green {
+    color : rgb(20, 100, 20);
+}
+
+.red {
+    color : rgb(200, 20, 20);
+}
+
 /* > dotted background decorator*/
 .dotted-bg {
     z-index : 0;
@@ -78,6 +86,11 @@ a {
     cursor : pointer;
     text-decoration : none;
 }
+
+a.underlined {
+    text-decoration : underline;
+}
+
 
 /* > header */
 #header {
@@ -262,6 +275,16 @@ ul.form>li>* {
     color : rgba(130, 130, 130, 0.8);
 }
 
+.display {
+    border-radius : 0.3em;
+    height : 100%;
+    padding : 0.12em 0.5em;
+    background-color : transparent;
+    border : none;
+    font-size : 1.2em;
+    box-shadow : 0px 0px 5px rgba(0, 0, 0, 0.3) inset;
+}
+
 .input-warning {
     color : rgb(150, 150, 150);
 }
@@ -361,4 +384,48 @@ button.operator.negative[disabled]:hover {
 
 button.operator.negative:hover {
     border-left-color :rgba(255, 20, 20, 1);
+}
+
+/* > userbox */
+li.userbox {
+    display : inline-block;
+    border-left : solid 5px rgba(73, 110, 193, 0.7);
+    transition : border 0.3s;
+    cursor : pointer;
+}
+
+li.userbox:hover {
+    border-left-color : rgba(73, 110, 193, 1);
+}
+
+li.userbox.leader {
+    border-left-color : rgba(20, 110, 20, 0.3);
+}
+
+li.userbox.leader:hover {
+    border-left-color : rgba(50, 180, 50, 1);
+}
+
+li.userbox>img,
+li.userbox>div.info {
+    display : inline-block;
+    height : 100%;
+    margin : 0;
+    vertical-align : top;
+}
+
+li.userbox>div.info li {
+    text-overflow : ellipsis;
+}
+
+li.userbox>div.info .name {
+    font-weight : bold;
+}
+
+li.userbox.unaccepted {
+    border-left-color : rgba(210, 20, 20, 0.3);
+}
+
+li.userbox.unaccepted:hover {
+    border-left-color : rgba(210, 20, 20, 1);
 }

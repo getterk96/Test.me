@@ -18,15 +18,22 @@ nav#side-nav label {
     width : 6em;
 }
 
-.input.long {
+.label span {
+    font-size : 1em;
+}
+
+.input.long,
+.display.long {
     width : calc(50vw - 13em);
 }
 
-.input.short {
+.input.short,
+.display.short {
     width : 2em;
 }
 
-.input.mid {
+.input.mid,
+.display.mid {
     width : 9em;
 }
 
@@ -34,12 +41,14 @@ nav#side-nav label {
     vertical-align : middle;
 }
 
-.input[type='date'] {
+.input[type='date'],
+.display[type='date'] {
     padding-top : 0em;
     padding-bottom : 0em;
 }
 
-textarea.input {
+textarea.input,
+textarea.display {
     vertical-align : top;
 }
 
@@ -54,4 +63,35 @@ button.response-button {
 
 div.s-u-resp {
     padding-bottom : 2em;
+}
+
+li.userbox {
+    width : 40%;
+    height : 5em;
+    margin : 1em 3%;
+}
+
+li.userbox>img {
+    width : 5em;
+}
+
+li.userbox>div.info li {
+    margin : 5px 0;
+}
+
+.team-select {
+    margin-top : 2em;
+    padding-bottom : 2em;
+}
+
+.team-select select,
+.team-select .label {
+    display : inline-block;
+}
+
+.urgent-info {
+    padding : 0.5em 0.8em;
+    background-color : rgba(200, 200, 200, 0.3);
+    margin : 0em auto 1em auto;
+    width : 100%;
 }
