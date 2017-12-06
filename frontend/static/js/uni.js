@@ -33,11 +33,13 @@ window.empty_f = function() {};
     //   > if no method should be referred, 'window.empty_f' can be used
     var _$t = window.$t;
     var _testme = window.testme;
-    var testme = $t = window.$t = window.testme = function(url, method, data, proc, exception) {
-        return new testme.prototype.init(url, method, data, proc, exception);
+    var testme = $t = window.$t = window.testme = function(url, method, data, proc, exception, proc_param, exception_param) {
+        return new testme.prototype.init(url, method, data, proc, exception, proc_param, exception_param);
     }
     testme.fn = testme.prototype = {
-        init : function(url, method, data, proc, exception) {
+        init : function(url, method, data, proc, exception, proc_param, exception_param) {
+            proc_param = proc_param || {};
+            exception_param = exception_param || {};
             if (typeof url == 'string') {
                 if ((method != 'POST') && (method !='GET')) {
                     console.log('[err] invlalid method');
@@ -57,24 +59,24 @@ window.empty_f = function() {};
                     axios.post(url, data)
                         .then(function(response) {
                              if (response['data']['code'] == 0) {
-                                 proc(response['data']);
+                                 proc(response['data'], proc_param);
                              }
                              else {
-                                 exception(response['data']);
+                                 exception(response['data'], exception_param);
                              }
                         })
-                        .catch(function(error) {
+                        /*.catch(function(error) {
                              alert('Error occured!');
-                        });
+                        })*/;
                 }
                 if (method == 'GET') {
-                    axios.get(url, data).
+                    axios.get(url, {params : data}).
                         then(function(response) {
                             if (response['data']['code'] == 0) {
-                                proc(response['data']);
+                                proc(response['data'], proc_param);
                             }
                             else {
-                                exception(response['data']);
+                                exception(response['data'], exception_param);
                             }
                         })
                         .catch(function(error) {
