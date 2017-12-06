@@ -365,7 +365,7 @@ var q_upload_pass = function(response, param) {
     var aim = param['aim'];
     for (i of this.contest.period)
         for (j of i.question)
-            if ('q' + i.lid + '-' + (parseInt(j.lid) + 1).toString() == aim)
+            if ('q' + j.lid + '-' + (parseInt(i.lid) + 1).toString() == aim)
                 for (k of j.attr)
                     if (k.name == 'q_file')
                         k.content = response.data;

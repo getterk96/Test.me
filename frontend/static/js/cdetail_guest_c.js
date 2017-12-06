@@ -9,7 +9,7 @@ const type_o = 1;
     //PLAYER = 0, ORGANIZER = 1
     $t('/api/c/user_type', 'GET', {},
         function (response) {
-            myaccount_c.usertype = response['data'];
+            window.usertype = response['data'];
         },
         function (response) {
             alert('[' + response.code.toString() + ']' + response.msg);
