@@ -335,7 +335,7 @@ var info = new Vue({
                 return;
             for (i of this.contest.period)
                 for (j of i.question)
-                    if ('q' + i.lid + '-' + (parseInt(j.lid) + 1).toString() == e.target.id)
+                    if ('q' + j.lid + '-' + (parseInt(i.lid) + 1).toString() == e.target.id)
                         for (k of j.attr)
                             if (k.name == 'q_file')
                                 k.content = files[0].name;
