@@ -10,7 +10,10 @@ import time, datetime
 
 
 def player_signup_contest(player, contest):
-    for team in (player.lead_teams + player.join_teams):
+    for team in (player.lead_teams.all()):
+        if team.contest == contest:
+            return team
+    for team in (player.join_teams.all()):
         if team.contest == contest:
             return team
     raise ValidateError('You have not sign up this contest')
@@ -118,16 +121,16 @@ class PlayerContestDetail(APIView):
 
         # tags
         tags = []
-        for tag in contest.tags:
+        for tag in contest.tags.all():
             tags.append(tag.content)
         # periods
         periods = []
-        for period in contest.period_set:
+        for period in contest.period_set.all():
             periods.append({'periodName': period.name,
                             'periodId': period.id,
                             'periodSlots': period.available_slots,
-                            'periodStartTime': time.mktime(period.start_time.timetumple()),
-                            'periodEndTime': time.mktime(period.end_time.timetumple())})
+                            'periodStartTime': time.mktime(period.start_time.timetuple()),
+                            'periodEndTime': time.mktime(period.end_time.timetuple())})
 
         return {
             'name': contest.name,
@@ -275,7 +278,15 @@ class PlayerTeamList(APIView):
     def get(self):
         player = self.request.user.player
         teams = []
-        for team in (player.lead_teams + player.join_teams):
+        for team in (player.lead_teams.all()):
+            if team.status == Team.VERIFIED:
+                teams.append({
+                    'id': team.id,
+                    'name': team.name,
+                    'leaderName': team.leader.name,
+                    'contestName': team.contest.name
+                })
+        for team in (player.join_teams.all()):
             if team.status == Team.VERIFIED:
                 teams.append({
                     'id': team.id,
@@ -374,19 +385,22 @@ class PlayerTeamCreate(APIView):
 
     @player_required
     def post(self):
-        self.check_input('name', 'memberIds', 'contestId', 'avatarUrl',
+        self.check_input('name', 'members', 'contestId', 'avatarUrl',
                          'description', 'signUpAttachmentUrl')
         contest = Contest.safe_get(id=self.input['contestId'])
 
         members = []
-        for memberId in self.input['memberIds']:
-            member = User.objects.get(id=memberId)
-            if member.user_type != User_profile.PLAYER:
+        for memberName in self.input['members']:
+            member = User.objects.get(username=memberName)
+            if member.user_profile.user_type != User_profile.PLAYER:
                 raise InputError('Player does not exist')
             members.append(member)
 
         player = self.request.user.player
-        for team in (player.lead_teams + player.join_teams):
+        for team in (player.lead_teams.all()):
+            if team.contest == contest:
+                raise LogicError('You are already in a team of this contest')
+        for team in (player.join_teams.all()):
             if team.contest == contest:
                 raise LogicError('You are already in a team of this contest')
 
@@ -398,8 +412,8 @@ class PlayerTeamCreate(APIView):
                            sign_up_attachment_url=self.input['signUpAttachmentUrl'],
                            status=Team.CREATING)
         for member in members:
-            team.members.add(member)
-            TeamInvitation.objects.create(team=team, player=contest)
+            team.members.add(member.player)
+            TeamInvitation.objects.create(team=team, player=member.player)
         team.save()
 
 
@@ -408,19 +422,20 @@ class PlayerTeamInvitation(APIView):
     @player_required
     def get(self):
         invitations = []
-        for invitation in self.request.user.player.teaminvitation_set:
+        for invitation in self.request.user.player.teaminvitation_set.all():
             memeberIds = []
             memberNames = []
-            for member in invitation.team.members:
+            for member in invitation.team.members.all():
                 memeberIds.append(member.id)
                 memberNames.append(member.user.username)
             invitations.append({
                 'id': invitation.id,
-                'contest': invitation.contest.name,
+                'contestId' : invitation.team.contest.id,
                 'leaderId': invitation.team.leader.id,
                 'leaderName': invitation.team.leader.user.username,
                 'memberIds': memeberIds,
                 'memberNames': memberNames,
+                'teamName' : invitation.team.name,
             })
         return invitations
 

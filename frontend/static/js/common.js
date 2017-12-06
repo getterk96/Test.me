@@ -1,9 +1,7 @@
-// universal script
 window.my_root_path = 'home/quincy/Work/test.me.view/'
 axios.defaults.baseURL = 'http://127.0.0.1:8000';
 axios.defaults.withCredentials = true;
 
-// global methods
 window.sendresp404 = function() {
     var path = window.my_root_path + '404.html?redirect=' + window.location.href;
     window.location.assign(path);
@@ -18,8 +16,8 @@ window.get_args = function(name) {
 };
 
 window.empty_f = function() {};
+//window.site_domain = "http://127.0.0.1:8000";
 
-//wrapped up request sender
 (function(window, undefined) {
     // This wrapped-up request sender should be initialized with 5 arguments :
     // > the url requested
@@ -33,14 +31,21 @@ window.empty_f = function() {};
     //   > if no method should be referred, 'window.empty_f' can be used
     var _$t = window.$t;
     var _testme = window.testme;
-    var testme = $t = window.$t = window.testme = function(url, method, data, proc, exception, proc_param, exception_param) {
-        return new testme.prototype.init(url, method, data, proc, exception, proc_param, exception_param);
+    var testme = $t = window.$t = window.testme = function(url, method, data, proc, exception) {
+        return new testme.prototype.init(url, method, data, proc, exception);
     }
     testme.fn = testme.prototype = {
-        init : function(url, method, data, proc, exception, proc_param, exception_param) {
-            proc_param = proc_param || {};
-            exception_param = exception_param || {};
+        init : function(url, method, data, proc, exception) {
             if (typeof url == 'string') {
+                /*if (window.XMLHttpRequest) {
+                    t_request = new XMLHttpRequest();
+                    console.log('3!');
+                }
+                else {
+                    alert('Explorer unsupported! Chrome or Firefox suggested. 您的浏览器不再被支持，建议使用Chrome或Firefox浏览器.');
+                    console.log('[err] explorer unsupported');
+                    return undefined;
+                }*/
                 if ((method != 'POST') && (method !='GET')) {
                     console.log('[err] invlalid method');
                     return undefined;
@@ -59,10 +64,10 @@ window.empty_f = function() {};
                     axios.post(url, data)
                         .then(function(response) {
                              if (response['data']['code'] == 0) {
-                                 proc(response['data'], proc_param);
+                                 proc(response['data']);
                              }
                              else {
-                                 exception(response['data'], exception_param);
+                                 exception(response['data']);
                              }
                         })
                         .catch(function(error) {
@@ -70,18 +75,18 @@ window.empty_f = function() {};
                         });
                 }
                 if (method == 'GET') {
-                    axios.get(url, {params : data}).
+                    axios.get(url, {params:data}).
                         then(function(response) {
                             if (response['data']['code'] == 0) {
-                                proc(response['data'], proc_param);
+                                proc(response['data']);
                             }
                             else {
-                                exception(response['data'], exception_param);
+                                exception(response['data']);
                             }
                         })
-                        /*.catch(function(error) {
+                        .catch(function(error) {
                             alert('Error occured!');
-                        })*/;
+                        });
                 }
                 return this;
             } else {
@@ -91,5 +96,3 @@ window.empty_f = function() {};
     };
     testme.prototype.init.prototype = testme.prototype;
 }(window, undefined));
-
-const dev = device.default;
