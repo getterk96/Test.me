@@ -117,7 +117,7 @@ class Contest(models.Model):
     @staticmethod
     def safe_get(**args):
         try:
-            return Contest.objects.get(args)
+            return Contest.objects.get(**args)
         except ObjectDoesNotExist:
             raise LogicError("No Such Contest")
 
@@ -155,7 +155,7 @@ class Period(models.Model):
     @staticmethod
     def safe_get(**args):
         try:
-            return Period.objects.get(args)
+            return Period.objects.get(**args)
         except ObjectDoesNotExist:
             raise LogicError("No Such Period")
 
@@ -170,7 +170,7 @@ class ExamQuestion(models.Model):
     @staticmethod
     def safe_get(**args):
         try:
-            return ExamQuestion.objects.get(args)
+            return ExamQuestion.objects.get(**args)
         except ObjectDoesNotExist:
             raise LogicError("No Such Exam Question")
 
@@ -180,7 +180,7 @@ class Team(models.Model):
     leader = models.ForeignKey(Player, related_name="lead_teams")
     members = models.ManyToManyField(Player, related_name="join_teams")
     contest = models.ForeignKey(Contest)
-    period = models.ForeignKey(Period)
+    period = models.ForeignKey(Period, null = True)
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     sign_up_attachment_url = models.CharField(max_length=256)
@@ -194,7 +194,7 @@ class Team(models.Model):
     @staticmethod
     def safe_get(**args):
         try:
-            return Team.objects.get(args)
+            return Team.objects.get(**args)
         except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
@@ -260,6 +260,6 @@ class Appeal(models.Model):
     @staticmethod
     def safe_get(**args):
         try:
-            return Appeal.objects.get(args)
+            return Appeal.objects.get(**args)
         except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")

@@ -1,24 +1,13 @@
 window.cid = window.get_args('cid');
 
-window.usertype = 0;
+window.usertype = -1;
 
 const type_p = 0;
 const type_o = 1;
 
-(function () {
-    //PLAYER = 0, ORGANIZER = 1
-    $t('/api/c/user_type', 'GET', {},
-        function (response) {
-            myaccount_c.usertype = response['data'];
-        },
-        function (response) {
-            alert('[' + response.code.toString() + ']' + response.msg);
-        }
-    );
-})();
+var info = {};
 
 //api
-
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -28,85 +17,8 @@ window.contest = {
         return null;
     },
     period_counter : 1,
-    period : [
-        {
-            lid : '0',
-            attr : [
-                {
-                    name : 'name',
-                    alias : '阶段名称',
-                    type : 'text',
-                    content : 'period 1',
-                    editable : true
-                },
-                {
-                    name : 'description',
-                    alias : '阶段简介',
-                    type : 'ltext',
-                    content : 'description 1',
-                    editable : true
-                },
-                {
-                    name : 'time',
-                    alias : '阶段时间',
-                    type : 'datetime',
-                    content : {
-                        sd : '1977-03-11',
-                        ed : '1997-05-22',
-                        sh : '19',
-                        sm : '00',
-                        eh : '19',
-                        em : '00'
-                    },
-                    editable : true
-                },
-                {
-                    name : 'slots',
-                    alias : '可参与团队数',
-                    type : 'number',
-                    content : '100',
-                    editable : true
-                },
-                {
-                    name : 'p_file',
-                    alias : '阶段附件',
-                    editable : true,
-                    type : 'file',
-                    content : ''
-                }
-            ],
-            question_modifier_available : true,
-            question_counter : 1,
-            question : [
-                {
-                    lid : '0',
-                    attr : [
-                        {
-                            name : 'description',
-                            alias : '题目描述',
-                            type : 'ltext',
-                            editable : true,
-                            content : ''
-                        },
-                        {
-                            name : 'slots',
-                            alias : '提交次数上限',
-                            type : 'number',
-                            editable : true,
-                            content : ''
-                        },
-                        {
-                            name : 'q_file',
-                            alias : '题目附件',
-                            type : 'file',
-                            editable : true,
-                            content : ''
-                        }
-                    ]
-                }
-            ],
-        }
-    ],
+    period_id : [],
+    period : [],
     attr : [
         {
             name : 'name',
@@ -167,98 +79,246 @@ window.contest = {
             content : ''
         }
     ],
+    is_guest : false,
     period_modifier_available : true
 };
 
-/*
-window.user_id = '1'
-
-window.team = {
-    name : '405A',
-    member : [
-        {
-            nickname : 'icariluci',
-            avatar_url : '../img/user.png',
-            school : 'THU',
-            id : '1'
-        },
-        {
-            nickname : 'irisangela',
-            avatar_url : '../img/user.png',
-            school : 'THU',
-            id : '2'
-        }
-    ],
-    leader_id : '1',
-    new_leader : ''
-}*/
-
-/*
-window.contest =  {
-    getAttr : function(qname) {
-        for (i of this.attr)
-            if (i.name == qname)
-                return i.content;
-        console.log('[err] No such attr');
-        return null;
-    },
-    attr : [
-        {
-            name : 'name',
-            alias : '比赛名称',
-            type : 'text',
-            content : 'TI8'
-        },
-        {
-            name : 'description',
-            alias : '比赛简介',
-            type : 'ltext',
-            content : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether."
-        },
-        {
-            name : 'c_file',
-            alias : '比赛附件',
-            type : 'file',
-            content : {
-                url : '#',
-                filename : 'description.pdf'
-            }
-        }
-    ]
+var ques_get_succ = function(response, param) {
+    var data = response.data;
+    var n = param['which'];
+    var question = {
+        lid : (window.contest.period[n].question_counter + 1).toString(),
+        attr : [
+            {
+                name : 'description',
+                alias : '题目描述',
+                type : 'ltext',
+                editable : true,
+                content : data['description']
+            },
+            {
+                name : 'slots',
+                alias : '提交次数上限',
+                type : 'number',
+                editable : true,
+                content : data['submissionLimit'].toString()
+             },
+             {
+                 name : 'q_file',
+                 alias : '题目附件',
+                 type : 'file',
+                 editable : true,
+                 content : data['attachmentUrl']
+             }
+        ]
+    };
+    window.contest.period[n].question.push(question);
+    window.contest.period[n].question_counter += 1;
 }
-*/
-header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
-header.title = '比赛管理';
-/*
-if  (!contest.is_guest && usertype == type_o)
-    header.title += '管理';
-else
-    header.title += '详情';
-*/
-if (usertype in [0, 1]) {
-    header.link_list.push({
-        alias : '比赛论坛',
-        link : '../forum/index.html?cid=' + window.cid,
-        action : empty_f
-    });
-    header.link_list.push({
-        alias : '个人中心',
-        link : '../myaccount/index.html',
-        action : empty_f
-    });
-    header.link_list.push({
-        alias : '登出',
-        link : '#',
-        action : function() {
-            logout();
+
+var ques_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var per_get_succ = function (response) {
+    var data = response.data;
+    var start_time = new Date(data['startTime'] * 1000);
+    var end_time = new Date(data['endTime'] * 1000);
+    var period = {
+        lid : data['index'],
+        attr : [
+            {
+                name : 'name',
+                alias : '阶段名称',
+                type : 'text',
+                content : data['name'],
+                editable : true,
+            },
+            {
+                name : 'description',
+                alias : '阶段简介',
+                type : 'ltext',
+                content : data['description'],
+                editable : true
+            },
+            {
+                name : 'time',
+                alias : '阶段时间',
+                type : 'datetime',
+                content : {
+                    sd : start_time.getFullYear().toString() +
+                        '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
+                        '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString(),
+                    ed : end_time.getFullYear().toString() +
+                        '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
+                        '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
+                    sh : start_time.getHours(),
+                    sm : start_time.getMinutes(),
+                    eh : end_time.getHours(),
+                    em : end_time.getMinutes()
+                },
+                editable : true
+            },
+            {
+                name : 'slots',
+                alias : '可参与团队数',
+                type : 'number',
+                content : data['availableSlots'],
+                editable : true
+            },
+            {
+                name : 'p_file',
+                alias : '阶段附件',
+                editable : true,
+                type : 'file',
+                content : data['attachmentUrl']
+            }
+        ],
+        question_modifier_available : true,
+        question_counter : 0,
+        question : [],
+        question_id : data['questionId'],
+    }
+    window.contest.period.push(period);
+    window.contest.period_counter += 1;
+    for (i in data['questionId']) {
+        var url = '/api/o/question/detail';
+        var m = 'GET';
+        var data = {'id' : data['questionId'][i]};
+        $t(url, m, data, ques_get_succ, ques_get_fail, {which : window.contest.period_counter});
+    }
+}
+
+var per_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+function period_bigger(a, b) {
+    return a.lid > b.lid;
+}
+
+var org_get_succ = function(response) {
+    var data = response.data;
+    var start_time = new Date(data['signUpStart'] * 1000);
+    var end_time = new Date(data['signUpEnd'] * 1000);
+    for (i in window.contest.attr) {
+        switch (window.contest.attr[i].name) {
+            case 'name' :
+                window.contest.attr[i].content = data['name'];
+                break;
+            case 'description' :
+                window.contest.attr[i].content = data['description'];
+                break;
+            case 'time' :
+                window.contest.attr[i].content['sd'] = start_time.getFullYear().toString() +
+                    '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
+                    '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString();
+                window.contest.attr[i].content['sh'] = start_time.getHours().toString();
+                window.contest.attr[i].content['sm'] = start_time.getMinutes().toString();
+                window.contest.attr[i].content['ed'] = end_time.getFullYear().toString() +
+                    '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
+                    '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString();
+                window.contest.attr[i].content['eh'] = end_time.getHours().toString();
+                window.contest.attr[i].content['em'] = end_time.getMinutes().toString();
+                break;
+            case 'slots' :
+                window.contest.attr[i].content = data['availableSlots'].toString();
+                break;
+            case 'maxteam' :
+                window.contest.attr[i].content = data['maxTeamMembers'].toString();
+                break;
+            case 'c_file' :
+                window.contest.attr[i].content = data['signUpAttachmentUrl'];
+                break;
         }
-    });
-} else
-    header.link_list.push({
-        alias : '登录',
-        link : '../index.html',
-        action : empty_f
-    });
+    }
+    window.contest.period_counter = 0;
+    window.contest.period_id = data['periods'];
+    window.contest.period = []
+    for (i in data['periods']) {
+        var url = '/api/o/period/detail';
+        var m = 'GET';
+        var data = {'id' : data['periods'][i]};
+        $t(url, m, data, per_get_succ, per_get_fail);
+    }
+    window.contest['period'].sort(period_bigger);
+    for (i in window.contest['period']) {
+        window.contest['period'].lid = i.toString();
+    }
+    //logoUrl bannerUrl level currentTime tags
+    init_header();
+    init_contest();
+};
+
+var org_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
+
+var org_get_contest_detail = function() {
+    var url = '/api/o/contest/detail';
+    var m = 'GET';
+    var data = {'id' : window.cid};
+    $t(url, m, data, org_get_succ, org_get_fail);
+    //url = '/api/o/contest/team_batch_manage';
+    //$t(url, m, data, player_get_succ, player_get_fail);
+};
+
+(function () {
+    //PLAYER = 0, ORGANIZER = 1
+    $t('/api/c/user_type', 'GET', {},
+        function (response) {
+            usertype = response['data'];
+            if (usertype == type_o) {
+                org_get_contest_detail();
+            }
+            if (usertype == type_p) {
+            }
+        },
+        function (response) {
+            alert('[' + response.code.toString() + ']' + response.msg);
+        }
+    );
+})();
+
+var init_header = function() {
+    header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
+    header.title = '比赛';
+    if  (!contest.is_guest && usertype == type_o)
+        header.title += '管理';
+    else
+        header.title += '详情';
+
+
+    if (usertype in [0, 1]) {
+        header.link_list.push({
+            alias : '比赛论坛',
+            link : '../forum/index.html?cid=' + window.cid,
+            action : empty_f
+        });
+        header.link_list.push({
+            alias : '个人中心',
+            link : '../myaccount/index.html',
+            action : empty_f
+        });
+        header.link_list.push({
+            alias : '登出',
+            link : '#',
+            action : function() {
+                logout();
+            }
+        });
+    } else
+        header.link_list.push({
+            alias : '登录',
+            link : '../index.html',
+            action : empty_f
+        })
+    if (!contest.is_guest && usertype == type_o) {
+        nav.list = ['比赛信息', '申诉处理', '选手管理', '成绩录入'];
+        nav.choice = '比赛信息';
+    }
+}
 
 var nav = new Vue({
     el : '#side-nav',
@@ -278,26 +338,60 @@ var nav = new Vue({
     }
 })
 
-nav.list = ['比赛信息', '申诉处理', '选手管理', '成绩录入'];
-nav.choice = '比赛信息';
-/*
-} else if (!contest.is_guest && usertype == type_p) {
-    nav.list = ['比赛信息','小队信息'];
-    nav.choice = '比赛信息';
-}*/
+var c_upload_pass = function(response) {
+    for (i of info.contest.attr)
+        if (i.name == 'c_file')
+            i.content = response.data;
+}
 
-var info = new Vue({
+var c_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var p_upload_pass = function(response, param) {
+    var aim = param['aim'];
+    for (i of this.contest.period)
+        if ('p' + i.lid == aim)
+            for (j of i.attr)
+                if (j.name == 'p_file')
+                     j.content = response.data;
+}
+
+var p_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var q_upload_pass = function(response, param) {
+    var aim = param['aim'];
+    for (i of this.contest.period)
+        for (j of i.question)
+            if ('q' + j.lid + '-' + (parseInt(i.lid) + 1).toString() == aim)
+                for (k of j.attr)
+                    if (k.name == 'q_file')
+                        k.content = response.data;
+}
+
+var q_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+
+
+var init_contest = function () {
+info = new Vue({
     el : '#body',
     data : {
         show_basic_info : true,
         show_period_info : true,
-
-        // for info page for participants
-        //team : window.team,
-
         contest : window.contest
     },
     computed : {
+        is_guest : function() {
+            return contest.is_guest;
+        },
+        is_organizer : function() {
+            return usertype == type_o;
+        },
         page : function() {
             return nav.choice;
         }
@@ -310,10 +404,12 @@ var info = new Vue({
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
                 return;
-            for (i of this.contest.attr)
-                if (i.name == 'c_file')
-                    i.content = files[0].name;
-                    //api
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'contest_attachment');
+            $t(url, m, data, c_upload_pass, c_upload_fail);
         },
         switch_period_info : function() {
             this.show_period_info = !this.show_period_info;
@@ -322,12 +418,12 @@ var info = new Vue({
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
                 return;
-            for (i of this.contest.period)
-                if ('p' + i.lid == e.target.id)
-                    for (j of i.attr)
-                        if (j.name == 'p_file')
-                            j.content = files[0].name;
-                            //api
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'period_attachment');
+            $t(url, m, data, p_upload_pass, p_upload_fail, {'aim' : e.target.id});
         },
         q_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -340,6 +436,12 @@ var info = new Vue({
                             if (k.name == 'q_file')
                                 k.content = files[0].name;
                                 //api
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'period_attachment');
+            $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
         },
         insert_new_period : function() {
             var new_period = {
@@ -390,7 +492,8 @@ var info = new Vue({
                 ],
                 question_modifier_available : true,
                 question_counter : 0,
-                question : []
+                question_id : [],
+                question : [],
             };
             this.contest.period.push(new_period);
             ++this.contest.period_counter;
@@ -432,7 +535,7 @@ var info = new Vue({
                         editable : true,
                         content : ''
                     }
-                ]
+                ],
             };
             ++this.contest.period[pidx].question_counter;
             this.contest.period[pidx].question.push(new_question);
@@ -445,29 +548,118 @@ var info = new Vue({
             this.contest.period[pidx].question.splice(qidx, 1);
         },
         publish : function() {
-            //api
+            upload_data(0);
         },
         save : function() {
-            //api
+            upload_data(1);
         }
-/*
-        //for page of contest info for participants
-        is_self : function(id) {
-            for (i of team.member)
-                if (i.id == id)
-                    return user_id == id;
-            console.log('[err] No such user');
-            return false;
-        },
-        visit_user : function(id) {
-            if (this.is_self(id)) {
-                //visit myaccount
-            } else {
-                //guest visit
-            }
-        },
-        switch_team_ownership : function() {
-            //api
-        }*/
     }
 });
+}
+
+var q_post_succ = function (response, param) {
+    var n = param.which;
+    info.contest.period[n].question_id.push(response.data);
+}
+
+var post_succ = function(response) {
+    alert('修改成功！');
+    window.location.assign('./index.html?cid=' + window.cid);
+}
+
+var post_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var upload_data = function(aim_status) {
+    for (i in info.contest.period_id) {
+        var url = '/api/o/period/remove';
+        var m = 'POST';
+        var data = {id : info.contest.period_id[i]};
+        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+    }
+    for (i in info.contest.period) {
+        for (j in info.contest.period[i].question_id) {
+            var url = '/api/o/question/remove';
+            var m = 'POST';
+            var data = {id : info.contest.period[i].question_id[j]};
+            $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+        }
+        info.contest.period[i].question_id = [];
+        for (j in info.contest.period[i].question) {
+            var url = '/api/o/question/create';
+            var m = 'POST';
+            var data = {'index' : j};
+            for (k of info.contest.period[i].question[j].attr) {
+                switch (k.name) {
+                    case 'description':
+                        data['description'] = k.content;
+                        break;
+                    case 'slots':
+                        data['submissionLimit'] = k.content;
+                        break;
+                    case 'q_file':
+                        data['attachmentUrl'] = k.content;
+                        break;
+                }
+            }
+            $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : i});
+        }
+        var url = '/api/o/period/create';
+        var m = 'POST';
+        var data = {
+            'id' : window.cid,
+            'index' : i,
+            'questionId' : info.contest.period[i].question_id
+        };
+        for (k of info.contest.period[i].attr) {
+            switch (k.name) {
+                case 'name' :
+                    data['name'] = k.content;
+                    break;
+                case 'description' :
+                    data['description'] = k.content;
+                    break;
+                case 'slots' :
+                    data['availableSlots'] = k.content;
+                    break;
+                case 'p_file':
+                    data['attachmentUrl'] = k.content;
+                    break;
+                case 'time':
+                    data['startTime'] = k.content['sd'] + ' ' + k.content['sh'] + ':' + k.content['sm'] + ':00';
+                    data['endTime'] = k.content['ed'] + ' ' + k.content['eh'] + ':' + k.content['em'] + ':00';
+                    break;
+            }
+        }
+        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+    }
+    //        self.check_input('id', , 'logoUrl', 'bannerUrl',
+    //                      'level', 'tags')
+    var url = '/api/o/contest/detail';
+    var m = 'POST';
+    var data = {'level' : 1, 'tags' : '', 'logoUrl' : '', 'bannerUrl' : '', 'id' : window.cid};
+    for (i of info.contest.attr) {
+        switch (i.name) {
+            case 'name' :
+                data['name'] = i.content;
+                break;
+            case 'description' :
+                data['description'] = i.content;
+                break;
+            case 'time' :
+                data['signUpStart'] = i.content['sd'] + ' ' + i.content['sh'] + ':' + i.content['sm'] + ':00';
+                data['signUpEnd'] = i.content['ed'] + ' ' + i.content['eh'] + ':' + i.content['em'] + ':00';
+                break;
+            case 'maxteam' :
+                data['maxTeamMembers'] = i.content;
+                break;
+            case 'slots' :
+                data['availableSlots'] = i.content;
+                break;
+            case 'c_file' :
+                data['signUpAttachmentUrl'] = i.content;
+        }
+    }
+    $t(url, m, data, post_succ, post_fail);
+}
