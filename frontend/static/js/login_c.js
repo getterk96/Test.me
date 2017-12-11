@@ -25,7 +25,7 @@ var login = new Vue({
     data : {
         show_warning : false,
         warning : '',
-        username : 'Ica Riluci',
+        username : '',
         password : '',
         f : true
     },

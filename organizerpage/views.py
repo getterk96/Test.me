@@ -103,7 +103,7 @@ class ContestDetail(APIView):
             'level': contest.level,
             'currentTime': int(time.time()),
             'tags': contest.get_tags(),
-            'periods': contest.period_set.values_list('id', flat=True)
+            'periods': list(contest.period_set.values_list('id', flat=True))
         }
 
         return data
@@ -255,7 +255,7 @@ class PeriodCreate(APIView):
     @organizer_required
     def post(self):
         self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
-                         , 'attachmentUrl', 'questionId')
+                         , 'attachmentUrl')
         period = Period()
         period.name = self.input['name']
         period.index = self.input['index']
@@ -265,12 +265,7 @@ class PeriodCreate(APIView):
         period.available_slots = self.input['availableSlots']
         period.attachment_url = self.input['attachmentUrl']
         period.contest = Contest.safe_get(id=self.input['id'])
-        questions_id = self.input['questionId']
         period.save()
-        for question_id in questions_id:
-            question = ExamQuestion.safe_get(id=question_id)
-            question.period = period
-            question.save()
 
         return period.id
 
@@ -281,9 +276,8 @@ class PeriodDetail(APIView):
         self.check_input('id')
         period = Period.safe_get(id=self.input['id'])
         question_id = []
-        if not period.examquestion_set.all().empty():
-            for question in period.examquestion_set.all():
-                question_id.append(question.id)
+        for question in ExamQuestion.objects.filter(period_id = self.input['id']):
+            question_id.append(question.id)
         data = {
             'index': period.index,
             'name': period.name,
@@ -333,13 +327,15 @@ class PeriodRemove(APIView):
 class QuestionCreate(APIView):
     @organizer_required
     def post(self):
-        self.check_input('description', 'attachmentUrl', 'submissionLimit')
+        self.check_input('periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
         # user = self.request.user
         # if user.is_authenticated:
         question = ExamQuestion()
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
         question.submission_limit = self.input['submissionLimit']
+        question.period_id = self.input['periodId']
+        question.index = self.input['index']
         question.save()
 
         return question.id

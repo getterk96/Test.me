@@ -184,9 +184,10 @@ var per_get_succ = function (response) {
     for (i in data['questionId']) {
         var url = '/api/o/question/detail';
         var m = 'GET';
-        var data = {'id' : data['questionId'][i]};
-        $t(url, m, data, ques_get_succ, ques_get_fail, {which : window.contest.period_counter});
+        var tmp_data = {'id' : data['questionId'][i]};
+        $t(url, m, tmp_data, ques_get_succ, ques_get_fail, {which : window.contest.period_counter - 1});
     }
+    console.log(info.contest.period[window.contest.period_counter - 1].question_id);
 }
 
 var per_get_fail = function(response) {
@@ -572,38 +573,19 @@ var upload_data = function(aim_status) {
         $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
     }
     for (i in info.contest.period) {
-        for (j in info.contest.period[i].question_id) {
+        /*for (j in info.contest.period[i].question_id) {
             var url = '/api/o/question/remove';
             var m = 'POST';
+            console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-        }
+        }*/
         info.contest.period[i].question_id = [];
-        for (j in info.contest.period[i].question) {
-            var url = '/api/o/question/create';
-            var m = 'POST';
-            var data = {'index' : j};
-            for (k of info.contest.period[i].question[j].attr) {
-                switch (k.name) {
-                    case 'description':
-                        data['description'] = k.content;
-                        break;
-                    case 'slots':
-                        data['submissionLimit'] = k.content;
-                        break;
-                    case 'q_file':
-                        data['attachmentUrl'] = k.content;
-                        break;
-                }
-            }
-            $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : i});
-        }
         var url = '/api/o/period/create';
         var m = 'POST';
         var data = {
             'id' : window.cid,
-            'index' : i,
-            'questionId' : info.contest.period[i].question_id
+            'index' : i
         };
         for (k of info.contest.period[i].attr) {
             switch (k.name) {
@@ -625,7 +607,35 @@ var upload_data = function(aim_status) {
                     break;
             }
         }
-        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+        $t(url, m, data, function(response, param) {
+                var n = param.which;
+                var id = response.data;
+                info.contest.period_id[n] = id;
+                for (j in info.contest.period[n].question) {
+                    var url = '/api/o/question/create';
+                    var m = 'POST';
+                    var data = {'index' : j, 'periodId' : id};
+                    for (k of info.contest.period[n].question[j].attr) {
+                        switch (k.name) {
+                            case 'description':
+                                data['description'] = k.content;
+                                break;
+                            case 'slots':
+                                data['submissionLimit'] = k.content;
+                                break;
+                            case 'q_file':
+                                data['attachmentUrl'] = k.content;
+                                break;
+                        }
+                    }
+                    $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : n});
+                }
+            },
+            function(response) {
+                alert('[' + response.code.toString() + ']' + response.msg);
+            },
+            {which : i}
+        );
     }
     //        self.check_input('id', , 'logoUrl', 'bannerUrl',
     //                      'level', 'tags')

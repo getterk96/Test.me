@@ -65,9 +65,9 @@ window.empty_f = function() {};
                                  exception(response['data'], exception_param);
                              }
                         })
-                        .catch(function(error) {
+                        /*.catch(function(error) {
                              alert('Error occured!');
-                        });
+                        })*/;
                 }
                 if (method == 'GET') {
                     axios.get(url, {params : data}).
