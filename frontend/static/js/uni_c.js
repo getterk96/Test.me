@@ -9,7 +9,7 @@ window.logout = function() {
 };
 
 window.logout_proc = function(response) {
-	window.location.assign('../index.html');
+	window.location.assign('http://127.0.0.1:8000');
 };
 
 window.logout_fail = function(response) {
