@@ -18,27 +18,30 @@ def user_passes_test(test_func, error=ValidateError, msg="Can not pass user test
 
 def login_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated
+        lambda u: u.is_authenticated and u.user_profile.status == User_profile.NORMAL
     )
     return actual_decorator(func, ValidateError, "Login required")
 
 
 def player_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated #& u.user_profile.user_type == 0
+        lambda u: u.is_authenticated and u.user_profile.user_type == User_profile.PLAYER and
+                  u.user_profile.status == User_profile.NORMAL
     )
     return actual_decorator(func, ValidateError, "Player required")
 
 
 def organizer_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated #& u.user_profile.user_type == 1
+        lambda u: u.is_authenticated and u.user_profile.user_type == User_profile.ORGANIZER and
+                  u.user_profile.status == User_profile.NORMAL
     )
     return actual_decorator(func, ValidateError, "Organizer required")
 
 
 def admin_required(func):
     actual_decorator = user_passes_test(
-        lambda u: u.is_authenticated #& u.user_profile.user_type == 2
+        lambda u: u.is_authenticated and u.user_profile.user_type == User_profile.ADMINISTRATOR and
+                  u.user_profile.status == User_profile.NORMAL
     )
     return actual_decorator(func, ValidateError, "Admin required")

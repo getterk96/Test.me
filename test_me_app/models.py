@@ -6,7 +6,6 @@ from codex.baseerror import *
 from django.core.exceptions import ObjectDoesNotExist
 
 
-
 # Create your models here.
 
 class User_profile(models.Model):
@@ -15,6 +14,10 @@ class User_profile(models.Model):
     PLAYER = 0
     ORGANIZER = 1
     ADMINISTRATOR = 2
+
+    status = models.IntegerField(default=0)
+    NORMAL = 0
+    CANCELED = 1
 
 
 def create_user_profile(sender, instance, created, **kwargs):
@@ -51,6 +54,22 @@ class Player(UserCommon):
     JUNIOR_COLLEGE_STUDENT = 2
     HIGH_SCHOOL_STUDENT = 3
     OUTSIDER = 4
+
+    @staticmethod
+    def check_gender(gender):
+        if gender not in ['male', 'female']:
+            raise InputError('Wrong gender')
+
+    @staticmethod
+    def check_player_type(player_type):
+        if player_type < 0 or player_type > 4:
+            raise InputError('Wrong player type')
+
+    @staticmethod
+    def check_contact_phone(contact_phone):
+        for c in contact_phone:
+            if c < '0' or c > '9':
+                raise InputError('Wrong contact phone')
 
 
 class Organizer(UserCommon):
@@ -92,12 +111,14 @@ class Contest(models.Model):
     status = models.IntegerField()
     CANCELLED = -1
     SAVED = 0
-    PUBLISHED = 1
+    VERIFYING = 1
+    PUBLISHED = 2
 
+    @staticmethod
     def safe_get(**args):
         try:
-            return Contest.objects.get(args)
-        except:
+            return Contest.objects.get(**args)
+        except ObjectDoesNotExist:
             raise LogicError("No Such Contest")
 
     def add_tags(self, tags):
@@ -113,6 +134,13 @@ class Contest(models.Model):
 
         self.save()
 
+    def get_tags(self):
+        tags = ""
+        for tag in self.tags.all():
+            tags += tag.content
+            tags += ","
+        return tags
+
 
 class Period(models.Model):
     contest = models.ForeignKey(Contest)
@@ -124,10 +152,11 @@ class Period(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
 
+    @staticmethod
     def safe_get(**args):
         try:
-            return Period.objects.get(args)
-        except:
+            return Period.objects.get(**args)
+        except ObjectDoesNotExist:
             raise LogicError("No Such Period")
 
 
@@ -138,10 +167,11 @@ class ExamQuestion(models.Model):
     attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
 
+    @staticmethod
     def safe_get(**args):
         try:
-            return ExamQuestion.objects.get(args)
-        except:
+            return ExamQuestion.objects.get(**args)
+        except ObjectDoesNotExist:
             raise LogicError("No Such Exam Question")
 
 
@@ -150,7 +180,7 @@ class Team(models.Model):
     leader = models.ForeignKey(Player, related_name="lead_teams")
     members = models.ManyToManyField(Player, related_name="join_teams")
     contest = models.ForeignKey(Contest)
-    period = models.ForeignKey(Period)
+    period = models.ForeignKey(Period, null = True)
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     sign_up_attachment_url = models.CharField(max_length=256)
@@ -161,10 +191,11 @@ class Team(models.Model):
     VERIFIED = 2
     DISMISSED = -1
 
+    @staticmethod
     def safe_get(**args):
         try:
-            return Team.objects.get(args)
-        except:
+            return Team.objects.get(**args)
+        except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
 
@@ -191,6 +222,13 @@ class PeriodScore(models.Model):
     score = models.IntegerField()
     rank = models.IntegerField()
 
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such period score')
+
 
 class Work(models.Model):
     question = models.ForeignKey(ExamQuestion)
@@ -198,6 +236,13 @@ class Work(models.Model):
     content_url = models.CharField(max_length=256)
     score = models.IntegerField(default=-1)
     submission_times = models.IntegerField(default=1)
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return TeamInvitation.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError('No such work')
 
 
 class Appeal(models.Model):
@@ -212,8 +257,9 @@ class Appeal(models.Model):
     SOLVED = 1
     ACCEPTED = 2
 
+    @staticmethod
     def safe_get(**args):
         try:
-            return Appeal.objects.get(args)
-        except:
+            return Appeal.objects.get(**args)
+        except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")
