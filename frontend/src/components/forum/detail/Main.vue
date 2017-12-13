@@ -1,66 +1,41 @@
 <template>
   <div :class="'column col-md-'+portion">
-    <ul class="nav nav-pills">
-      <li :class="{ active: selected === 0 }">
-        <a rel="nofollow" href="#"> <span id="announcement-number" class="badge pull-right">{{ an }}</span> 比赛公告</a>
-      </li>
-      <li :class="{ active: selected === 1 }">
-        <a rel="nofollow" href="#"> <span id="tutorial-number" class="badge pull-right">{{ tn }}</span> 教程</a>
-      </li>
-      <li :class="{ active: selected === 2 }">
-        <a rel="nofollow" href="#"> <span id="point-number" class="badge pull-right">{{ pn }}</span> 讨论热点</a>
-      </li>
-    </ul>
-    <div id="abstracts">
-      <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-            <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-            <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-            <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-            <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-            <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-            <main-abstract
-        title="这是一个帖子"
-        content="这里是帖子的内容"
-        author="getterk"
-        time="2017.12.09"></main-abstract>
-    </div>
+    <h3>
+      {{title}}
+    </h3>
+    <p>
+      {{content}}
+    </p>
+    <div id="replys"></div>
+    <pagination></pagination>
+    <form role="form">
+      <div class="form-group">
+        <label for="reply-form-title">回复标题</label><input type="email" class="form-control"
+                                                         id="reply-form-title"/>
+      </div>
+      <div class="form-group">
+        <label for="reply-form-content">回复内容</label><textarea class="form-control"
+                                                              id="reply-form-content"/>
+      </div>
+      <div class="form-group right">
+        <button type="submit" class="btn btn-default">Submit</button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script>
-  import Abstract from './Abstract'
+  import Reply from './Reply'
+  import Pagination from '../Pagination'
   export default {
     name: 'main',
-    props: ['selected', 'portion', 'an', 'tn', 'pn'],
+    props: ['portion', 'title', 'content'],
     components: {
-      'main-abstract': Abstract
+      'reply': Reply,
+      'pagination': Pagination
     },
     methods: {
-      getAbstracts: function () {
+      getReplys: function () {
       }
     }
   }
