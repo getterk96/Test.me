@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import List from '@/components/forum/List'
+import Detail from '@/components/forum/Detail'
 
 Vue.use(Router)
 
@@ -13,14 +14,18 @@ export default new Router({
    */
   routes: [
     {
-      path: '/',
-      name: 'List',
-      component: List
+      path: '/forum/detail',
+      name: 'Detail',
+      component: Detail
     },
     {
       path: '/forum/list',
       name: 'List',
       component: List
     },
+    {
+      path: '/',
+      redirect: '/forum/list'
+    }
   ]
 })
