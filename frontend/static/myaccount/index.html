@@ -29,6 +29,22 @@
                 </li>
             </ul>
         </nav>
+        <div id="body">
+          <template v-if="page == '比赛大厅'">
+            <div :class="['session']">
+              <div :class="['searchbox']">
+                <input v-model="querytext" required />
+                <button :class="['clearsearch']" @click="clearsearchbox">清空</button>
+              </div>
+              <div :class="['searchbutton']">
+                <div>
+                  <button id="gosearch">Search</button>
+                  <button id="random" title="Browse a random recommended contest"></button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
     </body>
     <script src="../js/uni_c.js"></script>
     <script src="../js/header_c.js"></script>

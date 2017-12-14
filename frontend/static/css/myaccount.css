@@ -13,3 +13,64 @@ nav#side-nav label {
     text-align : center;
     margin : 0.5em auto;
 }
+
+.searchbox {
+  display : block;
+  width : 100%;
+}
+
+.searchbox>input {
+  width : 80%;
+  margin : 0 10%;
+  box-shadow : 0px 0px 0.3em rgba(0, 0, 0, 0.2) inset;
+  border-radius : 0.5em;
+  font-size : 1.1em;
+  letter-spacing : 0.05em;
+  padding : 0.5em;
+}
+
+.searchbox>.clearsearch {
+  display : none;
+}
+
+.searchbox>input:valid+.clearsearch {
+  display : block;
+  color : rgb(100, 100, 100);
+  position : absolute;
+  right : 10%;
+  top : 0.3em;
+}
+
+.searchbutton {
+  display : block;
+  text-align : center;
+  margin : 1em;
+}
+
+.searchbutton>div {
+  display : inline-block;
+  margin : auto;
+}
+
+.searchbutton>div>button {
+  display : inline-block;
+  margin : 0 0.5em;
+  vertical-align : top;
+}
+
+.searchbutton>div #gosearch {
+  padding : 0.1em 1em;
+  border-bottom : 2px solid rgba(127, 172, 222, 0.3);
+  transition : border 0.3s;
+}
+
+.searchbutton>div #gosearch:hover {
+  border-bottom : 2px solid rgba(127, 172, 222, 0.9);
+}
+
+.searchbutton>div #random {
+  background-image : url('../img/random.png');
+  background-size : 100% 100%;
+  width : 1.4em;
+  height : 1.4em;
+}
