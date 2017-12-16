@@ -33,7 +33,7 @@
           <template v-if="page == '比赛大厅'">
             <div :class="['session']">
               <div :class="['searchbox']">
-                <input v-model="querytext" required />
+                <input v-model="querytext" required autofocus/>
                 <button :class="['clearsearch']" @click="clearsearchbox">清空</button>
               </div>
               <div :class="['searchbutton']">

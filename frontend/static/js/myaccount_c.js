@@ -1,0 +1,72 @@
+const type_p = 0;
+const type_o = 1;
+
+window.usertype = type_p;
+
+var nav = new Vue({
+    el : '#side-nav',
+    data : {
+        list : [],
+        choice : ''
+    },
+    methods : {
+        select : function(target) {
+            for (i of this.list)
+                if (i == target) {
+                    this.choice = target;
+                    return;
+                }
+            console.log('[err] No such item');
+        }
+    }
+})
+
+var init_header = function() {
+    header.greeting = 'Test.Me';
+    header.title = '个人中心';
+
+    if (usertype in [0, 1]) {
+        header.link_list.push({
+            alias : '个人中心',
+            link : '../myaccount/index.html',
+            action : empty_f
+        });
+        header.link_list.push({
+            alias : '登出',
+            link : '#',
+            action : function() {
+                logout();
+            }
+        });
+    } else
+        header.link_list.push({
+            alias : '登录',
+            link : '../index.html',
+            action : empty_f
+        })
+    if (usertype == type_p) {
+        nav.list = ['比赛大厅', '个人信息', '我的比赛', '我的队伍'];
+        nav.choice = '比赛大厅';
+    }
+};
+
+
+init_header();
+
+
+var controller = new Vue({
+  el : '#body',
+  data : {
+    querytext : ''
+  },
+  computed : {
+    page : function() {
+      return nav.choice;
+    }
+  },
+  methods : {
+    clearsearchbox : function() {
+      this.querytext = '';
+    }
+  }
+})
