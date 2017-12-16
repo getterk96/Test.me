@@ -43,6 +43,24 @@
                 </div>
               </div>
             </div>
+            <div :class="['session']">
+                <table :class="['searchresult']" cellspacing='0'>
+                    <thead>
+                        <th>比赛名称</th>
+                        <th>组织方</th>
+                        <th>报名时间</th>
+                        <th>比赛时间</th>
+                        <th>&nbsp;</th>
+                    </thead>
+                    <tr v-for="item in querylist" :class="[querylist.indexOf(item) % 2 == 0 ? 'lightrow' : 'darkrow', querylist.indexOf(item) == querylist.length - 1 ? 'last-row' : '']">
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.organizer }}</td>
+                        <td>{{ item.sut }}</td>
+                        <td>{{ item.ct }}</td>
+                        <td><a :href='item.link'>详情</a></td>
+                    </tr>
+                </table>
+            </div>
           </template>
         </div>
     </body>

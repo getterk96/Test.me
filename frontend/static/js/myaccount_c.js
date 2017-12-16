@@ -53,11 +53,28 @@ var init_header = function() {
 
 init_header();
 
+var search_list = [
+    {
+        name : 'contest1',
+        organizer : 'THU',
+        sut : '2017-7-30 to 2017-8-2',
+        ct : '2017-8-15 to 2017-8-20',
+        link : '#'
+    },
+    {
+        name : 'contest2',
+        organizer : 'PKU',
+        sut : '2017-7-31 to 2017-8-3',
+        ct : '2017-8-16 to 2017-8-21',
+        link : '#'
+    }
+];
 
 var controller = new Vue({
   el : '#body',
   data : {
-    querytext : ''
+    querytext : '',
+    querylist : search_list,
   },
   computed : {
     page : function() {
