@@ -70,11 +70,19 @@ var search_list = [
     }
 ];
 
+window.user = {
+    avatar : {
+        editable : true,
+        link : "../img/default_avatar.jpg"
+    }
+}
+
 var controller = new Vue({
   el : '#body',
   data : {
     querytext : '',
     querylist : search_list,
+    user : window.user
   },
   computed : {
     page : function() {
@@ -90,6 +98,12 @@ var controller = new Vue({
     },
     randomcontest : function() {
         console.log("return a random contest");
+    },
+    uploadavatar : function(e) {
+        var files = e.target.files || e.dataTransfer.files;
+        if (!files.length)
+            return;
+        alert('succeed!')
     }
   }
 })

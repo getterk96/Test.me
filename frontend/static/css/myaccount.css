@@ -114,3 +114,25 @@ nav#side-nav label {
     text-decoration : underline;
     color : blue;
 }
+
+#avatar {
+    width : 20%;
+    display : inline-block;
+}
+
+#avatar>img {
+    width : 100%;
+    display : block;
+}
+
+#avatar>div {
+    margin : auto;
+    text-align : center;
+    display : block;
+}
+
+#avatar>div>.fileuploader {
+    width : 1.5em;
+    height : 1.5em;
+    display : inline-block;
+}

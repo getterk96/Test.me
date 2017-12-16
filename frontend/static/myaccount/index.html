@@ -62,6 +62,19 @@
                 </table>
             </div>
           </template>
+          <template v-if="page == '个人信息'">
+              <div :class="['session']">
+                  <div id="avatar">
+                      <img :src="user.avatar.link" />
+                      <div>
+                          <label :class="['fileuploader']">
+                              <input type="file" @change="uploadavatar"/>
+                          </label>
+                          点击修改头像
+                    </div>
+                  </div>
+              </div>
+          </template>
         </div>
     </body>
     <script src="../js/uni_c.js"></script>
