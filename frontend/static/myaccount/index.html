@@ -38,8 +38,8 @@
               </div>
               <div :class="['searchbutton']">
                 <div>
-                  <button id="gosearch">搜索</button>
-                  <button id="random" title="试试运气！看看今日的推荐比赛吧~"></button>
+                  <button id="gosearch" @click="searchcontest">搜索</button>
+                  <button id="random" title="试试运气！看看今日的推荐比赛吧~" @click="randomcontest"></button>
                 </div>
               </div>
             </div>

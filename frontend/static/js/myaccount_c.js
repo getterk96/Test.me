@@ -84,6 +84,12 @@ var controller = new Vue({
   methods : {
     clearsearchbox : function() {
       this.querytext = '';
+    },
+    searchcontest : function() {
+        console.log("you're querying contest " + this.querytext);
+    },
+    randomcontest : function() {
+        console.log("return a random contest");
     }
   }
 })
