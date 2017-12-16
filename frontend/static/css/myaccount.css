@@ -56,11 +56,13 @@ nav#side-nav label {
 .searchbutton>div>button {
   display : inline-block;
   margin : 0 0.5em;
-  vertical-align : top;
+  vertical-align : middle;
 }
 
 .searchbutton>div #gosearch {
   padding : 0.1em 1em;
+  line-height : 1em;
+  font-size : 1em;
   border-bottom : 2px solid rgba(127, 172, 222, 0.3);
   transition : border 0.3s;
 }
@@ -72,6 +74,6 @@ nav#side-nav label {
 .searchbutton>div #random {
   background-image : url('../img/random.png');
   background-size : 100% 100%;
-  width : 1.4em;
-  height : 1.4em;
+  width : 1.3em;
+  height : 1.3em;
 }
