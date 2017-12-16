@@ -225,7 +225,7 @@ function get_contest_info() {
                     myaccount_c.contestlist.push({
                         'name' : response.data[i].name,
                         'period' : response.data[i].creatorName,
-                        'detail' : '../cdetail/index.html?cid=' + response.data[i].id.toString(),
+                        'detail' : '../cdetail/o/index.html?cid=' + response.data[i].id.toString(),
                         'id' : response.data[i].id,
                     });
                 }
