@@ -165,6 +165,29 @@
                     <button @click="publish" :class="['response-button']">保存并发布</button>
                 </div>
             </template>
+            <template v-else-if="page == '成绩录入'">
+                <div :class="['session']">
+                    <button :class="['s-title', show_upload_toknow ? '' : 'collapse']" @click="switch_upload_toknow"><span>成绩录入须知</span></button>
+                    <article :class="['s-body']" v-if="show_upload_toknow">
+                        You can only upload the result of the last turn. All your update will overwrite the latest result of the latest turn.
+                    </article>
+                </div>
+                <div :class="['session']">
+                    <button :class="['s-title']"><span>{{ '阶段 ' + last_period_name + ' 成绩录入'}}</span></button>
+                    <article :class="['s-body']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">Result file</div>
+                                <label :class="['fileuploader']">
+                                    <input type="file" @change="r_file_change" v-if="upload_result_avail" />
+                                    <input type="file" v-else disabled/>
+                                </label>
+                                {{ result_file_name }}
+                            </li>
+                        </ul>
+                    </article>
+                </div>
+            </template>
         </div>
     </body>
     <script src="../../js/uni_c.js"></script>
