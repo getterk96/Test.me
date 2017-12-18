@@ -136,3 +136,14 @@ nav#side-nav label {
     height : 1.5em;
     display : inline-block;
 }
+
+#basicinfo {
+    display : inline-block;
+    vertical-align : top;
+    margin-left : 1em;
+}
+
+input.large {
+    font-size : 2em;
+    font-weight : bold;
+}

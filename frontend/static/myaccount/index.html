@@ -68,10 +68,13 @@
                       <img :src="user.avatar.link" />
                       <div>
                           <label :class="['fileuploader']">
-                              <input type="file" @change="uploadavatar"/>
+                              <input type="file" @change="uploadavatar" v-if="user.avatar.editable"/>
                           </label>
                           点击修改头像
                     </div>
+                  </div>
+                  <div id="basicinfo">
+                      <input v-model="user.nickname.content" disabled :class="['large']"/>
                   </div>
               </div>
           </template>

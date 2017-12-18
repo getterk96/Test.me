@@ -74,6 +74,10 @@ window.user = {
     avatar : {
         editable : true,
         link : "../img/default_avatar.jpg"
+    },
+    nickname : {
+        editable :true,
+        content : 'Ica Riluci'
     }
 }
 
