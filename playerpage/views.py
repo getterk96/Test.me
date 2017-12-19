@@ -506,12 +506,29 @@ class PlayerAppealCreate(APIView):
     @player_required
     def post(self):
         self.check_input('contestId', 'title', 'content', 'attachmentUrl')
-        appeal = Appeal.objects.create(target_contest=Contest.safe_get(id=self.input['contestId']),
+        appeal = Appeal.objects.create(initiator=self.request.user.player,
+                                       target_contest=Contest.safe_get(id=self.input['contestId']),
                                        title=self.input['title'],
                                        content=self.input['content'],
                                        attachment_url=self.input['attachmentUrl'],
                                        status=Appeal.TOSOLVE)
         return appeal.id
+
+
+class PlayerAppealList(APIView):
+
+    @player_required
+    def get(self):
+        self.check_input('cid')
+        contest = Contest.safe_get(id=self.input['cid'])
+        appeals = []
+        for appeal in Appeal.objects.filter(target_contest=contest, initiator=self.request.user.player):
+            appeals.append({
+                'id': appeal.id,
+                'title': appeal.title,
+                'status': appeal.status
+            })
+        return appeals
 
 
 class PlayerAppealDetail(APIView):
