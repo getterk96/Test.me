@@ -8,7 +8,6 @@ const type_o = 1;
 var info = {};
 
 //api
-/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -372,7 +371,54 @@ info = new Vue({
         show_period_info : true,
         contest : window.contest,
         result_file_name : 'hahahah',
-        upload_result_avail : true
+        upload_result_avail : true,
+        appeal_status_reverse : false,
+        appeal_type_reverse : false,
+        appeal_page_capacity : 2,
+        appeal_list : [
+            [
+                {
+                    appealer : {
+                        name : '405',
+                        id : '1'
+                    },
+                    type : 'score',
+                    status : 'to process',
+                    title : 'fuck zyn',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#',
+                    selected : false
+                },
+                {
+                    appealer : {
+                        name : '405',
+                        id : '1'
+                    },
+                    type : 'critirea',
+                    status : 'processed',
+                    title : 'fuck zyn',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#',
+                    selected : false
+                }
+            ],
+            [
+                {
+                    appealer : {
+                        name : '405',
+                        id : '1'
+                    },
+                    type : 'score',
+                    status : 'ignored',
+                    title : 'fuck zyn too',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#',
+                    selected : false
+                }
+            ]
+        ],
+        appeal_page : 0,
+        selected_appeal : 0
     },
     computed : {
         is_guest : function() {
@@ -544,6 +590,118 @@ info = new Vue({
             }
             this.contest.period[pidx].question.splice(qidx, 1);
         },
+        prev_a_page : function() {
+            --this.appeal_page;
+            if (this.appeal_page < 0)
+                this.appeal_page = 0;
+        },
+        next_a_page : function() {
+            ++this.appeal_page;
+            if (this.appeal_page == this.appeal_list.length)
+                this.appeal_page = this.appeal_list.length - 1;
+        },
+        select_appeal : function(page, idx) {
+            this.appeal_list[page][idx].selected = !this.appeal_list[page][idx].selected;
+            if (this.appeal_list[page][idx].selected)
+                ++this.selected_appeal;
+            else
+                --this.selected_appeal;
+        },
+        select_page_appeal : function() {
+            for (item of this.appeal_list[this.appeal_page]) {
+                if (!item.selected)
+                    ++this.selected_appeal;
+                item.selected = true;
+            }
+        },
+        unselect_page_appeal : function() {
+            for (item of this.appeal_list[this.appeal_page]) {
+                if (item.selected)
+                    --this.selected_appeal;
+                item.selected = false;
+            }
+        },
+        select_all_appeal : function() {
+            for (list of this.appeal_list) {
+                for (item of list) {
+                    if (!item.selected)
+                        ++this.selected_appeal;
+                    item.selected = true;
+                }
+            }
+        },
+        unselect_all_appeal : function() {
+            for (list of this.appeal_list)
+                for (item of list)
+                    item.selected = false;
+            this.selected_appeal = 0;
+        },
+        appeal_sort_status : function() {
+            //todo
+            // console.log(this.appeal_list);
+            this.appeal_status_reverse = !this.appeal_status_reverse;
+            if (this.appeal_list.length <= 0) { return; }
+            var tmp1, tmp2, tmp, new_list;
+            new_list = [];
+            tmp1 = this.appeal_list[0];
+            // console.log(tmp1);
+            // console.log(this.appeal_list);
+            for (i in tmp1) {
+                if (i > 0) {
+                    j = i - 1;
+                    tmp = tmp1[i];
+                    while (j >= 0) {
+                        if (this.appeal_status_cp(tmp.status, tmp1[j].status)) {
+                            tmp1[j + 1] = tmp1[j];
+                            --j;
+                        } else { break; }
+                    }
+                    ++j;
+                    tmp1[j] = tmp;
+                }
+            }
+            new_list = tmp1;
+            // console.log(new_list);
+            // console.log(this.appeal_list);
+            for (i in this.appeal_list) {
+                if (i > 0) {
+                    p = 0;
+                    q = 0;
+                    tmp1 = new_list;
+                    tmp2 = this.appeal_list[i];
+                    // console.log(tmp2);
+                    // console.log(tmp1);
+                    new_list = [];
+                    while (p < tmp1.length && q < tmp2.length) {
+                        if (this.appeal_status_cp(tmp2[q].status, tmp1[p].status)) {
+                            new_list.push(tmp2[q++]);
+                        } else { new_list.push(tmp1[p++]); }
+                    }
+                    while (p < tmp1.length) { new_list.push(tmp1[p++]); }
+                    while (q < tmp2.length) { new_list.push(tmp2[q++]); }
+                }
+            }
+            // console.log(new_list);
+            this.appeal_list = [];
+            tmp1 = [];
+            // console.log(this.appeal_page_capacity);
+            for (i in new_list) {
+                tmp1.push(new_list[i]);
+                if ((i % this.appeal_page_capacity == this.appeal_page_capacity - 1) || (i == new_list.length - 1)) {
+                    // console.log(i);
+                    this.appeal_list.push(tmp1);
+                    tmp1 = [];
+                }
+            }
+        },
+        appeal_status_cp : function(a, b) {
+            if (a == b) { return false; }
+            if (a == 'processed') { return false; }
+            if (b == 'processed') { return true; }
+            if ((a == 'ignored' && this.appeal_status_reverse) || (a == 'to process' && !this.appeal_status_reverse))
+                return true;
+            return false;
+        },
         publish : function() {
             upload_data(0);
         },
@@ -583,7 +741,6 @@ var upload_data = function(aim_status) {
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
         }*/
-        /*
         info.contest.period[i].question_id = [];
         var url = '/api/o/period/create';
         var m = 'POST';
@@ -670,10 +827,9 @@ var upload_data = function(aim_status) {
     }
     $t(url, m, data, post_succ, post_fail);
 }
-*/
 
 // for develop without API
-
+/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -805,6 +961,9 @@ info = new Vue({
         contest : window.contest,
         result_file_name : 'hahahah',
         upload_result_avail : true,
+        appeal_status_reverse : false,
+        appeal_type_reverse : false,
+        appeal_page_capacity : 2,
         appeal_list : [
             [
                 {
@@ -1055,9 +1214,76 @@ info = new Vue({
                     item.selected = false;
             this.selected_appeal = 0;
         },
+        appeal_sort_status : function() {
+            //todo
+            // console.log(this.appeal_list);
+            this.appeal_status_reverse = !this.appeal_status_reverse;
+            if (this.appeal_list.length <= 0) { return; }
+            var tmp1, tmp2, tmp, new_list;
+            new_list = [];
+            tmp1 = this.appeal_list[0];
+            // console.log(tmp1);
+            // console.log(this.appeal_list);
+            for (i in tmp1) {
+                if (i > 0) {
+                    j = i - 1;
+                    tmp = tmp1[i];
+                    while (j >= 0) {
+                        if (this.appeal_status_cp(tmp.status, tmp1[j].status)) {
+                            tmp1[j + 1] = tmp1[j];
+                            --j;
+                        } else { break; }
+                    }
+                    ++j;
+                    tmp1[j] = tmp;
+                }
+            }
+            new_list = tmp1;
+            // console.log(new_list);
+            // console.log(this.appeal_list);
+            for (i in this.appeal_list) {
+                if (i > 0) {
+                    p = 0;
+                    q = 0;
+                    tmp1 = new_list;
+                    tmp2 = this.appeal_list[i];
+                    // console.log(tmp2);
+                    // console.log(tmp1);
+                    new_list = [];
+                    while (p < tmp1.length && q < tmp2.length) {
+                        if (this.appeal_status_cp(tmp2[q].status, tmp1[p].status)) {
+                            new_list.push(tmp2[q++]);
+                        } else { new_list.push(tmp1[p++]); }
+                    }
+                    while (p < tmp1.length) { new_list.push(tmp1[p++]); }
+                    while (q < tmp2.length) { new_list.push(tmp2[q++]); }
+                }
+            }
+            // console.log(new_list);
+            this.appeal_list = [];
+            tmp1 = [];
+            // console.log(this.appeal_page_capacity);
+            for (i in new_list) {
+                tmp1.push(new_list[i]);
+                if ((i % this.appeal_page_capacity == this.appeal_page_capacity - 1) || (i == new_list.length - 1)) {
+                    // console.log(i);
+                    this.appeal_list.push(tmp1);
+                    tmp1 = [];
+                }
+            }
+        },
+        appeal_status_cp : function(a, b) {
+            if (a == b) { return false; }
+            if (a == 'processed') { return false; }
+            if (b == 'processed') { return true; }
+            if ((a == 'ignored' && this.appeal_status_reverse) || (a == 'to process' && !this.appeal_status_reverse))
+                return true;
+            return false;
+        },
         publish : function() {
         },
         save : function() {
         }
     }
 });
+*/
