@@ -180,7 +180,7 @@ class Team(models.Model):
     leader = models.ForeignKey(Player, related_name="lead_teams")
     members = models.ManyToManyField(Player, related_name="join_teams")
     contest = models.ForeignKey(Contest)
-    period = models.ForeignKey(Period, null = True)
+    period = models.ForeignKey(Period, null=True)
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     sign_up_attachment_url = models.CharField(max_length=256)

@@ -349,11 +349,10 @@ class PlayerTeamDetail(APIView):
             })
 
         # period
-        try:
-            period = Period.objects.get(team=team)
-            period_id = period.id
-            period_name = period.name
-        except ObjectDoesNotExist:
+        if team.period:
+            period_id = team.period.id
+            period_name = team.period.name
+        else:
             period_id = -1
             period_name = ''
 
@@ -377,10 +376,16 @@ class PlayerTeamDetail(APIView):
                          'description', 'signUpAttachmentUrl')
         team = Team.safe_get(id=self.input['tid'])
 
+        # check leader
         player = self.request.user.player
         if team.leader != player:
             raise ValidateError('Only team leader can change team info')
 
+        # check team status
+        if team.status != Team.CREATING:
+            raise LogicError('Can not modify signed-up team info')
+
+        # Modify team info
         try:
             new_leader = User.objects.get(id=self.input['leaderId'])
             if new_leader.user_type != User_profile.PLAYER:
