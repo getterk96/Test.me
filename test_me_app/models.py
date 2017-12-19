@@ -248,8 +248,8 @@ class Work(models.Model):
 
 class Appeal(models.Model):
     initiator = models.ForeignKey(Player)
-    target_organizer = models.ForeignKey(Organizer)
     target_contest = models.ForeignKey(Contest)
+    title = models.CharField(max_length=256)
     content = models.TextField()
     attachment_url = models.CharField(max_length=256)
 

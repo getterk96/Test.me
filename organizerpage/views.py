@@ -460,7 +460,7 @@ class AppealDetail(APIView):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
         return {
-            'contestName': appeal.contest.name,
+            'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
