@@ -13,7 +13,7 @@ def player_signup_contest(player, contest):
     for team in chain(player.lead_teams.all(), player.join_teams.all()):
         if team.contest == contest:
             return team
-    raise ValidateError('You have not sign up this contest')
+    raise LogicError('You have not sign up this contest')
 
 
 class PlayerRegister(APIView):
@@ -378,25 +378,36 @@ class PlayerTeamCreate(APIView):
                          'description', 'signUpAttachmentUrl')
         contest = Contest.safe_get(id=self.input['contestId'])
 
+        # check signup time
+        if contest.sign_up_start_time.timetuple() > datetime.datetime.now().timetuple() or \
+           contest.sign_up_end_time.timetuple() < datetime.datetime.now().timetuple():
+            raise LogicError('Contest is not in sign up time')
+
+        # check already sign up
+        player = self.request.user.player
+        try:
+            player_signup_contest(player, contest)
+            raise LogicError('You are already in a team of this contest')
+        except LogicError:
+            pass
+
+        # check members
         members = []
         for memberName in self.input['members']:
-            member = User.objects.get(username=memberName)
-            if member.user_profile.user_type != User_profile.PLAYER:
+            try:
+                member = User.objects.get(username=memberName, user_profile__user_type=User_profile.PLAYER)
+            except ObjectDoesNotExist:
                 raise InputError('Player does not exist')
             members.append(member)
 
-        player = self.request.user.player
-        for team in chain(player.lead_teams.all(), player.join_teams.all()):
-            if team.contest == contest:
-                raise LogicError('You are already in a team of this contest')
-
+        # create team and invitations
         team = Team.objects.create(name=self.input['name'],
-                           leader=player,
-                           contest=contest,
-                           avatar_url=self.input['avatarUrl'],
-                           description=self.input['description'],
-                           sign_up_attachment_url=self.input['signUpAttachmentUrl'],
-                           status=Team.CREATING)
+                                   leader=player,
+                                   contest=contest,
+                                   avatar_url=self.input['avatarUrl'],
+                                   description=self.input['description'],
+                                   sign_up_attachment_url=self.input['signUpAttachmentUrl'],
+                                   status=Team.CREATING)
         for member in members:
             team.members.add(member.player)
             TeamInvitation.objects.create(team=team, player=member.player)
@@ -409,19 +420,19 @@ class PlayerTeamInvitation(APIView):
     def get(self):
         invitations = []
         for invitation in self.request.user.player.teaminvitation_set.all():
-            memeberIds = []
-            memberNames = []
+            member_ids = []
+            member_names = []
             for member in invitation.team.members.all():
-                memeberIds.append(member.id)
-                memberNames.append(member.user.username)
+                member_ids.append(member.id)
+                member_names.append(member.user.username)
             invitations.append({
                 'id': invitation.id,
-                'contestId' : invitation.team.contest.id,
+                'contestId': invitation.team.contest.id,
                 'leaderId': invitation.team.leader.id,
                 'leaderName': invitation.team.leader.user.username,
-                'memberIds': memeberIds,
-                'memberNames': memberNames,
-                'teamName' : invitation.team.name,
+                'memberIds': member_ids,
+                'memberNames': member_names,
+                'teamName': invitation.team.name,
             })
         return invitations
 
@@ -441,7 +452,7 @@ class PlayerTeamSignUp(APIView):
     @player_required
     def post(self):
         self.check_input('tid')
-        team = Team.safe_get(self.input['tid'])
+        team = Team.safe_get(id=self.input['tid'])
         player = self.request.user.player
         if player != team.leader:
             raise LogicError('Only team leader can sign up for team')
@@ -460,7 +471,7 @@ class PlayerAppealCreate(APIView):
         appeal = Appeal()
         appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.target_organizer = appeal.target_contest.organizer
-        appeal.status = 0
+        appeal.status = Appeal.TOSOLVE
         appeal.content = self.input['content']
         appeal.attachment_url = self.input['attachmentUrl']
         appeal.save()
@@ -474,14 +485,12 @@ class PlayerAppealDetail(APIView):
     def get(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
-        data = {
+        return {
             'contestName': appeal.contest.name,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
         }
-
-        return data
 
     @player_required
     def post(self):
@@ -503,12 +512,8 @@ class PlayerAppealRemove(APIView):
     def post(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
-        try:
-            appeal.delete()
-        except:
-            raise LogicError("Appeal Delete Failed")
-
-        return self.input['id']
+        appeal.status = Appeal.REMOVED
+        appeal.save()
 
 
 class PlayerSearch(APIView):
