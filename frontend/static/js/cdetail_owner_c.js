@@ -813,9 +813,11 @@ info = new Vue({
                         id : '1'
                     },
                     type : 'score',
+                    status : 'to process',
                     title : 'fuck zyn',
                     content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#'
+                    a_url : '#',
+                    selected : false
                 },
                 {
                     appealer : {
@@ -823,9 +825,11 @@ info = new Vue({
                         id : '1'
                     },
                     type : 'critirea',
+                    status : 'processed',
                     title : 'fuck zyn',
                     content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#'
+                    a_url : '#',
+                    selected : false
                 }
             ],
             [
@@ -835,13 +839,16 @@ info = new Vue({
                         id : '1'
                     },
                     type : 'score',
+                    status : 'ignored',
                     title : 'fuck zyn too',
                     content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#'
+                    a_url : '#',
+                    selected : false
                 }
             ]
         ],
-        appeal_page : 0
+        appeal_page : 0,
+        selected_appeal : 0
     },
     computed : {
         is_guest : function() {
@@ -1011,6 +1018,42 @@ info = new Vue({
             ++this.appeal_page;
             if (this.appeal_page == this.appeal_list.length)
                 this.appeal_page = this.appeal_list.length - 1;
+        },
+        select_appeal : function(page, idx) {
+            this.appeal_list[page][idx].selected = !this.appeal_list[page][idx].selected;
+            if (this.appeal_list[page][idx].selected)
+                ++this.selected_appeal;
+            else
+                --this.selected_appeal;
+        },
+        select_page_appeal : function() {
+            for (item of this.appeal_list[this.appeal_page]) {
+                if (!item.selected)
+                    ++this.selected_appeal;
+                item.selected = true;
+            }
+        },
+        unselect_page_appeal : function() {
+            for (item of this.appeal_list[this.appeal_page]) {
+                if (item.selected)
+                    --this.selected_appeal;
+                item.selected = false;
+            }
+        },
+        select_all_appeal : function() {
+            for (list of this.appeal_list) {
+                for (item of list) {
+                    if (!item.selected)
+                        ++this.selected_appeal;
+                    item.selected = true;
+                }
+            }
+        },
+        unselect_all_appeal : function() {
+            for (list of this.appeal_list)
+                for (item of list)
+                    item.selected = false;
+            this.selected_appeal = 0;
         },
         publish : function() {
         },
