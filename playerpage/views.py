@@ -1,4 +1,4 @@
-from django.core.exceptions import ObjectDoesNotExist
+from itertools import chain
 from codex.baseerror import *
 from codex.baseview import APIView
 from codex.basedecorator import *
@@ -10,10 +10,7 @@ import time, datetime
 
 
 def player_signup_contest(player, contest):
-    for team in (player.lead_teams.all()):
-        if team.contest == contest:
-            return team
-    for team in (player.join_teams.all()):
+    for team in chain(player.lead_teams.all(), player.join_teams.all()):
         if team.contest == contest:
             return team
     raise ValidateError('You have not sign up this contest')
@@ -96,7 +93,7 @@ class PlayerParticipatingContests(APIView):
     def get(self):
         player = self.request.user.player
         contests = []
-        for team in (player.lead_teams + player.join_teams):
+        for team in chain(player.lead_teams.all() + player.join_teams.all()):
             contests.append({'id': team.contest.id,
                              'name': team.contest.name,
                              'organizerName': team.contest.organizer.nickname})
@@ -278,15 +275,7 @@ class PlayerTeamList(APIView):
     def get(self):
         player = self.request.user.player
         teams = []
-        for team in (player.lead_teams.all()):
-            if team.status == Team.VERIFIED:
-                teams.append({
-                    'id': team.id,
-                    'name': team.name,
-                    'leaderName': team.leader.name,
-                    'contestName': team.contest.name
-                })
-        for team in (player.join_teams.all()):
+        for team in chain(player.lead_teams.all(), player.join_teams.all()):
             if team.status == Team.VERIFIED:
                 teams.append({
                     'id': team.id,
@@ -397,10 +386,7 @@ class PlayerTeamCreate(APIView):
             members.append(member)
 
         player = self.request.user.player
-        for team in (player.lead_teams.all()):
-            if team.contest == contest:
-                raise LogicError('You are already in a team of this contest')
-        for team in (player.join_teams.all()):
+        for team in chain(player.lead_teams.all(), player.join_teams.all()):
             if team.contest == contest:
                 raise LogicError('You are already in a team of this contest')
 
