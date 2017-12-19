@@ -91,7 +91,8 @@ class PlayerParticipatingContests(APIView):
     def get(self):
         player = self.request.user.player
         contests = []
-        for team in chain(player.lead_teams.all() + player.join_teams.all()):
+        for team in chain(player.lead_teams.exclude(status=Team.DISMISSED),
+                          player.join_teams.exclude(status=Team.DISMISSED)):
             contests.append({'id': team.contest.id,
                              'name': team.contest.name,
                              'organizerName': team.contest.organizer.nickname})
@@ -120,7 +121,7 @@ class PlayerContestDetail(APIView):
             tags.append(tag.content)
         # periods
         periods = []
-        for period in contest.period_set.all():
+        for period in contest.period_set.exclude(status=Period.REMOVED):
             periods.append({'periodName': period.name,
                             'periodId': period.id,
                             'periodSlots': period.available_slots,
@@ -214,7 +215,7 @@ class PlayerQuestionDetail(APIView):
 
         # get question list
         questions = []
-        for question in period.examquestion_set:
+        for question in period.examquestion_set.exclude(status=ExamQuestion.REMOVED):
             try:
                 work = Work.objects.get(question=question, team=team)
                 submission_times = work.submission_times
@@ -278,7 +279,8 @@ class PlayerTeamList(APIView):
     def get(self):
         player = self.request.user.player
         teams = []
-        for team in chain(player.lead_teams.all(), player.join_teams.all()):
+        for team in chain(player.lead_teams.exclude(status=Team.DISMISSED),
+                          player.join_teams.exclude(status=Team.DISMISSED)):
             if team.status == Team.VERIFYING or team.status == Team.VERIFIED:
                 teams.append({
                     'id': team.id,
@@ -451,22 +453,21 @@ class PlayerTeamInvitation(APIView):
     @player_required
     def get(self):
         invitations = []
-        for invitation in self.request.user.player.teaminvitation_set.all():
-            if invitation.status != TeamInvitation.REMOVED:
-                member_ids = []
-                member_names = []
-                for member in invitation.team.members.all():
-                    member_ids.append(member.id)
-                    member_names.append(member.user.username)
-                invitations.append({
-                    'id': invitation.id,
-                    'contestId': invitation.team.contest.id,
-                    'leaderId': invitation.team.leader.id,
-                    'leaderName': invitation.team.leader.user.username,
-                    'memberIds': member_ids,
-                    'memberNames': member_names,
-                    'teamName': invitation.team.name,
-                })
+        for invitation in self.request.user.player.teaminvitation_set.exclude(status=TeamInvitation.REMOVED):
+            member_ids = []
+            member_names = []
+            for member in invitation.team.members.all():
+                member_ids.append(member.id)
+                member_names.append(member.user.username)
+            invitations.append({
+                'id': invitation.id,
+                'contestId': invitation.team.contest.id,
+                'leaderId': invitation.team.leader.id,
+                'leaderName': invitation.team.leader.user.username,
+                'memberIds': member_ids,
+                'memberNames': member_names,
+                'teamName': invitation.team.name,
+            })
         return invitations
 
     @player_required
@@ -522,7 +523,8 @@ class PlayerAppealList(APIView):
         self.check_input('cid')
         contest = Contest.safe_get(id=self.input['cid'])
         appeals = []
-        for appeal in Appeal.objects.filter(target_contest=contest, initiator=self.request.user.player):
+        for appeal in Appeal.objects.exclude(status=Appeal.REMOVED).\
+                filter(target_contest=contest, initiator=self.request.user.player):
             appeals.append({
                 'id': appeal.id,
                 'title': appeal.title,
