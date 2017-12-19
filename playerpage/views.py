@@ -6,8 +6,6 @@ from test_me_app.models import *
 from test_me import settings
 import time, datetime
 
-# Create your views here.
-
 
 def player_signup_contest(player, contest):
     for team in chain(player.lead_teams.all(), player.join_teams.all()):

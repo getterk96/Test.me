@@ -11,6 +11,7 @@ from test_me import settings
 
 
 class Register(APIView):
+
     def post(self):
         # check
         self.check_input('username', 'password', 'email', 'group', 'verifyFileUrl')
@@ -41,11 +42,12 @@ class Register(APIView):
 
 
 class PersonalInfo(APIView):
+
     @organizer_required
     def get(self):
         the_user = self.request.user
         organizer = the_user.organizer
-        data = {
+        return {
             'username': the_user.username,
             'nickname': organizer.nickname,
             'avatarUrl': organizer.avatar_url,
@@ -54,8 +56,6 @@ class PersonalInfo(APIView):
             'description': organizer.description,
             'verifyStatus': organizer.verify_status,
         }
-
-        return data
 
     @organizer_required
     def post(self):
@@ -70,27 +70,28 @@ class PersonalInfo(APIView):
 
 
 class OrganizingContests(APIView):
+
     @organizer_required
     def get(self):
         contests = Contest.objects.filter(organizer_id=self.request.user.organizer.id)
-        ret = []
+        organizing_contests = []
         for contest in contests:
-            data = {
+            organizing_contests.append({
                 'id': contest.id,
                 'name': contest.name,
                 'teamsNumber': Team.objects.filter(contest_id=contest.id).count(),
                 'creatorId': contest.organizer.id,
                 'creatorName': contest.organizer.nickname,
-            }
-            ret.append(data)
-        return ret
+            })
+        return organizing_contests
 
 
 class ContestDetail(APIView):
+
     @organizer_required
     def get(self):
         contest = Contest.safe_get(id=self.input['id'])
-        data = {
+        return {
             'name': contest.name,
             'description': contest.description,
             'logoUrl': contest.logo_url,
@@ -105,8 +106,6 @@ class ContestDetail(APIView):
             'tags': contest.get_tags(),
             'periods': list(contest.period_set.values_list('id', flat=True))
         }
-
-        return data
 
     @organizer_required
     def post(self):
@@ -123,12 +122,13 @@ class ContestDetail(APIView):
         contest.max_team_members = self.input['maxTeamMembers']
         contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
         contest.level = self.input['level']
-        contest.save()
         tags = self.input['tags'].split(',')
         contest.add_tags(tags)
+        contest.save()
 
 
 class ContestCreate(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
@@ -154,6 +154,7 @@ class ContestCreate(APIView):
 
 
 class ContestRemove(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('id')
@@ -167,6 +168,7 @@ class ContestRemove(APIView):
 
 
 class ContestBatchRemove(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('contest_id')
@@ -181,6 +183,7 @@ class ContestBatchRemove(APIView):
 
 
 class ContestTeamBatchManage(APIView):
+
     @organizer_required
     def get(self):
         self.check_input('id')
@@ -189,15 +192,14 @@ class ContestTeamBatchManage(APIView):
         if not team.periodscore_set.all().empty():
             for score in team.periodscore_set.all():
                 scores.append(score.score)
-        data = {
+        return {
             'name': team.name,
             'leader_name': team.leader.name,
             'scores': scores,
             'status': team.status
         }
 
-        return data
-
+    @organizer_required
     def post(self):
         self.check_input('teamId', 'status')
         for id in self.input['teamId']:
@@ -209,11 +211,12 @@ class ContestTeamBatchManage(APIView):
 
 
 class ContestTeam(APIView):
+
     @organizer_required
     def get(self):
         self.check_input('id')
         team = Team.safe_get(id=self.input['id'])
-        data = {
+        return {
             'playerNickname': team.members.values_list('nickname', flat=True),
             'playersId': team.members.values_list('id', flat=True),
             'leader': team.leader.nickname,
@@ -226,8 +229,7 @@ class ContestTeam(APIView):
             'questionScore': team.work_set.values_list('score', flat=True)
         }
 
-        return data
-
+    @organizer_required
     def post(self):
         self.check_input('id', 'status', 'periodScore', 'workScore')
         team = Team.safe_get(id=self.input['id'])
@@ -235,14 +237,14 @@ class ContestTeam(APIView):
         for index in range(len(self.input['periodScore'])):
             try:
                 period_score = team.periodscore_set.get(period__index=index)
-            except:
+            except ObjectDoesNotExist:
                 raise LogicError("No Such Period Score")
             period_score.score = self.input['periodScore'][index]
             period_score.save()
         for index in range(len(self.input['workScore'])):
             try:
                 work = team.work_set.get(question__index=index)
-            except:
+            except ObjectDoesNotExist:
                 raise LogicError("No Such Work")
             work.score = self.input['workScore'][index]
             work.save()
@@ -252,6 +254,7 @@ class ContestTeam(APIView):
 
 
 class PeriodCreate(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
@@ -271,6 +274,7 @@ class PeriodCreate(APIView):
 
 
 class PeriodDetail(APIView):
+
     @organizer_required
     def get(self):
         self.check_input('id')
@@ -278,7 +282,7 @@ class PeriodDetail(APIView):
         question_id = []
         for question in ExamQuestion.objects.filter(period_id = self.input['id']):
             question_id.append(question.id)
-        data = {
+        return {
             'index': period.index,
             'name': period.name,
             'description': period.description,
@@ -289,14 +293,10 @@ class PeriodDetail(APIView):
             'questionId': question_id,
         }
 
-        return data
-
     @organizer_required
     def post(self):
-        self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
-                         , 'attachmentUrl', 'questionId')
-        # user = self.request.user
-        # if user.is_authenticated:
+        self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots',
+                         'attachmentUrl', 'questionId')
         period = Period.safe_get(id=self.input['id'])
         period.name = self.input['name']
         period.index = self.input['index']
@@ -316,6 +316,7 @@ class PeriodDetail(APIView):
 
 
 class PeriodRemove(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('id')
@@ -325,11 +326,10 @@ class PeriodRemove(APIView):
 
 
 class QuestionCreate(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
-        # user = self.request.user
-        # if user.is_authenticated:
         question = ExamQuestion()
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
@@ -342,23 +342,20 @@ class QuestionCreate(APIView):
 
 
 class QuestionDetail(APIView):
+
     @organizer_required
     def get(self):
         self.check_input('id')
         question = ExamQuestion.safe_get(id=self.input['id'])
-        data = {
+        return {
             'description': question.description,
             'attachmentUrl': question.attachment_url,
             'submissionLimit': question.submission_limit,
         }
 
-        return data
-
     @organizer_required
     def post(self):
         self.check_input('id', 'periodId', 'description', 'startTime', 'attachmentUrl', 'submissionLimit')
-        # user = self.request.user
-        # if user.is_authenticated:
         question = ExamQuestion.safe_get(id=self.input['id'])
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
@@ -370,6 +367,7 @@ class QuestionDetail(APIView):
 
 
 class QuestionRemove(APIView):
+
     @organizer_required
     def post(self):
         self.check_input('id')
@@ -384,14 +382,12 @@ class AppealDetail(APIView):
     def get(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
-        data = {
+        return {
             'contestName': appeal.contest.name,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
         }
-
-        return data
 
     @organizer_required
     def post(self):
@@ -401,5 +397,3 @@ class AppealDetail(APIView):
         appeal.save()
 
         return appeal.id
-
-# Create your views here.
