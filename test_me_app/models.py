@@ -117,7 +117,7 @@ class Contest(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Contest.objects.exclude(status=Contest.CANCELLED).get(**kwargs)
+            return Contest.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Contest")
 
@@ -152,10 +152,14 @@ class Period(models.Model):
     description = models.TextField()
     attachment_url = models.CharField(max_length=256)
 
+    status = models.IntegerField(default=1)
+    NORMAL = 1
+    REMOVED = -1
+
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Period.objects.get(**kwargs)
+            return Period.objects.exclude(status=Period.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Period")
 
@@ -167,10 +171,14 @@ class ExamQuestion(models.Model):
     attachment_url = models.CharField(max_length=256)
     submission_limit = models.IntegerField()
 
+    status = models.IntegerField(default=1)
+    NORMAL = 1
+    REMOVED = -1
+
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return ExamQuestion.objects.get(**kwargs)
+            return ExamQuestion.objects.exclude(status=ExamQuestion.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Exam Question")
 
@@ -194,7 +202,7 @@ class Team(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Team.objects.get(**kwargs)
+            return Team.objects.exclude(status=Team.DISMISSED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
@@ -212,7 +220,7 @@ class TeamInvitation(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return TeamInvitation.objects.get(**kwargs)
+            return TeamInvitation.objects.exclude(status=TeamInvitation.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError('No such team invitation')
 
@@ -262,6 +270,6 @@ class Appeal(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Appeal.objects.get(**kwargs)
+            return Appeal.objects.exclude(status=Appeal.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")
