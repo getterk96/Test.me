@@ -28,7 +28,7 @@
   import Reply from './Reply'
   import Pagination from '../Pagination'
   export default {
-    name: 'main',
+    name: 'detail-main',
     props: ['portion', 'title', 'content'],
     components: {
       'reply': Reply,

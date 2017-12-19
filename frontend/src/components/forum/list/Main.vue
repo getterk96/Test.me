@@ -17,7 +17,7 @@
   import Post from './Post'
   import Pagination from '../Pagination'
   export default {
-    name: 'main',
+    name: 'list-main',
     props: ['selected', 'portion', 'tn', 'pn'],
     components: {
       'post': Post,

@@ -10,18 +10,18 @@
 </template>
 
 <script>
-  import Nav from './Nav'
-  import Sidebar from './Sidebar'
-  import Footer from './Footer'
-  import Main from './detail/Main'
+  import DetailNav from './Nav'
+  import DetailSidebar from './Sidebar'
+  import DetailFooter from './Footer'
+  import DetailMain from './detail/Main'
 
   export default {
     name: 'detail',
     components: {
-      'detail-nav': Nav,
-      'detail-sidebar': Sidebar,
-      'detail-footer': Footer,
-      'detail-main': Main
+      'detail-nav': DetailNav,
+      'detail-sidebar': DetailSidebar,
+      'detail-footer': DetailFooter,
+      'detail-main': DetailMain
     }
   }
 </script>

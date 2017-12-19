@@ -10,10 +10,10 @@
 </template>
 
 <script>
-  import Nav from './Nav'
+  import ListNav from './Nav'
   import ListMain from './list/Main'
-  import Sidebar from './Sidebar'
-  import Footer from './Footer'
+  import ListSidebar from './Sidebar'
+  import ListFooter from './Footer'
 
   export default {
     name: 'list',
@@ -23,10 +23,10 @@
       }
     },
     components: {
-      'list-nav': Nav,
+      'list-nav': ListNav,
       'list-main': ListMain,
-      'list-sidebar': Sidebar,
-      'list-footer': Footer
+      'list-sidebar': ListSidebar,
+      'list-footer': ListFooter
     }
   }
 </script>
