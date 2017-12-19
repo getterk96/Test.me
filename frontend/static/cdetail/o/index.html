@@ -165,6 +165,17 @@
                     <button @click="publish" :class="['response-button']">保存并发布</button>
                 </div>
             </template>
+            <template v-else-if="page == '申诉处理'">
+                <div :class="['session']">
+                    <div :class="['page-nav']">
+                        <button v-if="appeal_page > 0" @click="prev_a_page">previous page</button>
+                        <button v-else disabled>previous page</button>
+                        {{ appeal_page + 1 }}{{ '/' + appeal_list.length }}
+                        <button v-if="appeal_page < appeal_list.length - 1" @click="next_a_page">next page</button>
+                        <button v-else disabled>next page</button>
+                    </div>
+                </div>
+            </template>
             <template v-else-if="page == '成绩录入'">
                 <div :class="['session']">
                     <button :class="['s-title', show_upload_toknow ? '' : 'collapse']" @click="switch_upload_toknow"><span>成绩录入须知</span></button>

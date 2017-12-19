@@ -8,6 +8,7 @@ const type_o = 1;
 var info = {};
 
 //api
+/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -582,6 +583,7 @@ var upload_data = function(aim_status) {
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
         }*/
+        /*
         info.contest.period[i].question_id = [];
         var url = '/api/o/period/create';
         var m = 'POST';
@@ -668,10 +670,10 @@ var upload_data = function(aim_status) {
     }
     $t(url, m, data, post_succ, post_fail);
 }
+*/
 
 // for develop without API
 
-/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -802,7 +804,44 @@ info = new Vue({
         show_upload_toknow : true,
         contest : window.contest,
         result_file_name : 'hahahah',
-        upload_result_avail : true
+        upload_result_avail : true,
+        appeal_list : [
+            [
+                {
+                    appealer : {
+                        name : '405',
+                        id : '1'
+                    },
+                    type : 'score',
+                    title : 'fuck zyn',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#'
+                },
+                {
+                    appealer : {
+                        name : '405',
+                        id : '1'
+                    },
+                    type : 'critirea',
+                    title : 'fuck zyn',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#'
+                }
+            ],
+            [
+                {
+                    appealer : {
+                        name : '405',
+                        id : '1'
+                    },
+                    type : 'score',
+                    title : 'fuck zyn too',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#'
+                }
+            ]
+        ],
+        appeal_page : 0
     },
     computed : {
         is_guest : function() {
@@ -963,9 +1002,19 @@ info = new Vue({
             }
             this.contest.period[pidx].question.splice(qidx, 1);
         },
+        prev_a_page : function() {
+            --this.appeal_page;
+            if (this.appeal_page < 0)
+                this.appeal_page = 0;
+        },
+        next_a_page : function() {
+            ++this.appeal_page;
+            if (this.appeal_page == this.appeal_list.length)
+                this.appeal_page = this.appeal_list.length - 1;
+        },
         publish : function() {
         },
         save : function() {
         }
     }
-});*/
+});

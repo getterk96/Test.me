@@ -95,3 +95,26 @@ li.userbox>div.info li {
     margin : 0em auto 1em auto;
     width : 100%;
 }
+
+.page-nav {
+    text-align : center;
+}
+
+.page-nav button {
+    padding : 0.2em 0.5em;
+    border-radius : 0.2em;
+    background-color : #efefef;
+    color : #b3b3b3;
+    transition : background 0.3s;
+}
+
+.page-nav button:hover {
+    background-color :  #3498db;
+    color : #ffffff;
+}
+
+
+.page-nav button[disabled]:hover {
+    background-color : #efefef;
+    color : #b3b3b3;
+}
