@@ -36,3 +36,6 @@ test_me_view/.editorconfig
 test_me_view/.eslintignore
 test_me_view/.eslintrc.js
 test_me_view/.postcssrc.js
+
+#todo
+*.todo

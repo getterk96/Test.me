@@ -1,155 +1,149 @@
-.userinfo {
-    display : inline-block;
-    width : 20%;
-}
-
-.contestlist {
-    display : inline-block;
-    width : 79%;
-    float : right;
-}
-
-.avatar {
-    width : 80%;
-    margin : 2em auto;
-    height : auto;
-}
-
-.avatar>img {
-    width : 100%;
-    height : auto;
-}
-
-.userinfo>.item {
-    text-align : center;
-    margin : 0.5em auto;
-}
-
-.userinfo>.item>a {
-    color : blue;
-}
-
-.userinfo>.item.empty {
-    padding : 1em 0;
-}
-
-.userinfo>ul {
-    list-style : none;
-}
-
-.userinfo>ul>li {
-    text-align : center;
-    margin : 0.5em auto;
-}
-
-.userinfo>ul>li .fieldname {
-    font-weight : bold;
-    margin : 0.5em;
-}
-
-
-#modifybox ul {
-    list-style : none;
-}
-
-#modifybox li {
-    margin-top : 2em;
-}
-
-#modifybox li div,
-#modifybox li input,
-#modifybox li label {
-    display : inline-block;
-    font-size : 1.5em;
-    margin-left : 2em;
-}
-
-.modifylabel {
-    width : 5em;
-    text-align : right;
-}
-
-.modifyinput {
-    width : calc(100% - 10em);
-    min-width : 5em;
-    text-indent : 0.5em;
-    outline-style : none;
-    background-color : transparent;
-    border-top : none;
-    border-right : 1px solid rgba(127, 172, 222, 0.1);
-    border-left : 1px solid rgba(127, 172, 222, 0.1);
-    border-bottom : 2px solid rgba(127, 172, 222, 0.4);
-    transition : border 0.3s;
-}
-
-.modifyinput:focus {
-    border-left-color : rgba(127, 172, 222, 0.6);
-    border-right-color : rgba(127, 172, 222, 0.6);
-    border-bottom-color : rgba(127, 172, 222, 1);
-}
-
-#modifybox .confirm-button {
-    margin : 2em auto 1em auto;
+nav#side-nav {
+    position : fixed;
+    width : 10vw;
     display : block;
-    height : 2em;
+    top : 30vh;
+    left : 5vw;
+}
+
+nav#side-nav label {
+    width : 10vw;
+    display : block;
+    position : relative;
+    text-align : center;
+    margin : 0.5em auto;
+}
+
+.searchbox {
+  display : block;
+  width : 100%;
+}
+
+.searchbox>input {
+  width : 80%;
+  margin-left : calc(10% - 1em);
+  box-shadow : 0px 0px 0.5em rgba(0, 0, 0, 0.3) inset;
+  border-radius : 0.5em;
+  font-size : 1.1em;
+  user-select : text;
+  letter-spacing : 0.05em;
+  padding : 0.5em 1em;
+}
+
+.searchbox>.clearsearch {
+  display : none;
+}
+
+.searchbox>input:valid+.clearsearch {
+  display : block;
+  color : rgb(100, 100, 100);
+  position : absolute;
+  right : 10%;
+  top : 0.3em;
+}
+
+.searchbutton {
+  display : block;
+  text-align : center;
+  margin : 1em;
+}
+
+.searchbutton>div {
+  display : inline-block;
+  margin : auto;
+}
+
+.searchbutton>div>button {
+  display : inline-block;
+  margin : 0 0.5em;
+  vertical-align : middle;
+}
+
+.searchbutton>div #gosearch {
+  padding : 0.1em 1em;
+  line-height : 1em;
+  font-size : 1em;
+  border-bottom : 2px solid rgba(127, 172, 222, 0.3);
+  transition : border 0.3s;
+}
+
+.searchbutton>div #gosearch:hover {
+  border-bottom : 2px solid rgba(127, 172, 222, 0.9);
+}
+
+.searchbutton>div #random {
+  background-image : url('../img/random.png');
+  background-size : 100% 100%;
+  width : 1.3em;
+  height : 1.3em;
+}
+
+.searchresult {
+    margin : auto;
+    width : 80%;
+    box-shadow : 0 0 0.4em rgba(0, 0, 0, 0.5) inset;
+    border-radius : 0.4em;
+}
+
+.searchresult th,
+.searchresult td {
+    padding : 0.15em;
+    border : none;
+    text-align : center;
+    user-select : text;
+}
+
+.searchresult tr {
+    box-shadow : 0 0 0.1em rgba(0, 0, 0, 0.3) inset;
+}
+
+.searchresult tr.last-row {
+    border-bottom-left-radius : 0.4em;
+    border-bottom-right-radius : 0.4em;
+}
+
+.lightrow {
+    background : rgba(127, 172, 222, 0.2);
+}
+
+.darkrow {
+    background : rgba(127, 70, 120, 0.15);
+}
+
+.searchresult a {
+    text-decoration : underline;
+    color : blue;
+}
+
+#avatar {
+    width : 20%;
+    display : inline-block;
+}
+
+#avatar>img {
+    width : 100%;
+    display : block;
+}
+
+#avatar>div {
+    margin : auto;
+    text-align : center;
+    display : block;
+}
+
+#avatar>div>.fileuploader {
+    width : 1.5em;
+    height : 1.5em;
+    display : inline-block;
+}
+
+#basicinfo {
+    display : inline-block;
+    vertical-align : top;
+    margin-left : 1em;
+}
+
+input.large {
     font-size : 2em;
-    width : auto;
-    padding : 0.2em 1em;
-    border-radius : 5px;
-    outline-style : none;
-    border-top : none;
-    background-color : transparent;
-    border-right : 1px solid rgba(127, 172, 222, 0.1);
-    border-left : 1px solid rgba(127, 172, 222, 0.1);
-    border-bottom : 2px solid rgba(127, 172, 222, 0.4);
-    transition : border 0.3s;
-}
-
-#modifybox .confirm-button:hover {
-    border-left-color : rgba(127, 172, 222, 0.6);
-    border-right-color : rgba(127, 172, 222, 0.6);
-    border-bottom-color : rgba(127, 172, 222, 1);
-}
-
-.fileuploader {
-    width : 1.2em;
-    height : 1.2em;
-    vertical-align : bottom;
-}
-
-#createcontest {
-    text-align : right;
-    margin-right : 0.2em;
-    margin-top : 0.2em;
-    padding : 0.5em;
-}
-.createcontest {
-    width : auto;
-    cursor : pointer;
-    color : blue;
-    transition : background-color 0.3s;
-    background-color : rgba(0, 0, 0, 0);
-}
-
-.createcontest:hover {
-    background-color : rgba(180, 180, 180, 0.2);
-}
-
-.contests {
-    border : 1px solid black;
-    width : 90%;
-    margin : 0 auto 2em auto;
-}
-
-.contests th {
-    text-align : left;
-}
-
-.contests td a {
-    color : blue;
-}
-
-.contests td.deletecontest,
-.contests td.giveup {
-    text-align : right;
+    font-weight : bold;
 }
