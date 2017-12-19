@@ -274,24 +274,63 @@ class ContestTeamDetail(APIView):
 
     @organizer_required
     def post(self):
-        self.check_input('id', 'status', 'periodScore', 'workScore')
+        self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl',
+                         'periodId''status', 'periods')
         team = Team.safe_get(id=self.input['id'])
+
+        # basic info
+        team.name = self.input['name']
+        team.avatar_url = self.input['avatarUrl'],
+        team.description = self.input['signUpAttachmentUrl']
         team.status = self.input['status']
-        for index in range(len(self.input['periodScore'])):
-            try:
-                period_score = team.periodscore_set.get(period__index=index)
-            except ObjectDoesNotExist:
-                raise LogicError("No Such Period Score")
-            period_score.score = self.input['periodScore'][index]
-            period_score.save()
-        for index in range(len(self.input['workScore'])):
-            try:
-                work = team.work_set.get(question__index=index)
-            except ObjectDoesNotExist:
-                raise LogicError("No Such Work")
-            work.score = self.input['workScore'][index]
-            work.save()
+        try:
+            # leader
+            leader = User.objects.get(id=self.input['leaderId'])
+            if leader.user_type != User_profile.PLAYER:
+                raise InputError('Player Required')
+            team.leader = leader
+            # members
+            team.members.clear()
+            for memberId in self.input['memberIds']:
+                member = User.objects.get(id=memberId)
+                if member.user_type != User_profile.PLAYER:
+                    raise InputError('Player Required')
+                team.members.add(member)
+        except ObjectDoesNotExist:
+            raise InputError('Player does not exist')
+        # current period
+        period = Period.safe_get(id=input['periodId'])
+        team.period = period
         team.save()
+
+        # work and score
+        for period_info in self.input['periods']:
+            period = Period.safe_get(id=period_info['id'])
+            # period score
+            try:
+                period_score = PeriodScore.safe_get(period=period, team=team)
+                period_score.score = period_info['score']
+                period_score.rank = period_info['rank']
+                period_score.save()
+            except LogicError:
+                PeriodScore.objects.create(period=period, team=team,
+                                   score=period_info['score'],
+                                   rank=period_info['rank'])
+            # work
+            works = period_info['work']
+            for work in works:
+                question = ExamQuestion.safe_get(id=work['questionId'])
+                try:
+                    work = Work.safe_get(question=question, team=team)
+                    work.content_url = work['workContentUrl']
+                    work.score = work['workScore']
+                    work.submission_times = work['submission_times']
+                    work.save()
+                except LogicError:
+                    Work.objects.create(question=question, team=team,
+                                        content_url=work['workContentUrl'],
+                                        score=work['workScore'],
+                                        submission_times=work['submission_times'])
 
 
 class PeriodCreate(APIView):

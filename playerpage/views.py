@@ -249,6 +249,11 @@ class PlayerQuestionSubmit(APIView):
         player = self.request.user.player
         team = player_signup_contest(player, question.period.contest)
 
+        # check period time
+        if team.period.start_time.timetuple() > datetime.datetime.now().timetuple() or \
+           team.end_time.timetuple() < datetime.datetime.now().timetuple():
+            raise LogicError('Can not submit now')
+
         # check leader
         if player != team.leader:
             raise ValidateError('Only team leader can submit work')
@@ -481,6 +486,11 @@ class PlayerTeamSignUp(APIView):
     def post(self):
         self.check_input('tid')
         team = Team.safe_get(id=self.input['tid'])
+
+        if team.contest.sign_up_start_time.timetuple() > datetime.datetime.now().timetuple() or \
+           team.contest.sign_up_end_time.timetuple() < datetime.datetime.now().timetuple():
+            raise LogicError('Contest is not in sign up time')
+
         player = self.request.user.player
         if player != team.leader:
             raise LogicError('Only team leader can sign up for team')
