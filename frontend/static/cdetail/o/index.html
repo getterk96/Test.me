@@ -177,7 +177,7 @@
                             <span v-if="appeal_status_reverse">Unprocessed First</span>
                             <span v-else>Ignored First</span>
                         </button>
-                        <button :class="['operator']">
+                        <button :class="['operator']" @click="appeal_sort_type">
                             <span v-if="appeal_type_reverse">Criteria First</span>
                             <span v-else>Result First</span>
                         </button>
