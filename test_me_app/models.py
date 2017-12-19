@@ -117,7 +117,7 @@ class Contest(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Contest.objects.get(**kwargs)
+            return Contest.objects.exclude(status=Contest.CANCELLED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Contest")
 
@@ -206,7 +206,8 @@ class TeamInvitation(models.Model):
     status = models.IntegerField(default=0)
     CONFIRMING = 0
     CONFIRMED = 1
-    REFUSED = -1
+    REFUSED = 2
+    REMOVED = -1
 
     @staticmethod
     def safe_get(**kwargs):
