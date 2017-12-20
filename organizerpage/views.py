@@ -451,7 +451,15 @@ class QuestionRemove(APIView):
 class AppealList(APIView):
     @organizer_required
     def get(self):
-        pass
+        self.check_input('cid')
+        contest = Contest.safe_get(id=self.input['cid'])
+        appeals = []
+        for appeal in Appeal.objects.filter(target_contest=contest):
+            appeals.append({
+                'id': appeal.id,
+                'title': appeal.title,
+                'status': appeal.status
+            })
 
 
 class AppealDetail(APIView):
@@ -460,7 +468,7 @@ class AppealDetail(APIView):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
         return {
-            'contestName': appeal.contest.name,
+            'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,

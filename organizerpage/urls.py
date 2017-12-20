@@ -19,5 +19,6 @@ urlpatterns = [
     url(r'^question/create?$', QuestionCreate.as_view()),
     url(r'^question/detail?$', QuestionDetail.as_view()),
     url(r'^question/remove?$', QuestionRemove.as_view()),
+    url(r'^appeal/list$', AppealList.as_view()),
     url(r'^appeal/detail$', AppealDetail.as_view()),
 ]

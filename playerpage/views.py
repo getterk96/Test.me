@@ -505,16 +505,30 @@ class PlayerAppealCreate(APIView):
 
     @player_required
     def post(self):
-        self.check_input('contestId', 'content', 'attachmentUrl')
-        appeal = Appeal()
-        appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
-        appeal.target_organizer = appeal.target_contest.organizer
-        appeal.status = Appeal.TOSOLVE
-        appeal.content = self.input['content']
-        appeal.attachment_url = self.input['attachmentUrl']
-        appeal.save()
-
+        self.check_input('contestId', 'title', 'content', 'attachmentUrl')
+        appeal = Appeal.objects.create(initiator=self.request.user.player,
+                                       target_contest=Contest.safe_get(id=self.input['contestId']),
+                                       title=self.input['title'],
+                                       content=self.input['content'],
+                                       attachment_url=self.input['attachmentUrl'],
+                                       status=Appeal.TOSOLVE)
         return appeal.id
+
+
+class PlayerAppealList(APIView):
+
+    @player_required
+    def get(self):
+        self.check_input('cid')
+        contest = Contest.safe_get(id=self.input['cid'])
+        appeals = []
+        for appeal in Appeal.objects.filter(target_contest=contest, initiator=self.request.user.player):
+            appeals.append({
+                'id': appeal.id,
+                'title': appeal.title,
+                'status': appeal.status
+            })
+        return appeals
 
 
 class PlayerAppealDetail(APIView):
@@ -525,6 +539,7 @@ class PlayerAppealDetail(APIView):
         appeal = Appeal.safe_get(id=self.input['id'])
         return {
             'contestName': appeal.contest.name,
+            'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
@@ -532,11 +547,11 @@ class PlayerAppealDetail(APIView):
 
     @player_required
     def post(self):
-        self.check_input('id', 'contestId', 'content', 'attachmentUrl', 'status')
+        self.check_input('id', 'contestId', 'title', 'content', 'attachmentUrl', 'status')
         appeal = Appeal.safe_get(id=self.input['id'])
         appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
-        appeal.target_organizer = appeal.target_contest.organizer
         appeal.status = self.input['status']
+        appeal.title = self.input['title']
         appeal.content = self.input['content']
         appeal.attachment_url = self.input['attachmentUrl']
         appeal.save()
