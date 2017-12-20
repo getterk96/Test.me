@@ -70,7 +70,7 @@ class PersonalInfo(APIView):
 class OrganizingContests(APIView):
     @organizer_required
     def get(self):
-        contests = Contest.objects.filter(organizer_id=self.request.user.organizer.id)
+        contests = Contest.objects.exclude(status=Contest.REMOVED).filter(organizer_id=self.request.user.organizer.id)
         organizing_contests = []
         for contest in contests:
             organizing_contests.append({
@@ -153,11 +153,12 @@ class ContestRemove(APIView):
     def post(self):
         self.check_input('id')
         contest = Contest.safe_get(id=self.input['id'])
-        periods = Period.objects.filter(contest=contest)
-        if not periods.empty:
-            for period in periods:
-                period.delete()
-        contest.delete()
+        periods = Period.objects.exclude(status=Period.REMOVED).filter(contest=contest)
+        for period in periods:
+            period.status = Period.REMOVED
+            period.save()
+        contest.status = Contest.REMOVED
+        contest.save()
 
 
 class ContestBatchRemove(APIView):
@@ -166,28 +167,28 @@ class ContestBatchRemove(APIView):
         self.check_input('contest_id')
         for id in self.input['contest_id']:
             contest = Contest.safe_get(id=id)
-            periods = Period.objects.filter(contest=contest)
-            if not periods.empty():
-                for period in periods:
-                    period.delete()
-            contest.delete()
+            periods = Period.objects.exclude(status=Contest.REMOVED).filter(contest=contest)
+            for period in periods:
+                period.status = Period.REMOVED
+                period.save()
+            contest.status = Contest.REMOVED
+            contest.save()
 
 
 class ContestTeamBatchManage(APIView):
     @organizer_required
     def get(self):
-        self.check_input('id')
-        team = Team.safe_get(id=self.input['id'])
-        scores = []
-        for score in team.periodscore_set.all():
-            scores.append(score.score)
-        return {
-            'id': team.id,
-            'name': team.name,
-            'leader_name': team.leader.name,
-            'scores': scores,
-            'status': team.status
-        }
+        self.check_input('cid')
+        contest = Contest.safe_get(id=self.input['cid'])
+        teams = []
+        for team in contest.team_set.exclude(status=Team.DISMISSED):
+            teams.append({
+                'id': team.id,
+                'name': team.name,
+                'leaderName': team.leader.user.username,
+                'status': team.status
+            })
+        return teams
 
     @organizer_required
     def post(self):
@@ -358,7 +359,7 @@ class PeriodDetail(APIView):
         self.check_input('id')
         period = Period.safe_get(id=self.input['id'])
         question_id = []
-        for question in ExamQuestion.objects.filter(period_id=self.input['id']):
+        for question in ExamQuestion.objects.exclude(status=ExamQuestion.REMOVED).filter(period_id=self.input['id']):
             question_id.append(question.id)
         return {
             'index': period.index,
@@ -398,7 +399,8 @@ class PeriodRemove(APIView):
     def post(self):
         self.check_input('id')
         period = Period.safe_get(id=self.input['id'])
-        period.delete()
+        period.status = Period.REMOVED
+        period.save()
 
 
 class QuestionCreate(APIView):
@@ -445,7 +447,8 @@ class QuestionRemove(APIView):
     def post(self):
         self.check_input('id')
         question = ExamQuestion.safe_get(id=self.input['id'])
-        question.delete()
+        question.status = ExamQuestion.REMOVED
+        question.save()
 
 
 class AppealList(APIView):
