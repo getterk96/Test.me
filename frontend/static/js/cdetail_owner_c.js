@@ -8,6 +8,7 @@ const type_o = 1;
 var info = {};
 
 //api
+/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -805,6 +806,7 @@ var upload_data = function(aim_status) {
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
         }*/
+        /*
         info.contest.period[i].question_id = [];
         var url = '/api/o/period/create';
         var m = 'POST';
@@ -891,9 +893,9 @@ var upload_data = function(aim_status) {
     }
     $t(url, m, data, post_succ, post_fail);
 }
+*/
 
 // for develop without API
-/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -1008,11 +1010,6 @@ header.link_list.push({
             logout();
         }
     });
-header.link_list.push({
-    alias : '登录',
-    link : '../index.html',
-    action : empty_f
-});
 nav.list = ['比赛信息', '申诉处理', '选手管理', '成绩录入'];
 nav.choice = '比赛信息';
 
@@ -1408,10 +1405,11 @@ info = new Vue({
                 return true;
             return fals
         },
+        process_selected_appeals : function() {},
+        ignore_selected_appeals : function() {},
         publish : function() {
         },
         save : function() {
         }
     }
 });
-*/

@@ -182,6 +182,10 @@
                             <span v-else>Result First</span>
                         </button>
                     </div>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="process_selected_appeals">set as processed</button>
+                        <button :class="['operator', 'negative']" @click="ignore_selected_appeals">ignore</button>
+                    </div>
                     <table :class="['searchresult']" cellspacing='0'>
                         <thead>
                             <th>appealer</th>

@@ -182,4 +182,9 @@ li.userbox>div.info li {
 .o-bar .operator:hover {
     background-color :  rgba(73, 110, 193, 1);
     color : #ffffff;
+}   
+
+.o-bar .operator.negative:hover {
+    background-color : rgba(225, 20, 20, 1);
+    color : #ffffff;
 }
