@@ -27,10 +27,62 @@
 </template>
 
 <script>
+  import Vue from 'vue'
+
+  let followC = Vue.extend({
+    name: 'followC',
+    template: '<li><a :href="url">{{title}}</a></li>',
+    props: ['title', 'url']
+  });
+
   export default {
-    name: 'follows',
+    components: {
+      'follow': followC,
+    },
+    data() {
+      return {
+        follows: [],
+        other_url: ''
+      }
+    },
+    mounted() {
+      this.on()
+    },
     methods: {
-      getFollows: function () {}
+      on: (function () {
+        let url = '/api/p/forum/follows';
+        let m = 'GET';
+        let data = {};
+        let success = function (response) {
+          let data = response.data;
+          for (let i = 0; i < data.len; i++) {
+            this.follows.push({
+              id: "follow-" + i,
+              url: data.follows[i].url,
+              title: data.follows[i].title
+            });
+          }
+          other_url = data.url;
+          this.follows.push({
+            id: 'other-follows',
+            url: other_url,
+            title: '其他'
+          });
+        };
+        let failed = function (response) {
+          alert('[' + response.code.toString() + ']' + response.msg);
+        };
+        $t(url, m, data, success, failed);
+      })
     }
+
+  };
+  /*
+  api definitions:
+  {
+    len: the follow array length no more than 10,
+    follows: [the follow array:{title, url: the follow detail page url in personal center}],
+    url: personal center follow list page url,
   }
+  */
 </script>
