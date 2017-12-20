@@ -178,18 +178,17 @@ class ContestBatchRemove(APIView):
 class ContestTeamBatchManage(APIView):
     @organizer_required
     def get(self):
-        self.check_input('id')
-        team = Team.safe_get(id=self.input['id'])
-        scores = []
-        for score in team.periodscore_set.all():
-            scores.append(score.score)
-        return {
-            'id': team.id,
-            'name': team.name,
-            'leader_name': team.leader.name,
-            'scores': scores,
-            'status': team.status
-        }
+        self.check_input('cid')
+        contest = Contest.safe_get(id=self.input['cid'])
+        teams = []
+        for team in contest.team_set.exclude(status=Team.DISMISSED):
+            teams.append({
+                'id': team.id,
+                'name': team.name,
+                'leaderName': team.leader.user.username,
+                'status': team.status
+            })
+        return teams
 
     @organizer_required
     def post(self):
