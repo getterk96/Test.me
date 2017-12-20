@@ -173,6 +173,14 @@
                         <button :class="['operator']" @click="unselect_page_appeal">unselect page</button>
                         <button :class="['operator']" @click="select_all_appeal">select all</button>
                         <button :class="['operator']" @click="unselect_all_appeal">unselect all</button>
+                        <button :class="['operator']" @click="appeal_sort_status">
+                            <span v-if="appeal_status_reverse">Unprocessed First</span>
+                            <span v-else>Ignored First</span>
+                        </button>
+                        <button :class="['operator']" @click="appeal_sort_type">
+                            <span v-if="appeal_type_reverse">Criteria First</span>
+                            <span v-else>Result First</span>
+                        </button>
                     </div>
                     <table :class="['searchresult']" cellspacing='0'>
                         <thead>

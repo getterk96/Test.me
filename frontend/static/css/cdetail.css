@@ -175,6 +175,10 @@ li.userbox>div.info li {
     transition : background 0.3s;
 }
 
+.o-bar .operator span {
+    color : inherit;
+}
+
 .o-bar .operator:hover {
     background-color :  rgba(73, 110, 193, 1);
     color : #ffffff;
