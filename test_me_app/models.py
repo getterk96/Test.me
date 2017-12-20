@@ -115,9 +115,9 @@ class Contest(models.Model):
     PUBLISHED = 2
 
     @staticmethod
-    def safe_get(**args):
+    def safe_get(**kwargs):
         try:
-            return Contest.objects.get(**args)
+            return Contest.objects.exclude(status=Contest.CANCELLED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Contest")
 
@@ -153,9 +153,9 @@ class Period(models.Model):
     attachment_url = models.CharField(max_length=256)
 
     @staticmethod
-    def safe_get(**args):
+    def safe_get(**kwargs):
         try:
-            return Period.objects.get(**args)
+            return Period.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Period")
 
@@ -168,9 +168,9 @@ class ExamQuestion(models.Model):
     submission_limit = models.IntegerField()
 
     @staticmethod
-    def safe_get(**args):
+    def safe_get(**kwargs):
         try:
-            return ExamQuestion.objects.get(**args)
+            return ExamQuestion.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Exam Question")
 
@@ -180,7 +180,7 @@ class Team(models.Model):
     leader = models.ForeignKey(Player, related_name="lead_teams")
     members = models.ManyToManyField(Player, related_name="join_teams")
     contest = models.ForeignKey(Contest)
-    period = models.ForeignKey(Period, null = True)
+    period = models.ForeignKey(Period, null=True)
     avatar_url = models.CharField(max_length=256)
     description = models.TextField()
     sign_up_attachment_url = models.CharField(max_length=256)
@@ -192,9 +192,9 @@ class Team(models.Model):
     DISMISSED = -1
 
     @staticmethod
-    def safe_get(**args):
+    def safe_get(**kwargs):
         try:
-            return Team.objects.get(**args)
+            return Team.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
@@ -206,7 +206,8 @@ class TeamInvitation(models.Model):
     status = models.IntegerField(default=0)
     CONFIRMING = 0
     CONFIRMED = 1
-    REFUSED = -1
+    REFUSED = 2
+    REMOVED = -1
 
     @staticmethod
     def safe_get(**kwargs):
@@ -256,10 +257,11 @@ class Appeal(models.Model):
     TOSOLVE = 0
     SOLVED = 1
     ACCEPTED = 2
+    REMOVED = -1
 
     @staticmethod
-    def safe_get(**args):
+    def safe_get(**kwargs):
         try:
-            return Appeal.objects.get(**args)
+            return Appeal.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")

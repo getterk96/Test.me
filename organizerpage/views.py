@@ -45,7 +45,7 @@ class PersonalInfo(APIView):
     def get(self):
         the_user = self.request.user
         organizer = the_user.organizer
-        data = {
+        return {
             'username': the_user.username,
             'nickname': organizer.nickname,
             'avatarUrl': organizer.avatar_url,
@@ -54,8 +54,6 @@ class PersonalInfo(APIView):
             'description': organizer.description,
             'verifyStatus': organizer.verify_status,
         }
-
-        return data
 
     @organizer_required
     def post(self):
@@ -73,24 +71,23 @@ class OrganizingContests(APIView):
     @organizer_required
     def get(self):
         contests = Contest.objects.filter(organizer_id=self.request.user.organizer.id)
-        ret = []
+        organizing_contests = []
         for contest in contests:
-            data = {
+            organizing_contests.append({
                 'id': contest.id,
                 'name': contest.name,
                 'teamsNumber': Team.objects.filter(contest_id=contest.id).count(),
                 'creatorId': contest.organizer.id,
                 'creatorName': contest.organizer.nickname,
-            }
-            ret.append(data)
-        return ret
+            })
+        return organizing_contests
 
 
 class ContestDetail(APIView):
     @organizer_required
     def get(self):
         contest = Contest.safe_get(id=self.input['id'])
-        data = {
+        return {
             'name': contest.name,
             'description': contest.description,
             'logoUrl': contest.logo_url,
@@ -105,8 +102,6 @@ class ContestDetail(APIView):
             'tags': contest.get_tags(),
             'periods': list(contest.period_set.values_list('id', flat=True))
         }
-
-        return data
 
     @organizer_required
     def post(self):
@@ -123,9 +118,9 @@ class ContestDetail(APIView):
         contest.max_team_members = self.input['maxTeamMembers']
         contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
         contest.level = self.input['level']
-        contest.save()
         tags = self.input['tags'].split(',')
         contest.add_tags(tags)
+        contest.save()
 
 
 class ContestCreate(APIView):
@@ -163,7 +158,6 @@ class ContestRemove(APIView):
             for period in periods:
                 period.delete()
         contest.delete()
-        return 0
 
 
 class ContestBatchRemove(APIView):
@@ -177,7 +171,6 @@ class ContestBatchRemove(APIView):
                 for period in periods:
                     period.delete()
             contest.delete()
-        return 0
 
 
 class ContestTeamBatchManage(APIView):
@@ -186,18 +179,17 @@ class ContestTeamBatchManage(APIView):
         self.check_input('id')
         team = Team.safe_get(id=self.input['id'])
         scores = []
-        if not team.periodscore_set.all().empty():
-            for score in team.periodscore_set.all():
-                scores.append(score.score)
-        data = {
+        for score in team.periodscore_set.all():
+            scores.append(score.score)
+        return {
+            'id': team.id,
             'name': team.name,
             'leader_name': team.leader.name,
             'scores': scores,
             'status': team.status
         }
 
-        return data
-
+    @organizer_required
     def post(self):
         self.check_input('teamId', 'status')
         for id in self.input['teamId']:
@@ -205,50 +197,140 @@ class ContestTeamBatchManage(APIView):
             team.status = self.input['status']
             team.save()
 
-        return 0
 
-
-class ContestTeam(APIView):
+class ContestTeamDetail(APIView):
     @organizer_required
     def get(self):
         self.check_input('id')
         team = Team.safe_get(id=self.input['id'])
-        data = {
-            'playerNickname': team.members.values_list('nickname', flat=True),
-            'playersId': team.members.values_list('id', flat=True),
-            'leader': team.leader.nickname,
-            'leaderId': team.leader.id,
+
+        # members
+        members = []
+        for member in team.members:
+            members.append({
+                'id': member.id,
+                'name': member.user.username
+            })
+
+        # period
+        periods = []
+        if team.period:
+            current_period_id = team.period.id
+            current_period_name = team.period.name
+            for period in team.contest.period_set.all():
+                # period score
+                try:
+                    period_score = PeriodScore.objects.get(period=period, team=team)
+                    score = period_score.score
+                    rank = period_score.rank
+                except ObjectDoesNotExist:
+                    score = -1
+                    rank = -1
+                # period works
+                works = []
+                for question in period.examquestion_set.all():
+                    try:
+                        work = Work.objects.get(question=question, team=team)
+                        work_content_url = work.content_url
+                        work_score = work.score
+                        work_submission_times = work.submission_times
+                    except ObjectDoesNotExist:
+                        work_content_url = ''
+                        work_score = -1
+                        work_submission_times = -1
+                    works.append({
+                        'questionId': question,
+                        'questionIndex': question.index,
+                        'questionDescription': question.description,
+                        'workContentUrl': work_content_url,
+                        'workScore': work_score,
+                        'workSubmissionTimes': work_submission_times
+                    })
+                periods.append({
+                    'id': period.id,
+                    'name': period.name,
+                    'index': period.index,
+                    'score': score,
+                    'rank': rank,
+                    'works': works
+                })
+
+        else:
+            current_period_id = -1
+            current_period_name = ''
+
+        return {
+            'name': team.name,
+            'leader': {'id': team.leader.id, 'name': team.leader.user.username},
+            'members': members,
+            'periodId': current_period_id,
+            'periodName': current_period_name,
             'avatarUrl': team.avatar_url,
             'description': team.description,
             'status': team.status,
             'signUpAttachmentUrl': team.sign_up_attachment_url,
-            'periodScore': team.periodscore_set.values_list('score', flat=True),
-            'questionScore': team.work_set.values_list('score', flat=True)
+            'periods': periods
         }
 
-        return data
-
+    @organizer_required
     def post(self):
-        self.check_input('id', 'status', 'periodScore', 'workScore')
+        self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl',
+                         'periodId''status', 'periods')
         team = Team.safe_get(id=self.input['id'])
+
+        # basic info
+        team.name = self.input['name']
+        team.avatar_url = self.input['avatarUrl'],
+        team.description = self.input['signUpAttachmentUrl']
         team.status = self.input['status']
-        for index in range(len(self.input['periodScore'])):
-            try:
-                period_score = team.periodscore_set.get(period__index=index)
-            except:
-                raise LogicError("No Such Period Score")
-            period_score.score = self.input['periodScore'][index]
-            period_score.save()
-        for index in range(len(self.input['workScore'])):
-            try:
-                work = team.work_set.get(question__index=index)
-            except:
-                raise LogicError("No Such Work")
-            work.score = self.input['workScore'][index]
-            work.save()
+        try:
+            # leader
+            leader = User.objects.get(id=self.input['leaderId'])
+            if leader.user_type != User_profile.PLAYER:
+                raise InputError('Player Required')
+            team.leader = leader
+            # members
+            team.members.clear()
+            for memberId in self.input['memberIds']:
+                member = User.objects.get(id=memberId)
+                if member.user_type != User_profile.PLAYER:
+                    raise InputError('Player Required')
+                team.members.add(member)
+        except ObjectDoesNotExist:
+            raise InputError('Player does not exist')
+        # current period
+        period = Period.safe_get(id=input['periodId'])
+        team.period = period
         team.save()
 
-        return 0
+        # work and score
+        for period_info in self.input['periods']:
+            period = Period.safe_get(id=period_info['id'])
+            # period score
+            try:
+                period_score = PeriodScore.safe_get(period=period, team=team)
+                period_score.score = period_info['score']
+                period_score.rank = period_info['rank']
+                period_score.save()
+            except LogicError:
+                PeriodScore.objects.create(period=period, team=team,
+                                   score=period_info['score'],
+                                   rank=period_info['rank'])
+            # work
+            works = period_info['work']
+            for work in works:
+                question = ExamQuestion.safe_get(id=work['questionId'])
+                try:
+                    work = Work.safe_get(question=question, team=team)
+                    work.content_url = work['workContentUrl']
+                    work.score = work['workScore']
+                    work.submission_times = work['submission_times']
+                    work.save()
+                except LogicError:
+                    Work.objects.create(question=question, team=team,
+                                        content_url=work['workContentUrl'],
+                                        score=work['workScore'],
+                                        submission_times=work['submission_times'])
 
 
 class PeriodCreate(APIView):
@@ -276,9 +358,9 @@ class PeriodDetail(APIView):
         self.check_input('id')
         period = Period.safe_get(id=self.input['id'])
         question_id = []
-        for question in ExamQuestion.objects.filter(period_id = self.input['id']):
+        for question in ExamQuestion.objects.filter(period_id=self.input['id']):
             question_id.append(question.id)
-        data = {
+        return {
             'index': period.index,
             'name': period.name,
             'description': period.description,
@@ -289,14 +371,10 @@ class PeriodDetail(APIView):
             'questionId': question_id,
         }
 
-        return data
-
     @organizer_required
     def post(self):
-        self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
-                         , 'attachmentUrl', 'questionId')
-        # user = self.request.user
-        # if user.is_authenticated:
+        self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots',
+                         'attachmentUrl', 'questionId')
         period = Period.safe_get(id=self.input['id'])
         period.name = self.input['name']
         period.index = self.input['index']
@@ -321,15 +399,12 @@ class PeriodRemove(APIView):
         self.check_input('id')
         period = Period.safe_get(id=self.input['id'])
         period.delete()
-        return 0
 
 
 class QuestionCreate(APIView):
     @organizer_required
     def post(self):
         self.check_input('periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
-        # user = self.request.user
-        # if user.is_authenticated:
         question = ExamQuestion()
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
@@ -346,19 +421,15 @@ class QuestionDetail(APIView):
     def get(self):
         self.check_input('id')
         question = ExamQuestion.safe_get(id=self.input['id'])
-        data = {
+        return {
             'description': question.description,
             'attachmentUrl': question.attachment_url,
             'submissionLimit': question.submission_limit,
         }
 
-        return data
-
     @organizer_required
     def post(self):
         self.check_input('id', 'periodId', 'description', 'startTime', 'attachmentUrl', 'submissionLimit')
-        # user = self.request.user
-        # if user.is_authenticated:
         question = ExamQuestion.safe_get(id=self.input['id'])
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
@@ -375,23 +446,25 @@ class QuestionRemove(APIView):
         self.check_input('id')
         question = ExamQuestion.safe_get(id=self.input['id'])
         question.delete()
-        return 0
+
+
+class AppealList(APIView):
+    @organizer_required
+    def get(self):
+        pass
 
 
 class AppealDetail(APIView):
-
     @organizer_required
     def get(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
-        data = {
+        return {
             'contestName': appeal.contest.name,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
         }
-
-        return data
 
     @organizer_required
     def post(self):
@@ -401,5 +474,3 @@ class AppealDetail(APIView):
         appeal.save()
 
         return appeal.id
-
-# Create your views here.
