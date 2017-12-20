@@ -107,11 +107,14 @@
     }
   }
   /*
-  api definitions:
+  /api/p/forum/detail api definitions:
   {
-    len: the message array length no more than 10,
-    pages: [the message array:{title, url: the message detail page url in personal center}],
-    url: personal center message detail page url,
+    maxPages: after having paginated the replies, the max page num,
+  }
+  /api/p/forum/detail?page=xxx api definitions:
+  {
+    len: the reply array length no more than 10,
+    replies: [the sorted reply array:{id, title, content, createTime, authorName}]
   }
   */
 </script>
