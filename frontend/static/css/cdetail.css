@@ -95,3 +95,91 @@ li.userbox>div.info li {
     margin : 0em auto 1em auto;
     width : 100%;
 }
+
+.page-nav {
+    text-align : center;
+}
+
+.page-nav button {
+    padding : 0.2em 0.5em;
+    border-radius : 0.2em;
+    background-color : #efefef;
+    color : #b3b3b3;
+    transition : background 0.3s;
+}
+
+.page-nav button:hover {
+    background-color :  #3498db;
+    color : #ffffff;
+}
+
+
+.page-nav button[disabled]:hover {
+    background-color : #efefef;
+    color : #b3b3b3;
+}
+
+.searchresult {
+    margin : auto;
+    margin-bottom : 1em;
+    width : 80%;
+    box-shadow : 0 0 0.4em rgba(0, 0, 0, 0.5) inset;
+    border-radius : 0.4em;
+}
+
+.searchresult th,
+.searchresult td {
+    padding : 0.15em;
+    border : none;
+    text-align : center;
+    user-select : text;
+}
+
+.searchresult tr {
+    box-shadow : 0 0 0.1em rgba(0, 0, 0, 0.3) inset;
+    transition : background 0.3s;
+}
+
+.searchresult tr:hover {
+    background : rgba(127, 172, 222, 0.2);
+}
+
+.searchresult tr.last-row {
+    border-bottom-left-radius : 0.4em;
+    border-bottom-right-radius : 0.4em;
+}
+
+.searchresult tr.table-select {
+    background : rgba(127, 172, 222, 0.4);
+}
+
+.searchresult tr.table-select:hover {
+    background : rgba(127, 172, 222, 0.4);
+}
+
+.searchresult a {
+    text-decoration : underline;
+    color : blue;
+}
+
+.o-bar {
+    margin-left : 10%;
+    margin-bottom : 1em;
+}
+
+.o-bar .operator {
+    padding : 0.2em 0.5em;
+    border-radius : 0.2em;
+    background-color : #efefef;
+    color : #b3b3b3;
+    transition : background 0.3s;
+}
+
+.o-bar .operator span {
+    color : inherit;
+}
+
+.o-bar .operator:hover {
+    background-color :  rgba(73, 110, 193, 1);
+    color : #ffffff;
+}

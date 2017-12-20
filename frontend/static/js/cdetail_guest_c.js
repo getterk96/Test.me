@@ -187,7 +187,7 @@ function ply_get_succ(response) {
                     type : 'datetime',
                     content : {
                         sd : start_time.getFullYear().toString() +
-                            '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() + 
+                            '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                             '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString(),
                         ed : end_time.getFullYear().toString() +
                             '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
@@ -292,7 +292,6 @@ var init_header = function() {
             action : empty_f
         });
     if (usertype == type_p) {
-        // >>>mod>>>> to chinese
         nav.list = ['比赛信息', '组队信息'];
         nav.choice = '比赛信息';
     }

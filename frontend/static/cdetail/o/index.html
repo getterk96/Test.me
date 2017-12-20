@@ -165,6 +165,71 @@
                     <button @click="publish" :class="['response-button']">保存并发布</button>
                 </div>
             </template>
+            <template v-else-if="page == '申诉处理'">
+                <div :class="['session']">
+                    <span v-if="selected_appeal > 0">{{ selected_appeal }}{{ ' chosen' }}</span>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="select_page_appeal">select page</button>
+                        <button :class="['operator']" @click="unselect_page_appeal">unselect page</button>
+                        <button :class="['operator']" @click="select_all_appeal">select all</button>
+                        <button :class="['operator']" @click="unselect_all_appeal">unselect all</button>
+                        <button :class="['operator']" @click="appeal_sort_status">
+                            <span v-if="appeal_status_reverse">Unprocessed First</span>
+                            <span v-else>Ignored First</span>
+                        </button>
+                        <button :class="['operator']" @click="appeal_sort_type">
+                            <span v-if="appeal_type_reverse">Criteria First</span>
+                            <span v-else>Result First</span>
+                        </button>
+                    </div>
+                    <table :class="['searchresult']" cellspacing='0'>
+                        <thead>
+                            <th>appealer</th>
+                            <th>appeal title</th>
+                            <th>appeal type</th>
+                            <th>appeal status</th>
+                            <th>&nbsp;</th>
+                        </thead>
+                        <tr v-for="item in appeal_list[appeal_page]" :class="[item.selected ? 'table-select' : '', appeal_list.indexOf(item) == appeal_list.length - 1 ? 'last-row' : '']">
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.appealer.name + '[id=' + item.appealer.id + ']'}}</td>
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.title }}</td>
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.type }}</td>
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))" :class="[item.status == 'processed' ? 'green' : '', item.status == 'ignored' ? 'red' : '']">{{ item.status }}</td>
+                            <td>详情</td>
+                        </tr>
+                    </table>
+                    <div :class="['page-nav']">
+                        <button v-if="appeal_page > 0" @click="prev_a_page">previous page</button>
+                        <button v-else disabled>previous page</button>
+                        {{ appeal_page + 1 }}{{ '/' + appeal_list.length }}
+                        <button v-if="appeal_page < appeal_list.length - 1" @click="next_a_page">next page</button>
+                        <button v-else disabled>next page</button>
+                    </div>
+                </div>
+            </template>
+            <template v-else-if="page == '成绩录入'">
+                <div :class="['session']">
+                    <button :class="['s-title', show_upload_toknow ? '' : 'collapse']" @click="switch_upload_toknow"><span>成绩录入须知</span></button>
+                    <article :class="['s-body']" v-if="show_upload_toknow">
+                        You can only upload the result of the last turn. All your update will overwrite the latest result of the latest turn.
+                    </article>
+                </div>
+                <div :class="['session']">
+                    <button :class="['s-title']"><span>{{ '阶段 ' + last_period_name + ' 成绩录入'}}</span></button>
+                    <article :class="['s-body']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">Result file</div>
+                                <label :class="['fileuploader']">
+                                    <input type="file" @change="r_file_change" v-if="upload_result_avail" />
+                                    <input type="file" v-else disabled/>
+                                </label>
+                                {{ result_file_name }}
+                            </li>
+                        </ul>
+                    </article>
+                </div>
+            </template>
         </div>
     </body>
     <script src="../../js/uni_c.js"></script>
