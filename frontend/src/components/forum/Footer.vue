@@ -1,5 +1,5 @@
 <template>
-  <div id="footer">
+  <div id="common-footer">
     <div class="footerNav center">
       <a rel="nofollow" href="#">关于我们</a> |
       <a rel="nofollow" href="#">服务条款</a> |
@@ -15,6 +15,6 @@
 
 <script>
   export default {
-    name: 'footer'
+    name: 'common-footer'
   }
 </script>

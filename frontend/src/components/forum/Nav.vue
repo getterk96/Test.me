@@ -31,6 +31,6 @@
 
 <script>
   export default {
-    name: 'nav'
+    name: 'common-nav'
   }
 </script>
