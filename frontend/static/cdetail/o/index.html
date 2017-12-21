@@ -166,7 +166,7 @@
                 </div>
             </template>
             <template v-else-if="page == '申诉处理'">
-                <div :class="['session']">
+                <div :class="['session']" v-if="appeal_batch">
                     <span v-if="selected_appeal > 0">{{ selected_appeal }}{{ ' chosen' }}</span>
                     <div :class="['o-bar']">
                         <button :class="['operator']" @click="select_page_appeal">select page</button>
@@ -199,7 +199,7 @@
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.title }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.type }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))" :class="[item.status == 'processed' ? 'green' : '', item.status == 'ignored' ? 'red' : '']">{{ item.status }}</td>
-                            <td>详情</td>
+                            <td><button :class="['blue']" @click="a_single_process(appeal_page, appeal_list[appeal_page].indexOf(item))">详情</button></td>
                         </tr>
                     </table>
                     <div :class="['page-nav']">
@@ -209,6 +209,42 @@
                         <button v-if="appeal_page < appeal_list.length - 1" @click="next_a_page">next page</button>
                         <button v-else disabled>next page</button>
                     </div>
+                </div>
+                <div :class="['session']" v-else>
+                    <div :class="['o-bar']">
+                        <button :class="['operator', 'negative']" @click="a_batch_process">Back to batch</button>
+                        <button :class="['operator']" @click="a_single_prev">Previous One</button>
+                        <button :class="['operator']" @click="a_single_next">Next One</button>
+                    </div>
+                    <button :class="['s-title']" disabled><span>{{ appeal_list[a_single_page][a_single_idx].title }}</span></button>
+                    <article :class="['s-body']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">Appealer</div>
+                                <input disabled v-model="appeal_list[a_single_page][a_single_idx].appealer.name" />
+                            </li>
+                            <li>
+                                <div :class="['label']">Team member</div>
+                                <ul :class="['inline-form']">
+                                    <li v-for="p in appeal_list[a_single_page][a_single_idx].appealer.member">
+                                        <a :class="['blue']">{{ p.name + '[id=' + p.id + ']'}}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div :class="['label']">Type</div>
+                                <input disabled v-model="appeal_list[a_single_page][a_single_idx].type" />
+                            </li>
+                            <li>
+                                <div :class="['label']">Status</div>
+                                <input disabled v-model="appeal_list[a_single_page][a_single_idx].status" :class="[appeal_list[a_single_page][a_single_idx].status == 'processed' ? 'green' : '', appeal_list[a_single_page][a_single_idx].status == 'ignored' ? 'red' : '']" />
+                            </li>
+                            <li>
+                                <div :class="['label']">Content</div>
+                                <textarea disabled v-model="appeal_list[a_single_page][a_single_idx].content" rows="5"></textarea>
+                            </li>
+                        </ul>
+                    </article>
                 </div>
             </template>
             <template v-else-if="page == '成绩录入'">

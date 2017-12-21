@@ -1030,7 +1030,17 @@ info = new Vue({
                 {
                     appealer : {
                         name : '405',
-                        id : '1'
+                        id : '1',
+                        member : [
+                            {
+                                name : 'ZYN',
+                                id : '1'
+                            },
+                            {
+                                name : 'GJH',
+                                id : '2'
+                            }
+                        ]
                     },
                     type : 'score',
                     status : 'to process',
@@ -1042,7 +1052,17 @@ info = new Vue({
                 {
                     appealer : {
                         name : '405',
-                        id : '1'
+                        id : '1',
+                        member : [
+                            {
+                                name : 'ZYN',
+                                id : '1'
+                            },
+                            {
+                                name : 'GJH',
+                                id : '2'
+                            }
+                        ]
                     },
                     type : 'criteria',
                     status : 'processed',
@@ -1056,7 +1076,17 @@ info = new Vue({
                 {
                     appealer : {
                         name : '405',
-                        id : '1'
+                        id : '1',
+                        member : [
+                            {
+                                name : 'ZYN',
+                                id : '1'
+                            },
+                            {
+                                name : 'GJH',
+                                id : '2'
+                            }
+                        ]
                     },
                     type : 'score',
                     status : 'ignored',
@@ -1068,7 +1098,10 @@ info = new Vue({
             ]
         ],
         appeal_page : 0,
-        selected_appeal : 0
+        selected_appeal : 0,
+        appeal_batch : true,
+        a_single_page : 0,
+        a_single_idx : 0
     },
     computed : {
         is_guest : function() {
@@ -1404,6 +1437,48 @@ info = new Vue({
             if ((a == 'criteria' && !this.appeal_type_reverse) || (a == 'score' && this.appeal_type_reverse))
                 return true;
             return fals
+        },
+        a_single_process : function(page, idx) {
+            this.a_single_page = page;
+            this.a_single_idx = idx;
+            this.appeal_batch = false;
+        },
+        a_batch_process : function() {
+            this.appeal_batch = true;
+        },
+        a_single_prev : function() {
+            var p = this.a_single_page;
+            var i = this.a_single_idx;
+            --i;
+            if (i < 0) {
+                --p;
+                i = this.appeal_page_capacity - 1;
+            }
+            if (p < 0) {
+                alert('No previous one');
+                return;
+            }
+            this.a_single_page = p;
+            this.a_single_idx = i;
+        },
+        a_single_next : function() {
+            var p = this.a_single_page;
+            var i = this.a_single_idx;
+            ++i;
+            if (i == this.appeal_page_capacity) {
+                i = 0;
+                ++p;
+            }
+            if (p == this.appeal_list.length) {
+                alert('No more appeal');
+                return;
+            }
+            if ((p == this.appeal_list.length - 1) && i == this.appeal_list[p].length) {
+                alert('No more appeal');
+                return;
+            }
+            this.a_single_page  = p;
+            this.a_single_idx = i;
         },
         process_selected_appeals : function() {},
         ignore_selected_appeals : function() {},
