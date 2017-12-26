@@ -1101,7 +1101,9 @@ info = new Vue({
         selected_appeal : 0,
         appeal_batch : true,
         a_single_page : 0,
-        a_single_idx : 0
+        a_single_idx : 0,
+        show_appeal_reply : false,
+        appeal_reply : ''
     },
     computed : {
         is_guest : function() {
@@ -1442,6 +1444,8 @@ info = new Vue({
             this.a_single_page = page;
             this.a_single_idx = idx;
             this.appeal_batch = false;
+            if (this.appeal_list[this.a_single_page][this.a_single_idx].status == 'processed') { this.show_appeal_reply = true; }
+            else { this.show_appeal_reply = false; }
         },
         a_batch_process : function() {
             this.appeal_batch = true;
@@ -1482,6 +1486,9 @@ info = new Vue({
         },
         process_selected_appeals : function() {},
         ignore_selected_appeals : function() {},
+        switch_appeal_reply : function() {
+            this.show_appeal_reply = !this.show_appeal_reply;
+        },
         publish : function() {
         },
         save : function() {
