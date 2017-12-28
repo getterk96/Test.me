@@ -78,36 +78,55 @@ window.user = {
     nickname : {
         editable :true,
         content : 'Ica Riluci'
+    },
+    username : {
+        editable : false,
+        content : 'ica_riluci'
+    },
+    org : {
+        editable : false,
+        content : 'thu'
+    },
+    email : {
+        editable : true,
+        content : 'ica.riluci@gmail.com'
     }
 }
 
 var controller = new Vue({
-  el : '#body',
-  data : {
-    querytext : '',
-    querylist : search_list,
-    user : window.user
-  },
-  computed : {
-    page : function() {
-      return nav.choice;
+    el : '#body',
+    data : {
+        querytext : '',
+        querylist : search_list,
+        user : window.user,
+        modify_basic_info : false
+    },
+    computed : {
+        page : function() {
+            return nav.choice;
+        },
+        user_type : function() {
+            return window.usertype;
+        }
+    },
+    methods : {
+        clearsearchbox : function() {
+            this.querytext = '';
+        },
+        searchcontest : function() {
+            console.log("you're querying contest " + this.querytext);
+        },
+        randomcontest : function() {
+            console.log("return a random contest");
+        },
+        uploadavatar : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            alert('succeed!')
+        },
+        switch_basic_info : function() {
+            this.modify_basic_info = !this.modify_basic_info;
+        }
     }
-  },
-  methods : {
-    clearsearchbox : function() {
-      this.querytext = '';
-    },
-    searchcontest : function() {
-        console.log("you're querying contest " + this.querytext);
-    },
-    randomcontest : function() {
-        console.log("return a random contest");
-    },
-    uploadavatar : function(e) {
-        var files = e.target.files || e.dataTransfer.files;
-        if (!files.length)
-            return;
-        alert('succeed!')
-    }
-  }
 })

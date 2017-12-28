@@ -74,8 +74,21 @@
                     </div>
                   </div>
                   <div id="basicinfo">
-                      <input v-model="user.nickname.content" disabled :class="['large']"/>
+                      <input v-model="user.nickname.content" :class="['large']" v-if="user.nickname.editable && modify_basic_info" />
+                      <input v-model="user.nickname.content" :class="['large']" v-else disabled />
+                      <div>
+                          <span>{{ user.username.content }}</span>
+                          <button :class="['blue']" @click="switch_basic_info" v-if="!modify_basic_info">[修改]</button>
+                      </div>
+                      <div>
+                          <span :class="['label']" v-if="user_type == 0">学校</span>
+                          <span :class="['label']" v-else>所属组织</span>
+                          <span>{{ user.org.content }}</span>
+                      </div>
                   </div>
+              </div>
+              <div :class="['s-u-resp']" v-if="modify_basic_info">
+                  <button :class="['response-button']">提交修改</button>
               </div>
           </template>
         </div>

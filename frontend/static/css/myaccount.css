@@ -143,7 +143,27 @@ nav#side-nav label {
     margin-left : 1em;
 }
 
+#basicinfo>input,
+#basicinfo>textarea,
+#basicinfo>div {
+    display : block
+}
+
 input.large {
     font-size : 2em;
     font-weight : bold;
+}
+
+input {
+    border-radius : 0.2em;
+    box-shadow : 0 0 0.2em rgba(0, 0, 0, 0.3) inset;
+}
+
+input[disabled] {
+    box-shadow : none;
+}
+
+span.label {
+    font-weight : bold;
+    margin-right : 2em;
 }
