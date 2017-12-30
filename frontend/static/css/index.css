@@ -154,27 +154,28 @@ nav#side-nav label {
 }
 
 div.waiting-bubble {
-    width : 1em;
-    height : 1em;
+    width : 0.5em;
+    height : 0.5em;
     display : block;
+    margin : 0 0.5em;
     border-radius : 1em;
     border : 0.1em solid rgba(0, 0, 150, 0.7);
     -webkit-animation-iteration-count : infinite;
 }
 
 .load1 {
-    -webkit-animation : loading-1 5s;
+    -webkit-animation : loading-1 2s;
 }
 
 .load2 {
-    -webkit-animation : loading-2 5s;
+    -webkit-animation : loading-2 2s;
 }
 
 .load3 {
-    -webkit-animation : loading-3 5s;
+    -webkit-animation : loading-3 2s;
 }
 .load4 {
-    -webkit-animation : loading-4 5s;
+    -webkit-animation : loading-4 2s;
 }
 .load5 {
     -webkit-animation : loading-5 5s;
