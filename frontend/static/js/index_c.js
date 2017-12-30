@@ -28,6 +28,29 @@ var init_header = function() {
         })
 };
 
+var test_item = {
+    name : 'Contest1',
+    organizer : '405',
+    signuptimefrom : '2017-12-30',
+    signuptimeto : '2017-12-31',
+    contesttimefrom : '2017-12-31',
+    contesttimeto : '2018-01-01',
+    logo : '../img/user.png',
+    url : '#'
+}
+
+var test_item2 = {
+    name : 'Contest2',
+    organizer : '405',
+    signuptimefrom : '2017-12-30',
+    signuptimeto : '2017-12-31',
+    contesttimefrom : '2017-12-31',
+    contesttimeto : '2018-01-01',
+    logo : '../img/user.png',
+    url : '#'
+}
+
+
 
 init_header();
 
@@ -49,9 +72,6 @@ var controller = new Vue({
         }
     },
     methods : {
-        clearsearchbox : function() {
-            this.querytext = '';
-        },
         searchcontest : function() {
             console.log("you're querying contest " + this.querytext);
             this.no_viewport = true;

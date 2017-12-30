@@ -35,10 +35,9 @@
                 </div>
             </div>
             <div :class="['session']">
-                <div :class="['searchbox']">
-                    <input v-model="querytext" required autofocus/>
-                    <button :class="['clearsearch']" @click="clearsearchbox">清空</button>
-                </div>
+                    <div :class="['searchbox']">
+                        <input v-model="querytext" required autofocus/>
+                    </div>
                 <div :class="['searchbutton']">
                     <div>
                         <button id="gosearch" @click="searchcontest">搜索</button>
@@ -53,6 +52,22 @@
                     <li><div :class="['load4', 'waiting-bubble']"></div></li>
                 </ul>
                 <ul :class="['query_list']" v-else>
+                    <li v-for="item in querylist">
+                        <img :class="['list_logo']" :src="item.logo" />
+                        <div :class="['list_info']">
+                            <div :class="['list_namecard']">
+                                <h1>{{ item.name }}</h1>
+                                <h2>{{ '[organizer] ' + item.organizer }}</h2>
+                            </div>
+                            <div :class="['list_infocard']">
+                                <ul>
+                                    <li>{{ 'signup : ' + item.signuptimefrom + '~' + item.signuptimeto }}</li>
+                                    <li>{{ 'contest : ' + item.contesttimefrom + '~' + item.contesttimeto }}</li>
+                                    <li><button>detail</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
                 </ul>
             </div>
         </div>
