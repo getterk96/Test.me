@@ -66,17 +66,23 @@ class PersonalInfo(APIView):
     @organizer_required
     def post(self):
         self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
-        if self.input['nickname'].length > 20:
+        if len(self.input['nickname']) > 20:
             raise InputError('The length of nickname is restricted to 20.')
-        if not re.match(r'^[0-9]{13}$', self.input['phone']):
+        if not re.match(r'^[0-9]{11}$', self.input['contactPhone']):
             raise InputError('Phone number invalid or not a cell phone number.')
-        organizer = self.request.user.organizer
-        organizer.nickname = self.input['nickname']
-        organizer.description = self.input['description']
-        organizer.avatar_url = self.input['avatarUrl']
-        organizer.contact_phone = self.input['contactPhone']
-        organizer.email = self.input['email']
-        organizer.save()
+        if not re.match(r'^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){1,4}$',
+                        self.input['email']):
+            raise InputError('Email format error.')
+        try:
+            organizer = self.request.user.organizer
+            organizer.nickname = self.input['nickname']
+            organizer.description = self.input['description']
+            organizer.avatar_url = self.input['avatarUrl']
+            organizer.contact_phone = self.input['contactPhone']
+            organizer.email = self.input['email']
+            organizer.save()
+        except:
+            raise LogicError('Failed to change user info.')
 
 
 class OrganizingContests(APIView):
