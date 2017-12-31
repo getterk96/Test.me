@@ -1,4 +1,6 @@
-import time, pytz
+import time
+import pytz
+import re
 
 from datetime import datetime
 
@@ -12,8 +14,14 @@ from test_me import settings
 
 class Register(APIView):
     def post(self):
-        # check
+        # check existence
         self.check_input('username', 'password', 'email', 'group', 'verifyFileUrl')
+        # check validation
+        if not re.match(r'^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){0,4}@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){0,4}$',
+                        self.input['email']):
+            raise InputError('Email format error.')
+        if len(self.input['group']) > 128:
+            raise InputError('The length of group name is restricted to 128.')
         # create
         try:
             user = User.objects.create_user(username=self.input['username'],
@@ -21,11 +29,11 @@ class Register(APIView):
                                             email=self.input['email'])
             user.user_profile.user_type = User_profile.ORGANIZER
             user.save()
-            user.user_profile.save();
+            user.user_profile.save()
             # default columns
             avatar_url = settings.get_url(settings.STATIC_URL + 'img/default_avatar.jpg')
             description = '请填写主办方简介'
-            phone = '13000000000'
+            phone = ''
             # create organizer
             organizer = Organizer.objects.create(user=user,
                                                  nickname=self.input['username'],
@@ -37,7 +45,7 @@ class Register(APIView):
                                                  verify_file_url=self.input['verifyFileUrl'])
             organizer.save()
         except:
-            raise LogicError('Signup fail')
+            raise LogicError('Signup failure')
 
 
 class PersonalInfo(APIView):
@@ -58,6 +66,10 @@ class PersonalInfo(APIView):
     @organizer_required
     def post(self):
         self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
+        if self.input['nickname'].length > 20:
+            raise InputError('The length of nickname is restricted to 20.')
+        if not re.match(r'^[0-9]{13}$', self.input['phone']):
+            raise InputError('Phone number invalid or not a cell phone number.')
         organizer = self.request.user.organizer
         organizer.nickname = self.input['nickname']
         organizer.description = self.input['description']
@@ -315,8 +327,8 @@ class ContestTeamDetail(APIView):
                 period_score.save()
             except LogicError:
                 PeriodScore.objects.create(period=period, team=team,
-                                   score=period_info['score'],
-                                   rank=period_info['rank'])
+                                           score=period_info['score'],
+                                           rank=period_info['rank'])
             # work
             works = period_info['work']
             for work in works:
