@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import sys
 import json
 import logging
 import urllib.parse
@@ -64,7 +65,7 @@ ROOT_URLCONF = 'test_me.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['frontend/dist'],
+        'DIRS': ['frontend/static'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,15 +83,21 @@ WSGI_APPLICATION = 'test_me.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
-
-DATABASES = {
-   'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': CONFIGS['DB_NAME'],
-        'USER': CONFIGS['DB_USER'],
-        'PASSWORD': CONFIGS['DB_PASS'],
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+       'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': CONFIGS['DB_NAME'],
+            'USER': CONFIGS['DB_USER'],
+            'PASSWORD': CONFIGS['DB_PASS'],
+        }
+    }
 
 
 # Password validation
