@@ -1,7 +1,6 @@
 from django.test import TestCase
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
-from unittest.mock import Mock, patch
 from test_me_app.models import *
 
 import organizerpage.urls
@@ -12,7 +11,7 @@ from unittest.mock import *
 
 class TestRegister(TestCase):
 
-    def test_register_success(self):
+    def test_post_register_successfully(self):
         found = resolve('/register', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
@@ -23,7 +22,7 @@ class TestRegister(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
 
-    def test_register_failed_by_invalid_email(self):
+    def test_post_register_failed_by_invalid_email(self):
         found = resolve('/register', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
@@ -34,7 +33,7 @@ class TestRegister(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Email format error.')
 
-    def test_register_failed_by_invalid_group_name(self):
+    def test_post_register_failed_by_invalid_group_name(self):
         found = resolve('/register', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
@@ -47,15 +46,67 @@ class TestRegister(TestCase):
         self.assertEqual(response['msg'], 'The length of group name is restricted to 128.')
 
 
-class UserCenterTest(TestCase):
+class TestUserCenter(TestCase):
 
-    def test_get_correct(self):
-        found = resolve('/personal_info', urlconf=organizerpage.urls)
-        request = Mock(wraps=HttpRequest(), method='GET')
+    def setUp(self):
+        found = resolve('/register', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
-        request.body.decode = Mock(return_value='{"id": "1"}')
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
+
+    def test_post_change_info_successfully(self):
+        found = resolve('/personal_info', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"nickname":"1", "avatarUrl":"1",'
+                                                '"description": "a",'
+                                                '"contactPhone": "13051330768",'
+                                                '"email":"1@1.com"}')
+        request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['data'], "1")
+        self.assertEqual(response['code'], 0)
+
+    def test_post_change_info_failed_by_invalid_nickname(self):
+        found = resolve('/personal_info', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"nickname":"111111111111111111111", "avatarUrl":"1",'
+                                                '"description": "a",'
+                                                '"contactPhone": "13051330768",'
+                                                '"email":"1@1.com"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'The length of nickname is restricted to 20.')
+
+
+    def test_post_change_info_failed_by_invalid_phoneNum(self):
+        found = resolve('/personal_info', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"nickname":"1", "avatarUrl":"1",'
+                                                '"description": "a",'
+                                                '"contactPhone": "130513307681",'
+                                                '"email":"1@1.com"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Phone number invalid or not a cell phone number.')
+
+
+    def test_post_change_info_failed_by_invalid_email(self):
+        found = resolve('/personal_info', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"nickname":"1", "avatarUrl":"1",'
+                                                '"description": "a",'
+                                                '"contactPhone": "13051330768",'
+                                                '"email":"1@com"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Email format error.')
 
 
 class TestPlayerRegister(TestCase):
