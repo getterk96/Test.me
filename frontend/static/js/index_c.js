@@ -47,7 +47,7 @@ var test_item2 = {
     contesttimefrom : '2017-12-31',
     contesttimeto : '2018-01-01',
     logo : '../img/user.png',
-    url : '#'
+    url : '../index.html'
 }
 
 
@@ -88,6 +88,9 @@ var controller = new Vue({
                     return;
                 }
             console.log('[err] Viewport is not initialized');
+        },
+        directto : function(path) {
+            window.location.assign(path);
         }
     }
 });
