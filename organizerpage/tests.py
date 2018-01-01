@@ -61,13 +61,14 @@ class TestUserCenter(TestCase):
         found = resolve('/register', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
-        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+        request.body.decode = Mock(return_value='{"username":"2", "password":"1",'
                                                 '"group": "a",'
                                                 '"email":"1@1.com",'
                                                 '"gender":"male",'
-                                                '"playerType":"0",'
-                                                '"birthday":"123456"}')
-        found.func(request)
+                                                '"playerType":0,'
+                                                '"birthday":"2017-12-31"}')
+        result = found.func(request)
+        result = result
 
     def test_post_change_info_successfully(self):
         found = resolve('/personal_info', urlconf=organizerpage.urls)
@@ -92,7 +93,6 @@ class TestUserCenter(TestCase):
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'The length of nickname is restricted to 20.')
-
 
     def test_post_change_info_failed_by_invalid_phoneNum(self):
         found = resolve('/personal_info', urlconf=organizerpage.urls)
@@ -127,15 +127,14 @@ class TestUserCenter(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['data']['email'], '1@1.com')
 
-
     def test_get_info_failed_by_not_a_organizer(self):
         found = resolve('/personal_info', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET')
         request.body = Mock()
         request.body.decode = Mock(return_value='')
-        request.user = User.objects.get(username='1')
+        request.user = User.objects.get(username='2')
         response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['data']['email'], '1@1.com')
+        self.assertEqual(response['msg'], 'Organizer required')
 
 
 class TestPlayerRegister(TestCase):

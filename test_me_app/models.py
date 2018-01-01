@@ -95,9 +95,8 @@ class Organizer(UserCommon):
 
     @staticmethod
     def check_contact_phone(contact_phone):
-        for c in contact_phone:
-            if c < '0' or c > '9':
-                raise InputError('Wrong contact phone')
+        if not re.match(r'[0-9]{11}$', contact_phone):
+            raise InputError('Phone number invalid or not a cell phone number.')
 
     @staticmethod
     def check_nickname(nickname):
