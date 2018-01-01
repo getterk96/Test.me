@@ -142,24 +142,34 @@ class ContestDetail(APIView):
 class ContestCreate(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
-        contest = Contest()
-        contest.name = self.input['name']
-        contest.description = self.input['description']
-        contest.logo_url = self.input['logoUrl']
-        contest.banner_url = self.input['bannerUrl']
-        contest.sign_up_start_time = self.input['signUpStart']
-        contest.sign_up_end_time = self.input['signUpEnd']
-        contest.available_slots = self.input['availableSlots']
-        contest.max_team_members = self.input['maxTeamMembers']
-        contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
-        contest.level = self.input['level']
-        contest.organizer_id = self.request.user.organizer.id
-        contest.status = Contest.SAVED
-        contest.save()
-        tags = self.input['tags'].split(',')
-        contest.add_tags(tags)
+        # check validation
+        Contest.check_name(self.input['name'])
+        Contest.check_url(self.input['logoUrl'])
+        Contest.check_url(self.input['bannerUrl'])
+        Contest.check_url(self.input['signUpAttachmentUrl'])
+        # create
+        try:
+            contest = Contest()
+            contest.name = self.input['name']
+            contest.description = self.input['description']
+            contest.logo_url = self.input['logoUrl']
+            contest.banner_url = self.input['bannerUrl']
+            contest.sign_up_start_time = self.input['signUpStart']
+            contest.sign_up_end_time = self.input['signUpEnd']
+            contest.available_slots = self.input['availableSlots']
+            contest.max_team_members = self.input['maxTeamMembers']
+            contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+            contest.level = self.input['level']
+            contest.organizer_id = self.request.user.organizer.id
+            contest.status = Contest.SAVED
+            contest.save()
+            tags = self.input['tags'].split(',')
+            contest.add_tags(tags)
+        except:
+            raise LogicError('Failed to create contest.')
 
         return contest.id
 
