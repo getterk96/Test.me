@@ -43,6 +43,10 @@
     color : rgb(20, 20, 200);
 }
 
+.grey {
+    color : rgb(100, 100, 100);
+}
+
 /* > dotted background decorator*/
 .dotted-bg {
     z-index : 0;

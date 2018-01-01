@@ -27,8 +27,8 @@ var init_header = function() {
 
     if (usertype in [0, 1]) {
         header.link_list.push({
-            alias : '个人中心',
-            link : '../myaccount/index.html',
+            alias : '比赛大厅',
+            link : '../index/index.html',
             action : empty_f
         });
         header.link_list.push({
@@ -45,30 +45,15 @@ var init_header = function() {
             action : empty_f
         })
     if (usertype == type_p) {
-        nav.list = ['比赛大厅', '个人信息', '我的比赛', '我的队伍'];
-        nav.choice = '比赛大厅';
+        nav.list = ['个人信息', '我的比赛', '我的队伍'];
+        nav.choice = '个人信息';
     }
 };
 
 
 init_header();
 
-var search_list = [
-    {
-        name : 'contest1',
-        organizer : 'THU',
-        sut : '2017-7-30 to 2017-8-2',
-        ct : '2017-8-15 to 2017-8-20',
-        link : '#'
-    },
-    {
-        name : 'contest2',
-        organizer : 'PKU',
-        sut : '2017-7-31 to 2017-8-3',
-        ct : '2017-8-16 to 2017-8-21',
-        link : '#'
-    }
-];
+var tmp = {};
 
 window.user = {
     avatar : {
@@ -96,8 +81,6 @@ window.user = {
 var controller = new Vue({
     el : '#body',
     data : {
-        querytext : '',
-        querylist : search_list,
         user : window.user,
         modify_basic_info : false
     },
@@ -125,8 +108,15 @@ var controller = new Vue({
                 return;
             alert('succeed!')
         },
-        switch_basic_info : function() {
-            this.modify_basic_info = !this.modify_basic_info;
-        }
+        start_modify_basic_info : function() {
+            this.modify_basic_info = true;
+            tmp = {};
+            tmp['nickname'] = this.user.nickname.content;
+        },
+        cancel_modify_basic_info : function() {
+            this.modify_basic_info = false;
+            this.user.nickname.content = tmp['nickname'];
+        },
+        save_modify_basic_info : function() {}
     }
 })
