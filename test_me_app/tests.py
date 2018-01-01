@@ -3,11 +3,9 @@ from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from unittest.mock import Mock, patch
 from django.contrib import auth
-from test_me import settings
 from test_me_app.models import User_profile
 import test_me_app.urls
 import json
-import time
 
 
 # Create your tests here.
@@ -71,12 +69,26 @@ class TestLogout(TestCase):
             self.assertEqual(response['code'], 0)
 
 
+class TestUpload(TestCase):
+
+    def test_upload_fail(self):
+        found = resolve('/upload', urlconf=test_me_app.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"file":[], "destination":"test_destination"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Upload failed')
+
+
 class TestUserType(TestCase):
 
     def test_user_type_get(self):
         found = resolve('/user_type', urlconf=test_me_app.urls)
         request = Mock(wraps=HttpRequest(), method='GET',
-                       user=Mock(is_authenticated=True, user_type=User_profile.PLAYER))
+                       user=Mock(is_authenticated=True,
+                                 user_profile=Mock(user_type=User_profile.PLAYER,
+                                                   status=User_profile.NORMAL)))
         request.body = Mock()
         request.body.decode = Mock(return_value='{}')
         response = json.loads(found.func(request).content.decode())
