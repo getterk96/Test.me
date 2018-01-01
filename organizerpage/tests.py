@@ -63,12 +63,11 @@ class TestUserCenter(TestCase):
         request.body = Mock()
         request.body.decode = Mock(return_value='{"username":"2", "password":"1",'
                                                 '"group": "a",'
-                                                '"email":"1@1.com",'
+                                                '"email":"2@1.com",'
                                                 '"gender":"male",'
                                                 '"playerType":0,'
                                                 '"birthday":"2017-12-31"}')
-        result = found.func(request)
-        result = result
+        found.func(request)
 
     def test_post_change_info_successfully(self):
         found = resolve('/personal_info', urlconf=organizerpage.urls)
@@ -137,36 +136,111 @@ class TestUserCenter(TestCase):
         self.assertEqual(response['msg'], 'Organizer required')
 
 
-class TestPlayerRegister(TestCase):
+class TestContestCreate(TestCase):
 
-    def test_register_wrong_input(self):
+    def setUp(self):
         found = resolve('/register', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
-        # wrong player type
         request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
-                                                '"email":"1@1.com", "group": "test_group",'
-                                                '"gender":"male", "playerType":5, "birthday":"2017-11-23",'
-                                                '"verifyFileUrl":""}')
-        response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['code'], 1)
-        self.assertEqual(response['msg'], 'Wrong organizer type')
-        # wrong gender
-        request.body.decode = Mock(return_value='{"username":"2", "password":"2",'
-                                                '"email":"2@2.com", "group": "test_group",'
-                                                '"gender":"unknown","playerType":0, "birthday":"2017-11-23"}')
-        response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['code'], 1)
-        self.assertEqual(response['msg'], 'Wrong gender')
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
 
-    def test_register_success(self):
-        found = resolve('/register', urlconf=organizerpage.urls)
+    def test_post_create_contest_successfully(self):
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
-        request.body.decode = Mock(return_value='{"username":"3", "password":"3",'
-                                                '"email":"2@2.com", "group": "test_group",'
-                                                '"gender":"female", "playerType":1, "birthday":"2017-11-23"}')
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31T04:00:54.528Z",'
+                                                '"signUpEnd": "2017-12-31T04:00:55.528Z",'
+                                                '"availableSlots": 0,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+    def test_post_create_contest_failed_by_name_too_long (self):
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"testtesttesttesttesttesttesttest'
+                                                'testtesttesttesttesttesttesttestt",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31T04:00:54.528Z",'
+                                                '"signUpEnd": "2017-12-31T04:00:55.528Z",'
+                                                '"availableSlots": 0,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], "The length of name is restricted to 64.")
+
+    def test_post_create_contest_failed_by_url_too_long (self):
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNone'
+                                                'NoneNoneNoneNoneNoneNoneNoneNoneNone",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31T04:00:54.528Z",'
+                                                '"signUpEnd": "2017-12-31T04:00:55.528Z",'
+                                                '"availableSlots": 0,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], "The length of url is restricted to 256.")
+
+
+class TestContests(TestCase):
+
+    def setUp(self):
+        found = resolve('/register', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31 05:05:05",'
+                                                '"signUpEnd": "2017-12-31 05:05:06",'
+                                                '"availableSlots": 0,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        result = found.func(request)
+        result = result
 
 # Create your tests here.
