@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from test_me_app.models import *
 
 import organizerpage.urls
+import playerpage.urls
 import json
 
 from unittest.mock import *
@@ -57,6 +58,16 @@ class TestUserCenter(TestCase):
                                                 '"email":"1@1.com",'
                                                 '"verifyFileUrl":"/a/a"}')
         found.func(request)
+        found = resolve('/register', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"gender":"male",'
+                                                '"playerType":"0",'
+                                                '"birthday":"123456"}')
+        found.func(request)
 
     def test_post_change_info_successfully(self):
         found = resolve('/personal_info', urlconf=organizerpage.urls)
@@ -95,7 +106,6 @@ class TestUserCenter(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Phone number invalid or not a cell phone number.')
 
-
     def test_post_change_info_failed_by_invalid_email(self):
         found = resolve('/personal_info', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
@@ -107,6 +117,25 @@ class TestUserCenter(TestCase):
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Email format error.')
+
+    def test_get_info_successfully(self):
+        found = resolve('/personal_info', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['data']['email'], '1@1.com')
+
+
+    def test_get_info_failed_by_not_a_organizer(self):
+        found = resolve('/personal_info', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['data']['email'], '1@1.com')
 
 
 class TestPlayerRegister(TestCase):
