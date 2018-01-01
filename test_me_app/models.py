@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User, UserManager
@@ -80,6 +82,27 @@ class Organizer(UserCommon):
     VERIFYING = 0
     VERIFIED = 1
     REJECTED = -1
+
+    @staticmethod
+    def check_email(email):
+        if not re.match(r'^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){1,4}$', email):
+            raise InputError('Email format error.')
+
+    @staticmethod
+    def check_group(group):
+        if len(group) > 128:
+            raise InputError('The length of group name is restricted to 128.')
+
+    @staticmethod
+    def check_contact_phone(contact_phone):
+        for c in contact_phone:
+            if c < '0' or c > '9':
+                raise InputError('Wrong contact phone')
+
+    @staticmethod
+    def check_nickname(nickname):
+        if len(nickname) > 20:
+            raise InputError('The length of nickname is restricted to 20.')
 
 
 class Tag(models.Model):
