@@ -17,11 +17,8 @@ class Register(APIView):
         # check existence
         self.check_input('username', 'password', 'email', 'group', 'verifyFileUrl')
         # check validation
-        if not re.match(r'^[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){0,4}@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){0,4}$',
-                        self.input['email']):
-            raise InputError('Email format error.')
-        if len(self.input['group']) > 128:
-            raise InputError('The length of group name is restricted to 128.')
+        Organizer.check_email(self.input['email'])
+        Organizer.check_group(self.input['group'])
         # create
         try:
             user = User.objects.create_user(username=self.input['username'],
@@ -51,8 +48,10 @@ class Register(APIView):
 class PersonalInfo(APIView):
     @organizer_required
     def get(self):
+        # get user from request
         the_user = self.request.user
         organizer = the_user.organizer
+        # return info
         return {
             'username': the_user.username,
             'nickname': organizer.nickname,
@@ -65,14 +64,13 @@ class PersonalInfo(APIView):
 
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
-        if len(self.input['nickname']) > 20:
-            raise InputError('The length of nickname is restricted to 20.')
-        if not re.match(r'^[0-9]{11}$', self.input['contactPhone']):
-            raise InputError('Phone number invalid or not a cell phone number.')
-        if not re.match(r'^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+){1,4}$',
-                        self.input['email']):
-            raise InputError('Email format error.')
+        # check validation
+        Organizer.check_email(self.input['email'])
+        Organizer.check_nickname(self.input['nickname'])
+        Organizer.check_contact_phone(self.input['contactPhone'])
+        # save info
         try:
             organizer = self.request.user.organizer
             organizer.nickname = self.input['nickname']
