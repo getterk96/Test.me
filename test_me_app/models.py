@@ -137,13 +137,6 @@ class Contest(models.Model):
     CANCELLED = -1
     REMOVED = -2
 
-    @staticmethod
-    def safe_get(**kwargs):
-        try:
-            return Contest.objects.get(**kwargs)
-        except ObjectDoesNotExist:
-            raise LogicError("No Such Contest")
-
     def add_tags(self, tags):
         for content in tags:
             if not content:
@@ -163,6 +156,23 @@ class Contest(models.Model):
             tags += tag.content
             tags += ","
         return tags
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return Contest.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError("No Such Contest")
+
+    @staticmethod
+    def check_name(name):
+        if len(name) > 64:
+            raise InputError('The length of name is restricted to 64.')
+
+    @staticmethod
+    def check_url(url):
+        if len(url) > 256:
+            raise InputError('The length of url is restricted to 256.')
 
 
 class Period(models.Model):
