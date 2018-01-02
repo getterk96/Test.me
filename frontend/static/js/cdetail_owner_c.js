@@ -188,7 +188,6 @@ var per_get_succ = function (response) {
         var tmp_data = {'id' : data['questionId'][i]};
         $t(url, m, tmp_data, ques_get_succ, ques_get_fail, {which : window.contest.period_counter - 1});
     }
-    console.log(info.contest.period[window.contest.period_counter - 1].question_id);
 }
 
 var per_get_fail = function(response) {
@@ -237,10 +236,10 @@ var org_get_succ = function(response) {
     window.contest.period_counter = 0;
     window.contest.period_id = data['periods'];
     window.contest.period = []
-    for (i in data['periods']) {
+    for (i of data['periods']) {
         var url = '/api/o/period/detail';
         var m = 'GET';
-        var data = {'id' : data['periods'][i]};
+        var data = {'id' : i};
         $t(url, m, data, per_get_succ, per_get_fail);
     }
     window.contest['period'].sort(period_bigger);
@@ -262,8 +261,8 @@ var org_get_contest_detail = function() {
     var m = 'GET';
     var data = {'id' : window.cid};
     $t(url, m, data, org_get_succ, org_get_fail);
-    //url = '/api/o/contest/team_batch_manage';
-    //$t(url, m, data, player_get_succ, player_get_fail);
+    url = '/api/o/contest/team_batch_manage';
+    $t(url, m, data, player_get_succ, player_get_fail);
 };
 
 (function () {
@@ -485,7 +484,6 @@ info = new Vue({
                 return;
             }
             this.contest.period.splice(idx, 1);
-            //API
         },
         insert_new_period : function() {
             var new_period = {

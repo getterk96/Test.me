@@ -119,7 +119,7 @@ class ContestDetail(APIView):
             'level': contest.level,
             'currentTime': int(time.time()),
             'tags': contest.get_tags(),
-            'periods': list(contest.period_set.values_list('id', flat=True))
+            'periods': list(contest.period_set.exclude(status = Period.REMOVED).values_list('id', flat=True))
         }
 
     @organizer_required
