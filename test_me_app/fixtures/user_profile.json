@@ -1,0 +1,8 @@
+[{"model": "test_me_app.user_profile",
+  "pk": 1,
+  "fields": {
+    "user_type": 0,
+    "status": 0,
+    "user_id": 1
+  }
+}]

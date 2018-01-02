@@ -43,20 +43,33 @@ class TestPlayerRegister(TestCase):
 
 class TestPlayerPersonalInfo(TestCase):
 
-    def test_personal_info_get_player_required(self):
+    fixtures = ['user.json', 'user_profile.json', 'player.json']
+
+    def test_player_required(self):
         found = resolve('/personal_info', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET',
-                       user=Mock(is_authenticated=True, user_type=User_profile.ORGANIZER))
+                       user=Mock(is_authenticated=True,
+                                 user_profile=Mock(user_type=User_profile.ORGANIZER,
+                                                   status=User_profile.NORMAL)))
         request.body = Mock()
         request.body.decode = Mock(return_value='{}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 3)
         self.assertEqual(response['msg'], 'Player required')
 
-    def test_personal_info_post_wrong_phone(self):
+    def test_personal_info_get(self):
         found = resolve('/personal_info', urlconf=playerpage.urls)
-        request = Mock(wraps=HttpRequest(), method='POST',
-                       user=Mock(is_authenticated=True, user_type=User_profile.PLAYER))
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('email'), '1@test.me')
+        self.assertEqual(response['data'].get('nickname'), 'nickname1')
+
+    def test_personal_info_post_wrong_input(self):
+        found = resolve('/personal_info', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
         request.body = Mock()
         request.body.decode = Mock(return_value='{"email":"1@1.com", "group":"test_group",'
                                                 '"nickname":"test_nick", "avatarUrl":"test_url",'
@@ -65,3 +78,14 @@ class TestPlayerPersonalInfo(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 1)
         self.assertEqual(response['msg'], 'Wrong contact phone')
+
+    def test_personal_info_post_success(self):
+        found = resolve('/personal_info', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"email":"1@1.com", "group":"test_group",'
+                                                '"nickname":"test_nick", "avatarUrl":"test_url",'
+                                                '"contactPhone":"13000000000", "description":"test_des",'
+                                                '"gender":"male", "birthday":"2000-01-01", "playerType":0 }')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)

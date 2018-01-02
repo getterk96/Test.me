@@ -1,0 +1,13 @@
+[{"model": "test_me_app.player",
+  "pk": 1,
+  "fields": {
+    "group": "group1",
+    "nickname": "nickname1",
+    "avatar_url": "avatar_url1",
+    "contact_phone": "contact_phone1",
+    "description": "description",
+    "gender": 0,
+    "birthday": "2000-01-01",
+    "player_type": 0,
+    "user_id": 1}}
+  ]

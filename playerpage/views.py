@@ -72,7 +72,7 @@ class PlayerPersonalInfo(APIView):
         Player.check_gender(self.input['gender'])
         Player.check_player_type(self.input['playerType'])
         # change
-        player = self.request.player
+        player = self.request.user.player
         self.request.user.email = self.input['email']
         player.group = self.input['group']
         player.nickname = self.input['nickname']

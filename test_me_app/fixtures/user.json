@@ -1,0 +1,7 @@
+[{"model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "username": "username1",
+    "email": "1@test.me"
+  }
+}]
