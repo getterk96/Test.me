@@ -156,8 +156,8 @@ class TestContestCreate(TestCase):
                                                 '"description":"test",'
                                                 '"logoUrl": "None",'
                                                 '"bannerUrl":"None",'
-                                                '"signUpStart":"2017-12-31T04:00:54.528Z",'
-                                                '"signUpEnd": "2017-12-31T04:00:55.528Z",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
                                                 '"availableSlots": 0,'
                                                 '"maxTeamMembers": 5,'
                                                 '"signUpAttachmentUrl": "None",'
@@ -167,8 +167,7 @@ class TestContestCreate(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
 
-
-    def test_post_create_contest_failed_by_name_too_long (self):
+    def test_post_create_contest_failed_by_name_too_long(self):
         found = resolve('/contest/create', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
@@ -177,8 +176,8 @@ class TestContestCreate(TestCase):
                                                 '"description":"test",'
                                                 '"logoUrl": "None",'
                                                 '"bannerUrl":"None",'
-                                                '"signUpStart":"2017-12-31T04:00:54.528Z",'
-                                                '"signUpEnd": "2017-12-31T04:00:55.528Z",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
                                                 '"availableSlots": 0,'
                                                 '"maxTeamMembers": 5,'
                                                 '"signUpAttachmentUrl": "None",'
@@ -188,7 +187,7 @@ class TestContestCreate(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], "The length of name is restricted to 64.")
 
-    def test_post_create_contest_failed_by_url_too_long (self):
+    def test_post_create_contest_failed_by_url_too_long(self):
         found = resolve('/contest/create', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
@@ -203,8 +202,8 @@ class TestContestCreate(TestCase):
                                                 'NoneNoneNoneNoneNoneNoneNoneNone'
                                                 'NoneNoneNoneNoneNoneNoneNoneNoneNone",'
                                                 '"bannerUrl":"None",'
-                                                '"signUpStart":"2017-12-31T04:00:54.528Z",'
-                                                '"signUpEnd": "2017-12-31T04:00:55.528Z",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
                                                 '"availableSlots": 0,'
                                                 '"maxTeamMembers": 5,'
                                                 '"signUpAttachmentUrl": "None",'
@@ -233,14 +232,126 @@ class TestContests(TestCase):
                                                 '"description":"test",'
                                                 '"logoUrl": "None",'
                                                 '"bannerUrl":"None",'
-                                                '"signUpStart":"2017-12-31 05:05:05",'
-                                                '"signUpEnd": "2017-12-31 05:05:06",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
                                                 '"availableSlots": 0,'
                                                 '"maxTeamMembers": 5,'
                                                 '"signUpAttachmentUrl": "None",'
                                                 '"level": 0,'
                                                 '"tags": "test"}')
-        result = found.func(request)
-        result = result
+        request.user = User.objects.get(username='1')
+        found.func(request)
+
+    def test_get_organizing_contest_successfully(self):
+        found = resolve('/contest/organizing_contests', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['data'][0]['name'], 'test')
+
+    def test_get_contest_detail_successfully(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + '}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['data']['name'], 'test')
+
+    def test_get_contest_detail_failed_by_contest_not_exist(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":10086}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'No Such Contest')
+
+    def test_post_contest_detail_successfully(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"name":"test0",'
+                                                                    '"description":"test",'
+                                                                    '"logoUrl": "None",'
+                                                                    '"bannerUrl":"None",'
+                                                                    '"signUpStart":"2017-12-31 04:00:54",'
+                                                                    '"signUpEnd": "2017-12-31 04:00:55",'
+                                                                    '"availableSlots": 0,'
+                                                                    '"maxTeamMembers": 5,'
+                                                                    '"signUpAttachmentUrl": "None",'
+                                                                    '"level": 0,'
+                                                                    '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+
+    def test_post_contest_detail_failed_by_end_earlier_than_start(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"name":"test",'
+                                                                    '"description":"test",'
+                                                                    '"logoUrl": "None",'
+                                                                    '"bannerUrl":"None",'
+                                                                    '"signUpStart":"2017-12-31 04:00:54",'
+                                                                    '"signUpEnd": "2017-12-31 04:00:53",'
+                                                                    '"availableSlots": 0,'
+                                                                    '"maxTeamMembers": 5,'
+                                                                    '"signUpAttachmentUrl": "None",'
+                                                                    '"level": 0,'
+                                                                    '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Sign up start time must not be later then end time.')
+
+    def test_post_contest_detail_failed_by_wrong_level(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"name":"test",'
+                                                                    '"description":"test",'
+                                                                    '"logoUrl": "None",'
+                                                                    '"bannerUrl":"None",'
+                                                                    '"signUpStart":"2017-12-31 04:00:54",'
+                                                                    '"signUpEnd": "2017-12-31 04:00:55",'
+                                                                    '"availableSlots": 0,'
+                                                                    '"maxTeamMembers": 5,'
+                                                                    '"signUpAttachmentUrl": "None",'
+                                                                    '"level": "abcd",'
+                                                                    '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Level should be a number.')
+
+    def test_post_contest_detail_failed_by_wrong_level_range(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"name":"test",'
+                                                                    '"description":"test",'
+                                                                    '"logoUrl": "None",'
+                                                                    '"bannerUrl":"None",'
+                                                                    '"signUpStart":"2017-12-31 04:00:54",'
+                                                                    '"signUpEnd": "2017-12-31 04:00:55",'
+                                                                    '"availableSlots": 0,'
+                                                                    '"maxTeamMembers": 5,'
+                                                                    '"signUpAttachmentUrl": "None",'
+                                                                    '"level": 128,'
+                                                                    '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Level exceeds the range limit.')
 
 # Create your tests here.
