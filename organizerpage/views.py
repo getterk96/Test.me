@@ -86,8 +86,10 @@ class PersonalInfo(APIView):
 class OrganizingContests(APIView):
     @organizer_required
     def get(self):
+        # query
         contests = Contest.objects.exclude(status=Contest.REMOVED).filter(organizer_id=self.request.user.organizer.id)
         organizing_contests = []
+        # appending
         for contest in contests:
             organizing_contests.append({
                 'id': contest.id,
@@ -102,6 +104,7 @@ class OrganizingContests(APIView):
 class ContestDetail(APIView):
     @organizer_required
     def get(self):
+        # query
         contest = Contest.safe_get(id=self.input['id'])
         return {
             'name': contest.name,
@@ -121,23 +124,35 @@ class ContestDetail(APIView):
 
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id', 'name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
+        # query
         contest = Contest.safe_get(id=self.input['id'])
-        contest.name = self.input['name']
-        contest.description = self.input['description']
-        contest.logo_url = self.input['logoUrl']
-        contest.banner_url = self.input['bannerUrl']
-        contest.sign_up_start_time = self.input['signUpStart']
-        contest.sign_up_end_time = self.input['signUpEnd']
-        contest.available_slots = self.input['availableSlots']
-        contest.max_team_members = self.input['maxTeamMembers']
-        contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
-        contest.level = self.input['level']
-        tags = self.input['tags'].split(',')
-        contest.add_tags(tags)
-        contest.save()
-
+        # check validation
+        Contest.check_name(self.input['name'])
+        Contest.check_url(self.input['logoUrl'])
+        Contest.check_url(self.input['bannerUrl'])
+        Contest.check_url(self.input['signUpAttachmentUrl'])
+        Contest.check_level(self.input['level'])
+        Contest.check_sign_up_time(self.input['signUpStart'], self.input['signUpEnd'])
+        # update
+        try:
+            contest.name = self.input['name']
+            contest.description = self.input['description']
+            contest.logo_url = self.input['logoUrl']
+            contest.banner_url = self.input['bannerUrl']
+            contest.sign_up_start_time = self.input['signUpStart']
+            contest.sign_up_end_time = self.input['signUpEnd']
+            contest.available_slots = self.input['availableSlots']
+            contest.max_team_members = self.input['maxTeamMembers']
+            contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+            contest.level = self.input['level']
+            tags = self.input['tags'].split(',')
+            contest.add_tags(tags)
+            contest.save()
+        except:
+            raise LogicError('Failed to update contest details.')
 
 class ContestCreate(APIView):
     @organizer_required
@@ -150,6 +165,8 @@ class ContestCreate(APIView):
         Contest.check_url(self.input['logoUrl'])
         Contest.check_url(self.input['bannerUrl'])
         Contest.check_url(self.input['signUpAttachmentUrl'])
+        Contest.check_level(self.input['level'])
+        Contest.check_sign_up_time(self.input['signUpStart'], self.input['signUpEnd'])
         # create
         try:
             contest = Contest()
