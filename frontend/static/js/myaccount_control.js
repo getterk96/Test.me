@@ -52,7 +52,7 @@ var myaccount_c = new Vue({
         gender_type_dic : {
             'male' : '男',
             'female' : '女'
-        }        
+        }
     },
     methods : {
         activate_modify : function() {
@@ -178,7 +178,7 @@ function get_personal_info() {
         return;
     }
     var url = '/api/'+ type_sign + '/personal_info';
-    $t(url, 'GET', {}, 
+    $t(url, 'GET', {},
         function (response) {
             myaccount_c.user = [];
             for (attr in response.data) {
@@ -219,7 +219,7 @@ function get_contest_info() {
     var url = '';
     if (myaccount_c.usertype == 1) {
         url = '/api/o/contest/organizing_contests';
-        $t(url, 'GET', {}, 
+        $t(url, 'GET', {},
             function (response) {
                 for (i in response.data) {
                     myaccount_c.contestlist.push({

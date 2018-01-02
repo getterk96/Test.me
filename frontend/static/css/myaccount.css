@@ -14,107 +14,6 @@ nav#side-nav label {
     margin : 0.5em auto;
 }
 
-.searchbox {
-  display : block;
-  width : 100%;
-}
-
-.searchbox>input {
-  width : 80%;
-  margin-left : calc(10% - 1em);
-  box-shadow : 0px 0px 0.5em rgba(0, 0, 0, 0.3) inset;
-  border-radius : 0.5em;
-  font-size : 1.1em;
-  user-select : text;
-  letter-spacing : 0.05em;
-  padding : 0.5em 1em;
-}
-
-.searchbox>.clearsearch {
-  display : none;
-}
-
-.searchbox>input:valid+.clearsearch {
-  display : block;
-  color : rgb(100, 100, 100);
-  position : absolute;
-  right : 10%;
-  top : 0.3em;
-}
-
-.searchbutton {
-  display : block;
-  text-align : center;
-  margin : 1em;
-}
-
-.searchbutton>div {
-  display : inline-block;
-  margin : auto;
-}
-
-.searchbutton>div>button {
-  display : inline-block;
-  margin : 0 0.5em;
-  vertical-align : middle;
-}
-
-.searchbutton>div #gosearch {
-  padding : 0.1em 1em;
-  line-height : 1em;
-  font-size : 1em;
-  border-bottom : 2px solid rgba(127, 172, 222, 0.3);
-  transition : border 0.3s;
-}
-
-.searchbutton>div #gosearch:hover {
-  border-bottom : 2px solid rgba(127, 172, 222, 0.9);
-}
-
-.searchbutton>div #random {
-  background-image : url('../img/random.png');
-  background-size : 100% 100%;
-  width : 1.3em;
-  height : 1.3em;
-}
-
-.searchresult {
-    margin : auto;
-    width : 80%;
-    box-shadow : 0 0 0.4em rgba(0, 0, 0, 0.5) inset;
-    border-radius : 0.4em;
-}
-
-.searchresult th,
-.searchresult td {
-    padding : 0.15em;
-    border : none;
-    text-align : center;
-    user-select : text;
-}
-
-.searchresult tr {
-    box-shadow : 0 0 0.1em rgba(0, 0, 0, 0.3) inset;
-}
-
-.searchresult tr.last-row {
-    border-bottom-left-radius : 0.4em;
-    border-bottom-right-radius : 0.4em;
-}
-
-.lightrow {
-    background : rgba(127, 172, 222, 0.2);
-}
-
-.darkrow {
-    background : rgba(127, 70, 120, 0.15);
-}
-
-.searchresult a {
-    text-decoration : underline;
-    color : blue;
-}
-
 #avatar {
     width : 20%;
     display : inline-block;
@@ -143,7 +42,44 @@ nav#side-nav label {
     margin-left : 1em;
 }
 
+#basicinfo>input,
+#basicinfo>textarea,
+#basicinfo>div {
+    display : block
+}
+
 input.large {
     font-size : 2em;
     font-weight : bold;
+}
+
+input {
+    border-radius : 0.2em;
+    box-shadow : 0 0 0.2em rgba(0, 0, 0, 0.3) inset;
+}
+
+input[disabled] {
+    box-shadow : none;
+}
+
+input.large:focus {
+    border : 2px solid rgba(73, 110, 193, 0.3);
+}
+
+input.large {
+    border : 2px solid rgba(73, 110, 193, 0);
+    transition : border 0.3s;
+}
+
+span.label {
+    font-weight : bold;
+    margin-right : 2em;
+}
+
+.operator.settings {
+    padding : 0.2em;
+    margin : 0.4em 0.4em 0.4em 0;
+    border-radius : 0.3em;
+    border-width : 0.2em;
+    text-indent : 0.2em;
 }

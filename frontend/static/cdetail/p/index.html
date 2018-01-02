@@ -30,9 +30,9 @@
             </ul>
         </nav>
         <div id="body">
-            <template v-if="page == 'contest info'">
+            <template v-if="page == '比赛信息'">
                 <div :class="['session']">
-                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">Basic Information</span></button>
+                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">基本信息</span></button>
                     <article :class="['s-body']" v-if="show_basic_info">
                         <ul :class="['form']">
                             <template v-for="item in contest.attr">

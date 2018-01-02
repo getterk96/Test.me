@@ -1,4 +1,6 @@
-import time, pytz
+import time
+import pytz
+import re
 
 from datetime import datetime
 
@@ -12,8 +14,11 @@ from test_me import settings
 
 class Register(APIView):
     def post(self):
-        # check
+        # check existence
         self.check_input('username', 'password', 'email', 'group', 'verifyFileUrl')
+        # check validation
+        Organizer.check_email(self.input['email'])
+        Organizer.check_group(self.input['group'])
         # create
         try:
             user = User.objects.create_user(username=self.input['username'],
@@ -21,11 +26,11 @@ class Register(APIView):
                                             email=self.input['email'])
             user.user_profile.user_type = User_profile.ORGANIZER
             user.save()
-            user.user_profile.save();
+            user.user_profile.save()
             # default columns
             avatar_url = settings.get_url(settings.STATIC_URL + 'img/default_avatar.jpg')
             description = '请填写主办方简介'
-            phone = '13000000000'
+            phone = ''
             # create organizer
             organizer = Organizer.objects.create(user=user,
                                                  nickname=self.input['username'],
@@ -37,14 +42,16 @@ class Register(APIView):
                                                  verify_file_url=self.input['verifyFileUrl'])
             organizer.save()
         except:
-            raise LogicError('Signup fail')
+            raise LogicError('Signup failure')
 
 
 class PersonalInfo(APIView):
     @organizer_required
     def get(self):
+        # get user from request
         the_user = self.request.user
         organizer = the_user.organizer
+        # return info
         return {
             'username': the_user.username,
             'nickname': organizer.nickname,
@@ -57,14 +64,23 @@ class PersonalInfo(APIView):
 
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
-        organizer = self.request.user.organizer
-        organizer.nickname = self.input['nickname']
-        organizer.description = self.input['description']
-        organizer.avatar_url = self.input['avatarUrl']
-        organizer.contact_phone = self.input['contactPhone']
-        organizer.email = self.input['email']
-        organizer.save()
+        # check validation
+        Organizer.check_email(self.input['email'])
+        Organizer.check_nickname(self.input['nickname'])
+        Organizer.check_contact_phone(self.input['contactPhone'])
+        # save info
+        try:
+            organizer = self.request.user.organizer
+            organizer.nickname = self.input['nickname']
+            organizer.description = self.input['description']
+            organizer.avatar_url = self.input['avatarUrl']
+            organizer.contact_phone = self.input['contactPhone']
+            organizer.email = self.input['email']
+            organizer.save()
+        except:
+            raise LogicError('Failed to change user info.')
 
 
 class OrganizingContests(APIView):
@@ -126,24 +142,34 @@ class ContestDetail(APIView):
 class ContestCreate(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
                          'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
-        contest = Contest()
-        contest.name = self.input['name']
-        contest.description = self.input['description']
-        contest.logo_url = self.input['logoUrl']
-        contest.banner_url = self.input['bannerUrl']
-        contest.sign_up_start_time = self.input['signUpStart']
-        contest.sign_up_end_time = self.input['signUpEnd']
-        contest.available_slots = self.input['availableSlots']
-        contest.max_team_members = self.input['maxTeamMembers']
-        contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
-        contest.level = self.input['level']
-        contest.organizer_id = self.request.user.organizer.id
-        contest.status = Contest.SAVED
-        contest.save()
-        tags = self.input['tags'].split(',')
-        contest.add_tags(tags)
+        # check validation
+        Contest.check_name(self.input['name'])
+        Contest.check_url(self.input['logoUrl'])
+        Contest.check_url(self.input['bannerUrl'])
+        Contest.check_url(self.input['signUpAttachmentUrl'])
+        # create
+        try:
+            contest = Contest()
+            contest.name = self.input['name']
+            contest.description = self.input['description']
+            contest.logo_url = self.input['logoUrl']
+            contest.banner_url = self.input['bannerUrl']
+            contest.sign_up_start_time = self.input['signUpStart']
+            contest.sign_up_end_time = self.input['signUpEnd']
+            contest.available_slots = self.input['availableSlots']
+            contest.max_team_members = self.input['maxTeamMembers']
+            contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+            contest.level = self.input['level']
+            contest.organizer_id = self.request.user.organizer.id
+            contest.status = Contest.SAVED
+            contest.save()
+            tags = self.input['tags'].split(',')
+            contest.add_tags(tags)
+        except:
+            raise LogicError('Failed to create contest.')
 
         return contest.id
 
@@ -315,8 +341,8 @@ class ContestTeamDetail(APIView):
                 period_score.save()
             except LogicError:
                 PeriodScore.objects.create(period=period, team=team,
-                                   score=period_info['score'],
-                                   rank=period_info['rank'])
+                                           score=period_info['score'],
+                                           rank=period_info['rank'])
             # work
             works = period_info['work']
             for work in works:

@@ -8,6 +8,7 @@ const type_o = 1;
 var info = {};
 
 //api
+/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -805,6 +806,7 @@ var upload_data = function(aim_status) {
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
         }*/
+        /*
         info.contest.period[i].question_id = [];
         var url = '/api/o/period/create';
         var m = 'POST';
@@ -891,9 +893,9 @@ var upload_data = function(aim_status) {
     }
     $t(url, m, data, post_succ, post_fail);
 }
+*/
 
 // for develop without API
-/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -1008,11 +1010,6 @@ header.link_list.push({
             logout();
         }
     });
-header.link_list.push({
-    alias : '登录',
-    link : '../index.html',
-    action : empty_f
-});
 nav.list = ['比赛信息', '申诉处理', '选手管理', '成绩录入'];
 nav.choice = '比赛信息';
 
@@ -1033,7 +1030,17 @@ info = new Vue({
                 {
                     appealer : {
                         name : '405',
-                        id : '1'
+                        id : '1',
+                        member : [
+                            {
+                                name : 'ZYN',
+                                id : '1'
+                            },
+                            {
+                                name : 'GJH',
+                                id : '2'
+                            }
+                        ]
                     },
                     type : 'score',
                     status : 'to process',
@@ -1045,7 +1052,17 @@ info = new Vue({
                 {
                     appealer : {
                         name : '405',
-                        id : '1'
+                        id : '1',
+                        member : [
+                            {
+                                name : 'ZYN',
+                                id : '1'
+                            },
+                            {
+                                name : 'GJH',
+                                id : '2'
+                            }
+                        ]
                     },
                     type : 'criteria',
                     status : 'processed',
@@ -1059,7 +1076,17 @@ info = new Vue({
                 {
                     appealer : {
                         name : '405',
-                        id : '1'
+                        id : '1',
+                        member : [
+                            {
+                                name : 'ZYN',
+                                id : '1'
+                            },
+                            {
+                                name : 'GJH',
+                                id : '2'
+                            }
+                        ]
                     },
                     type : 'score',
                     status : 'ignored',
@@ -1071,7 +1098,12 @@ info = new Vue({
             ]
         ],
         appeal_page : 0,
-        selected_appeal : 0
+        selected_appeal : 0,
+        appeal_batch : true,
+        a_single_page : 0,
+        a_single_idx : 0,
+        show_appeal_reply : false,
+        appeal_reply : ''
     },
     computed : {
         is_guest : function() {
@@ -1408,10 +1440,58 @@ info = new Vue({
                 return true;
             return fals
         },
+        a_single_process : function(page, idx) {
+            this.a_single_page = page;
+            this.a_single_idx = idx;
+            this.appeal_batch = false;
+            if (this.appeal_list[this.a_single_page][this.a_single_idx].status == 'processed') { this.show_appeal_reply = true; }
+            else { this.show_appeal_reply = false; }
+        },
+        a_batch_process : function() {
+            this.appeal_batch = true;
+        },
+        a_single_prev : function() {
+            var p = this.a_single_page;
+            var i = this.a_single_idx;
+            --i;
+            if (i < 0) {
+                --p;
+                i = this.appeal_page_capacity - 1;
+            }
+            if (p < 0) {
+                alert('No previous one');
+                return;
+            }
+            this.a_single_page = p;
+            this.a_single_idx = i;
+        },
+        a_single_next : function() {
+            var p = this.a_single_page;
+            var i = this.a_single_idx;
+            ++i;
+            if (i == this.appeal_page_capacity) {
+                i = 0;
+                ++p;
+            }
+            if (p == this.appeal_list.length) {
+                alert('No more appeal');
+                return;
+            }
+            if ((p == this.appeal_list.length - 1) && i == this.appeal_list[p].length) {
+                alert('No more appeal');
+                return;
+            }
+            this.a_single_page  = p;
+            this.a_single_idx = i;
+        },
+        process_selected_appeals : function() {},
+        ignore_selected_appeals : function() {},
+        switch_appeal_reply : function() {
+            this.show_appeal_reply = !this.show_appeal_reply;
+        },
         publish : function() {
         },
         save : function() {
         }
     }
 });
-*/

@@ -2,6 +2,7 @@ from django.contrib import auth
 from codex.baseview import APIView
 from codex.baseerror import *
 from codex.basedecorator import login_required
+import os
 import time
 
 from test_me import settings
@@ -51,7 +52,7 @@ class Upload(APIView):
             save_file.close()
         except:
             raise LogicError('Upload failed')
-        return settings.get_url(settings.MEDIA_URL + new_name)
+        return save_path + new_name
 
 
 class UserType(APIView):
