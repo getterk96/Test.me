@@ -39,6 +39,14 @@
     color : rgb(200, 20, 20);
 }
 
+.blue {
+    color : rgb(20, 20, 200);
+}
+
+.grey {
+    color : rgb(100, 100, 100);
+}
+
 /* > dotted background decorator*/
 .dotted-bg {
     z-index : 0;
@@ -428,4 +436,9 @@ li.userbox.unaccepted {
 
 li.userbox.unaccepted:hover {
     border-left-color : rgba(210, 20, 20, 1);
+}
+
+ul.inline-form,
+ul.inline-form li {
+    display : inline-block;
 }

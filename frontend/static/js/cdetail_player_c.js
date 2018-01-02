@@ -139,7 +139,7 @@ window.contest = {
 };
 
 //api
-window.user_id = '2';
+window.user_id = '1';
 
 window.team = {
     name : '405',
@@ -210,8 +210,8 @@ var nav = new Vue({
     }
 });
 
-nav.list = ['队伍信息'];
-nav.choice = '队伍信息';
+nav.list = ['比赛信息', '队伍信息'];
+nav.choice = '比赛信息';
 
 window.show_period = [true];
 
