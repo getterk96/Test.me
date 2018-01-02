@@ -25,6 +25,14 @@ def load_test_database():
 
 class TestPlayerRegister(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        load_test_database()
+
+    @classmethod
+    def tearDownClass(cls):
+        management.call_command('flush', verbosity=0, interactive=False)
+
     def test_register_wrong_input(self):
         found = resolve('/register', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
@@ -43,6 +51,17 @@ class TestPlayerRegister(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 1)
         self.assertEqual(response['msg'], 'Wrong gender')
+
+    def test_register_duplicate_username(self):
+        found = resolve('/register', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"username1", "password":"3",'
+                                                '"email":"2@2.com", "group": "test_group",'
+                                                '"gender":"female", "playerType":1, "birthday":"2017-11-23"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Signup fail')
 
     def test_register_success(self):
         found = resolve('/register', urlconf=playerpage.urls)
