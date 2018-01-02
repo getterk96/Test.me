@@ -354,4 +354,24 @@ class TestContests(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Level exceeds the range limit.')
 
+    def test_post_remove_contest_successfully(self):
+        found = resolve('/contest/remove', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + '}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        self.assertEqual(Contest.objects.get(name='test').status, Contest.REMOVED)
+
+    def test_post_batch_remove_contest_successfully(self):
+        found = resolve('/contest/batch_remove', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str([Contest.objects.get(name='test').id,])
+        request.body.decode = Mock(return_value='{"contest_id":' + str_id + '}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        self.assertEqual(Contest.objects.get(name='test').status, Contest.REMOVED)
+
 # Create your tests here.

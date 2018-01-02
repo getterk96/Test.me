@@ -119,7 +119,7 @@ class ContestDetail(APIView):
             'level': contest.level,
             'currentTime': int(time.time()),
             'tags': contest.get_tags(),
-            'periods': list(contest.period_set.values_list('id', flat=True))
+            'periods': list(contest.period_set.exclude(status=Period.REMOVED).values_list('id', flat=True))
         }
 
     @organizer_required
@@ -194,12 +194,16 @@ class ContestCreate(APIView):
 class ContestRemove(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id')
+        # query
         contest = Contest.safe_get(id=self.input['id'])
+        # remove period
         periods = Period.objects.exclude(status=Period.REMOVED).filter(contest=contest)
         for period in periods:
             period.status = Period.REMOVED
             period.save()
+        # update contest status
         contest.status = Contest.REMOVED
         contest.save()
 
@@ -207,7 +211,9 @@ class ContestRemove(APIView):
 class ContestBatchRemove(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('contest_id')
+        # remove all contests
         for id in self.input['contest_id']:
             contest = Contest.safe_get(id=id)
             periods = Period.objects.exclude(status=Contest.REMOVED).filter(contest=contest)
