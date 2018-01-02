@@ -11,7 +11,7 @@ def player_signup_contest(player, contest):
     for team in chain(player.lead_teams.all(), player.join_teams.all()):
         if team.contest == contest:
             return team
-    raise LogicError('You have not sign up this contest')
+    raise ValidateError('You have not sign up this contest')
 
 
 class PlayerRegister(APIView):
@@ -154,8 +154,8 @@ class PlayerContestSearchSimple(APIView):
         self.check_input('keyword')
 
         # search
-        results = Contest.objects.filter(name__contains=self.input['keyword'], status=Contest.PUBLISHED)
-
+        results = Contest.objects.filter(name__contains=self.input['keyword'])
+        print(len(self.input['keyword']))
         # return
         contests = []
         for result in results:

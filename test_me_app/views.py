@@ -40,8 +40,8 @@ class Upload(APIView):
     def post(self):
         self.check_input('file', 'destination')
         file = self.input['file'][0]
-        new_name = time.strftime('%Y.%m.%d %H:%M:%S') + '.' + file.name.split('.')[-1]
-        save_path = settings.MEDIA_ROOT + '/' + self.input['destination'] + '/'
+        new_name = time.strftime('%Y.%m.%d %H-%M-%S') + '.' + file.name.split('.')[-1]
+        save_path = settings.MEDIA_ROOT + '\\' + self.input['destination'] + '\\'
         if not os.path.exists(settings.MEDIA_ROOT):
             os.mkdir(settings.MEDIA_ROOT)
         if not os.path.exists(save_path):

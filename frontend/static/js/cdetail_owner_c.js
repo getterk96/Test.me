@@ -8,7 +8,7 @@ const type_o = 1;
 var info = {};
 
 //api
-/*
+
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -799,14 +799,14 @@ var upload_data = function(aim_status) {
         $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
     }
     for (i in info.contest.period) {
-        /*for (j in info.contest.period[i].question_id) {
+        for (j in info.contest.period[i].question_id) {
             var url = '/api/o/question/remove';
             var m = 'POST';
             console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-        }*/
-        /*
+        }
+        
         info.contest.period[i].question_id = [];
         var url = '/api/o/period/create';
         var m = 'POST';
@@ -893,10 +893,10 @@ var upload_data = function(aim_status) {
     }
     $t(url, m, data, post_succ, post_fail);
 }
-*/
+
 
 // for develop without API
-window.contest = {
+/*window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
             if (i.name == qname)
@@ -1495,3 +1495,4 @@ info = new Vue({
         }
     }
 });
+*/
