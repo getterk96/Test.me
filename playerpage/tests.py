@@ -1,12 +1,22 @@
 from django.test import TestCase
+from django.core import management
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from test_me_app.models import *
 import playerpage.urls
 import json
 
 # Create your tests here.
+
+
+def load_test_database():
+    management.call_command('loaddata', 'user.json', verbosity=0)
+    management.call_command('loaddata', 'user_profile.json', verbosity=0)
+    management.call_command('loaddata', 'player.json', verbosity=0)
+    management.call_command('loaddata', 'organizer.json', verbosity=0)
+    management.call_command('loaddata', 'contest.json', verbosity=0)
+    management.call_command('loaddata', 'team.json', verbosity=0)
 
 
 class TestPlayerRegister(TestCase):
@@ -43,7 +53,13 @@ class TestPlayerRegister(TestCase):
 
 class TestPlayerPersonalInfo(TestCase):
 
-    fixtures = ['user.json', 'user_profile.json', 'player.json']
+    @classmethod
+    def setUpClass(cls):
+        load_test_database()
+
+    @classmethod
+    def tearDownClass(cls):
+        management.call_command('flush', verbosity=0, interactive=False)
 
     def test_player_required(self):
         found = resolve('/personal_info', urlconf=playerpage.urls)
@@ -89,3 +105,23 @@ class TestPlayerPersonalInfo(TestCase):
                                                 '"gender":"male", "birthday":"2000-01-01", "playerType":0 }')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerParticipatingContests(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        load_test_database()
+
+    @classmethod
+    def tearDownClass(cls):
+        management.call_command('flush', verbosity=0, interactive=False)
+
+    def test_participating_contests_get(self):
+        found = resolve('/participating_contests', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'][0].get('id'), 1)
