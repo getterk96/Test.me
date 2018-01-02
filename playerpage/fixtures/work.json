@@ -1,0 +1,10 @@
+[{"model": "test_me_app.work",
+  "pk": 1,
+  "fields": {
+    "question_id": 1,
+    "team_id": 2,
+    "content_url": "content_url1",
+    "score": 60,
+    "submission_times": 3
+  }
+}]

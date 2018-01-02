@@ -22,6 +22,8 @@ def load_test_database():
     management.call_command('loaddata', 'period.json', verbosity=0)
     management.call_command('loaddata', 'team.json', verbosity=0)
     management.call_command('loaddata', 'periodscore.json', verbosity=0)
+    management.call_command('loaddata', 'examquestion.json', verbosity=0)
+    management.call_command('loaddata', 'work.json', verbosity=0)
 
 
 class PlayerPageTestCase(TestCase):
@@ -196,7 +198,7 @@ class TestPlayerPeriodDetail(PlayerPageTestCase):
         self.assertEqual(response['code'], 2)
         self.assertEqual(response['msg'], 'You have not sign up this contest')
 
-    def test_no_submit_period_detail_get(self):
+    def test_no_score_period_detail_get(self):
         found = resolve('/period/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
         request.body = Mock()
@@ -206,7 +208,7 @@ class TestPlayerPeriodDetail(PlayerPageTestCase):
         self.assertEqual(response['data'].get('name'), 'period1')
         self.assertEqual(response['data'].get('score'), -1)
 
-    def test_submited_period_detail_get(self):
+    def test_scored_period_detail_get(self):
         found = resolve('/period/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=4))
         request.body = Mock()
@@ -214,3 +216,25 @@ class TestPlayerPeriodDetail(PlayerPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(response['data'].get('score'), 100)
+
+
+class TestPlayerQuestionDetail(PlayerPageTestCase):
+
+    def test_no_submit_question_detail_get(self):
+        found = resolve('/question/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"pid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'][0].get('id'), 1)
+        self.assertEqual(response['data'][0].get('submission_times'), 0)
+
+    def test_submitted_question_detail_get(self):
+        found = resolve('/question/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"pid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'][0].get('submission_times'), 3)
