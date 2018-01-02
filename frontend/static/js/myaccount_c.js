@@ -97,6 +97,12 @@ window.user = {
     }
 }
 
+test_contest = {
+    id : '1',
+    name : 'contest1adddddddddddddddddd',
+    logo : '../img/user.png'
+}
+
 var controller = new Vue({
     el : '#body',
     data : {
@@ -106,7 +112,8 @@ var controller = new Vue({
         reupload_doc :false,
         password : '',
         cpassword : '',
-        doc_name : ''
+        doc_name : '',
+        mycontest : []
     },
     computed : {
         page : function() {
@@ -161,6 +168,7 @@ var controller = new Vue({
             if (!files.length)
                 return;
             this.doc_name = files[0].name;
-        }
+        },
+        view_contest : function(cid) {}
     }
 })
