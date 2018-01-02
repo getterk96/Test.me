@@ -97,12 +97,6 @@ window.user = {
     }
 }
 
-test_contest = {
-    id : '1',
-    name : 'contest1adddddddddddddddddd',
-    logo : '../img/user.png'
-}
-
 var controller = new Vue({
     el : '#body',
     data : {
@@ -113,7 +107,8 @@ var controller = new Vue({
         password : '',
         cpassword : '',
         doc_name : '',
-        mycontest : []
+        mycontest : [],
+        myteam : []
     },
     computed : {
         page : function() {
@@ -169,6 +164,8 @@ var controller = new Vue({
                 return;
             this.doc_name = files[0].name;
         },
-        view_contest : function(cid) {}
+        view_contest : function(cid) {},
+        accept_invite : function(tid) {},
+        deny_invite : function(tid) {}
     }
 })

@@ -294,6 +294,10 @@ div.waiting-bubble {
     text-overflow : ellipsis;
 }
 
+.query_list>li>.card_cover>.card_title.team>h1 {
+    width : 20vw;
+}
+
 .query_list>li:hover>.card_cover,
 .query_list>li:hover>.card_content {
     transform : translateY(-6vw);
@@ -308,9 +312,25 @@ div.waiting-bubble {
     transition : text-indent 0.3s, border 0.3s;
 }
 
+.query_list>li>.card_content.team>li {
+    display : inline-block;
+}
+
+.query_list>li>.card_content button {
+    font-size : 1vw;
+}
+
 .query_list>li>.card_content button:hover {
     border-left : 0.2em solid rgba(73, 110, 193, 1);
     text-indent : 1.2em;
+}
+
+.query_list>li>.card_content button.negative {
+    border-left-color : rgba(225, 20, 20, 0.5);
+}
+
+.query_list>li>.card_content button.negative:hover {
+    border-left-color : rgba(225, 20, 20, 1);
 }
 
 .query_list>li>.card_content{
