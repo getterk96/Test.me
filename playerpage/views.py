@@ -109,11 +109,11 @@ class PlayerContestDetail(APIView):
 
         # already sign up
         player = self.request.user.player
-        signup_flag = False
+        signup_flag = True
         try:
             player_signup_contest(player, contest)
-        except ValidateError:
-            signup_flag = True
+        except LogicError:
+            signup_flag = False
 
         # tags
         tags = []

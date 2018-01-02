@@ -10,4 +10,10 @@
     "username": "username2",
     "email": "2@test.me"
   }
+},{"model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "username": "username3",
+    "email": "3@test.me"
+  }
 }]

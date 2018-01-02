@@ -1,0 +1,11 @@
+[{"model": "test_me_app.tag",
+  "pk": 1,
+  "fields": {
+    "content": "tag1"
+  }
+},{"model": "test_me_app.tag",
+  "pk": 2,
+  "fields": {
+    "content": "tag2"
+  }
+}]

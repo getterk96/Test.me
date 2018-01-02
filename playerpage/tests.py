@@ -17,7 +17,9 @@ def load_test_database():
     management.call_command('loaddata', 'user_profile.json', verbosity=0)
     management.call_command('loaddata', 'player.json', verbosity=0)
     management.call_command('loaddata', 'organizer.json', verbosity=0)
+    management.call_command('loaddata', 'tag.json', verbosity=0)
     management.call_command('loaddata', 'contest.json', verbosity=0)
+    management.call_command('loaddata', 'period.json', verbosity=0)
     management.call_command('loaddata', 'team.json', verbosity=0)
 
 
@@ -129,3 +131,35 @@ class TestPlayerParticipatingContests(TestCase):
         self.assertEqual(response['data'][0].get('id'), 1)
         self.assertEqual(response['data'][0].get('name'), 'publish_contest')
         self.assertEqual(response['data'][0].get('organizerName'), 'nickname1')
+
+
+class TestPlayerContestDetail(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        load_test_database()
+
+    @classmethod
+    def tearDownClass(cls):
+        management.call_command('flush', verbosity=0, interactive=False)
+
+    def test_signuped_player_contest_detail_get(self):
+        found = resolve('/contest/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('name'), 'publish_contest')
+        self.assertEqual(response['data'].get('tags')[0], 'tag1')
+        self.assertEqual(response['data'].get('periods')[0].get('periodName'), 'period1')
+        self.assertEqual(response['data'].get('alreadySignUp'), 1)
+
+    def test_unsignuped_player_contest_detail_get(self):
+        found = resolve('/contest/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=3))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('alreadySignUp'), 0)

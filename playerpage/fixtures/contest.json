@@ -11,7 +11,7 @@
     "available_slots": 100,
     "max_team_members": 10,
     "sign_up_attachment_url": "sign_up_attachment_url1",
-    "tags": [],
+    "tags": [1, 2],
     "level": 1,
     "status": 2
   }
