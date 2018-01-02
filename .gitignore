@@ -15,6 +15,9 @@ playerpage/migrations
 #config files
 configs.json
 
+#package.json
+package.json
+
 #django stuff
 *.log
 
