@@ -23,7 +23,7 @@ def load_test_database():
     management.call_command('loaddata', 'team.json', verbosity=0)
 
 
-class TestPlayerRegister(TestCase):
+class PlayerPageTestCase(TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -32,6 +32,9 @@ class TestPlayerRegister(TestCase):
     @classmethod
     def tearDownClass(cls):
         management.call_command('flush', verbosity=0, interactive=False)
+
+
+class TestPlayerRegister(PlayerPageTestCase):
 
     def test_register_wrong_input(self):
         found = resolve('/register', urlconf=playerpage.urls)
@@ -74,15 +77,7 @@ class TestPlayerRegister(TestCase):
         self.assertEqual(response['code'], 0)
 
 
-class TestPlayerPersonalInfo(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        load_test_database()
-
-    @classmethod
-    def tearDownClass(cls):
-        management.call_command('flush', verbosity=0, interactive=False)
+class TestPlayerPersonalInfo(PlayerPageTestCase):
 
     def test_player_required(self):
         found = resolve('/personal_info', urlconf=playerpage.urls)
@@ -130,15 +125,7 @@ class TestPlayerPersonalInfo(TestCase):
         self.assertEqual(response['code'], 0)
 
 
-class TestPlayerParticipatingContests(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        load_test_database()
-
-    @classmethod
-    def tearDownClass(cls):
-        management.call_command('flush', verbosity=0, interactive=False)
+class TestPlayerParticipatingContests(PlayerPageTestCase):
 
     def test_participating_contests_get(self):
         found = resolve('/participating_contests', urlconf=playerpage.urls)
@@ -152,15 +139,7 @@ class TestPlayerParticipatingContests(TestCase):
         self.assertEqual(response['data'][0].get('organizerName'), 'nickname1')
 
 
-class TestPlayerContestDetail(TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        load_test_database()
-
-    @classmethod
-    def tearDownClass(cls):
-        management.call_command('flush', verbosity=0, interactive=False)
+class TestPlayerContestDetail(PlayerPageTestCase):
 
     def test_signuped_player_contest_detail_get(self):
         found = resolve('/contest/detail', urlconf=playerpage.urls)
@@ -182,3 +161,24 @@ class TestPlayerContestDetail(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(response['data'].get('alreadySignUp'), 0)
+
+
+class TestPlayerContestSearchSimple(PlayerPageTestCase):
+
+    def test_contest_search_simple_get_has_result(self):
+        found = resolve('/contest/search/simple', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"keyword":"contest"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'][0].get('id'), 1)
+
+    def test_contest_search_simple_get_no_result(self):
+        found = resolve('/contest/search/simple', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"keyword":"word"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(len(response['data']), 0)
