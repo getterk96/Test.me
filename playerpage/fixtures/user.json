@@ -16,4 +16,10 @@
     "username": "username3",
     "email": "3@test.me"
   }
+},{"model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "username": "username4",
+    "email": "4@test.me"
+  }
 }]

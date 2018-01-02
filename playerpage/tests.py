@@ -21,6 +21,7 @@ def load_test_database():
     management.call_command('loaddata', 'contest.json', verbosity=0)
     management.call_command('loaddata', 'period.json', verbosity=0)
     management.call_command('loaddata', 'team.json', verbosity=0)
+    management.call_command('loaddata', 'periodscore.json', verbosity=0)
 
 
 class PlayerPageTestCase(TestCase):
@@ -182,3 +183,34 @@ class TestPlayerContestSearchSimple(PlayerPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(len(response['data']), 0)
+
+
+class TestPlayerPeriodDetail(PlayerPageTestCase):
+
+    def test_unsignuped_period_detail_get(self):
+        found = resolve('/period/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=3))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"pid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'You have not sign up this contest')
+
+    def test_no_submit_period_detail_get(self):
+        found = resolve('/period/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"pid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('name'), 'period1')
+        self.assertEqual(response['data'].get('score'), -1)
+
+    def test_submited_period_detail_get(self):
+        found = resolve('/period/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"pid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('score'), 100)

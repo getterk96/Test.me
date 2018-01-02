@@ -10,4 +10,16 @@
     "sign_up_attachment_url": "sign_up_attachment_url1",
     "status": 0
   }
+},{"model": "test_me_app.team",
+  "pk": 2,
+  "fields": {
+    "name": "team2",
+    "leader_id": 3,
+    "members": [],
+    "contest_id": 1,
+    "period_id": null,
+    "avatar_url": "avatar_url2",
+    "sign_up_attachment_url": "sign_up_attachment_url2",
+    "status": 0
+  }
 }]

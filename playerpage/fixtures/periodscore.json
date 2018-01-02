@@ -1,0 +1,9 @@
+[{"model": "test_me_app.periodscore",
+  "pk": 1,
+  "fields": {
+    "period_id": 1,
+    "team_id": 2,
+    "score": 100,
+    "rank": 2
+  }
+}]
