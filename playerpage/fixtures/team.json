@@ -15,11 +15,23 @@
   "fields": {
     "name": "team2",
     "leader_id": 3,
-    "members": [],
+    "members": [4],
     "contest_id": 1,
     "period_id": 1,
     "avatar_url": "avatar_url2",
     "sign_up_attachment_url": "sign_up_attachment_url2",
+    "status": 0
+  }
+},{"model": "test_me_app.team",
+  "pk": 3,
+  "fields": {
+    "name": "team3",
+    "leader_id": 5,
+    "members": [],
+    "contest_id": 1,
+    "period_id": 1,
+    "avatar_url": "avatar_url3",
+    "sign_up_attachment_url": "sign_up_attachment_url3",
     "status": 0
   }
 }]

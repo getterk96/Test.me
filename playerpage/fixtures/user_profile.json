@@ -26,4 +26,18 @@
     "status": 0,
     "user_id": 4
   }
+},{"model": "test_me_app.user_profile",
+  "pk": 5,
+  "fields": {
+    "user_type": 0,
+    "status": 0,
+    "user_id": 5
+  }
+},{"model": "test_me_app.user_profile",
+  "pk": 6,
+  "fields": {
+    "user_type": 0,
+    "status": 0,
+    "user_id": 6
+  }
 }]

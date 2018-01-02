@@ -2,10 +2,11 @@ from django.test import TestCase
 from django.core import management
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from test_me_app.models import *
 import playerpage.urls
 import json
+import datetime
 
 # Create your tests here.
 
@@ -144,7 +145,7 @@ class TestPlayerParticipatingContests(PlayerPageTestCase):
 
 class TestPlayerContestDetail(PlayerPageTestCase):
 
-    def test_signuped_player_contest_detail_get(self):
+    def test_player_contest_detail_get_signuped(self):
         found = resolve('/contest/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
         request.body = Mock()
@@ -156,7 +157,7 @@ class TestPlayerContestDetail(PlayerPageTestCase):
         self.assertEqual(response['data'].get('periods')[0].get('periodName'), 'period1')
         self.assertEqual(response['data'].get('alreadySignUp'), 1)
 
-    def test_unsignuped_player_contest_detail_get(self):
+    def test_player_contest_detail_get_unsignuped(self):
         found = resolve('/contest/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=3))
         request.body = Mock()
@@ -189,7 +190,7 @@ class TestPlayerContestSearchSimple(PlayerPageTestCase):
 
 class TestPlayerPeriodDetail(PlayerPageTestCase):
 
-    def test_unsignuped_period_detail_get(self):
+    def test_period_detail_get_unsignuped(self):
         found = resolve('/period/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=3))
         request.body = Mock()
@@ -198,7 +199,7 @@ class TestPlayerPeriodDetail(PlayerPageTestCase):
         self.assertEqual(response['code'], 2)
         self.assertEqual(response['msg'], 'You have not sign up this contest')
 
-    def test_no_score_period_detail_get(self):
+    def test_period_detail_get_no_score(self):
         found = resolve('/period/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
         request.body = Mock()
@@ -208,7 +209,7 @@ class TestPlayerPeriodDetail(PlayerPageTestCase):
         self.assertEqual(response['data'].get('name'), 'period1')
         self.assertEqual(response['data'].get('score'), -1)
 
-    def test_scored_period_detail_get(self):
+    def test_period_detail_get_scored(self):
         found = resolve('/period/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=4))
         request.body = Mock()
@@ -220,7 +221,7 @@ class TestPlayerPeriodDetail(PlayerPageTestCase):
 
 class TestPlayerQuestionDetail(PlayerPageTestCase):
 
-    def test_no_submit_question_detail_get(self):
+    def test_question_detail_get_no_submit(self):
         found = resolve('/question/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
         request.body = Mock()
@@ -230,7 +231,7 @@ class TestPlayerQuestionDetail(PlayerPageTestCase):
         self.assertEqual(response['data'][0].get('id'), 1)
         self.assertEqual(response['data'][0].get('submission_times'), 0)
 
-    def test_submitted_question_detail_get(self):
+    def test_question_detail_get_submitted(self):
         found = resolve('/question/detail', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=4))
         request.body = Mock()
@@ -238,3 +239,66 @@ class TestPlayerQuestionDetail(PlayerPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(response['data'][0].get('submission_times'), 3)
+
+
+class TestPlayerQuestionSubmit(PlayerPageTestCase):
+
+    def test_question_submit_post_not_in_period(self):
+        found = resolve('/question/submit', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"qid":1, "workUrl":"work1"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'You can not submit for this question')
+
+    def test_question_submit_post_wrong_time(self):
+        found = resolve('/question/submit', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"qid":1, "workUrl":"work1"}')
+        period = Period.objects.get(id=1)
+        period.start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        period.end_time = datetime.datetime.now() + datetime.timedelta(days=-1)
+        period.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Can not submit now')
+
+    def test_question_submit_post_not_leader(self):
+        found = resolve('/question/submit', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=5))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"qid":1, "workUrl":"work1"}')
+        period = Period.objects.get(id=1)
+        period.start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        period.end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        period.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Only team leader can submit work')
+
+    def test_question_submit_post_submit_over_times(self):
+        found = resolve('/question/submit', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"qid":1, "workUrl":"work1"}')
+        period = Period.objects.get(id=1)
+        period.start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        period.end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        period.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Out of submission limit')
+
+    def test_question_submit_post_success(self):
+        found = resolve('/question/submit', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=6))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"qid":1, "workUrl":"work1"}')
+        period = Period.objects.get(id=1)
+        period.start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        period.end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        period.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)

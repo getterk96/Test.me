@@ -250,14 +250,18 @@ class PlayerQuestionSubmit(APIView):
         player = self.request.user.player
         team = player_signup_contest(player, question.period.contest)
 
+        # check in this period
+        if not team.period or team.period != question.period:
+            raise LogicError('You can not submit for this question')
+
         # check period time
         if team.period.start_time.timetuple() > datetime.datetime.now().timetuple() or \
-           team.end_time.timetuple() < datetime.datetime.now().timetuple():
+           team.period.end_time.timetuple() < datetime.datetime.now().timetuple():
             raise LogicError('Can not submit now')
 
         # check leader
         if player != team.leader:
-            raise ValidateError('Only team leader can submit work')
+            raise LogicError('Only team leader can submit work')
 
         try:
             work = Work.objects.get(question=question, team=team)
