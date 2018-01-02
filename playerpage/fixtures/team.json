@@ -8,7 +8,7 @@
     "period_id": null,
     "avatar_url": "avatar_url1",
     "sign_up_attachment_url": "sign_up_attachment_url1",
-    "status": 0
+    "status": 2
   }
 },{"model": "test_me_app.team",
   "pk": 2,
@@ -20,7 +20,7 @@
     "period_id": 1,
     "avatar_url": "avatar_url2",
     "sign_up_attachment_url": "sign_up_attachment_url2",
-    "status": 0
+    "status": 2
   }
 },{"model": "test_me_app.team",
   "pk": 3,
@@ -32,6 +32,6 @@
     "period_id": 1,
     "avatar_url": "avatar_url3",
     "sign_up_attachment_url": "sign_up_attachment_url3",
-    "status": 0
+    "status": 2
   }
 }]

@@ -251,7 +251,7 @@ class PlayerQuestionSubmit(APIView):
         team = player_signup_contest(player, question.period.contest)
 
         # check in this period
-        if not team.period or team.period != question.period:
+        if not team.period or team.period != question.period or team.status != Team.VERIFIED:
             raise LogicError('You can not submit for this question')
 
         # check period time
@@ -289,7 +289,7 @@ class PlayerTeamList(APIView):
                 teams.append({
                     'id': team.id,
                     'name': team.name,
-                    'leaderName': team.leader.name,
+                    'leaderName': team.leader.nickname,
                     'contestName': team.contest.name
                 })
         return teams
@@ -324,6 +324,14 @@ class PlayerTeamCreate(APIView):
             except ObjectDoesNotExist:
                 raise InputError('Player does not exist')
             members.append(member)
+
+        # check team number
+        if len(members) + 1 > contest.max_team_members:
+            raise LogicError('Number of team member should be no more than ' + contest.max_team_members)
+
+        # check total team number
+        if contest.team_set.count() > contest.available_slots:
+            raise LogicError('No more team could sign up, max team number: ' + contest.available_slots)
 
         # create team and invitations
         team = Team.objects.create(name=self.input['name'],

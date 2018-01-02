@@ -302,3 +302,15 @@ class TestPlayerQuestionSubmit(PlayerPageTestCase):
         period.save()
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerTeamList(PlayerPageTestCase):
+
+    def test_team_list_get(self):
+        found = resolve('/team/list', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'][0].get('name'), 'team1')
