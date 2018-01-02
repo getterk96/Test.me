@@ -29,8 +29,8 @@ var init_header = function() {
 };
 
 var test_item = {
-    name : 'Contest1',
-    organizer : '405',
+    name : 'a contest',
+    organizer : 'org',
     signuptimefrom : '2017-12-30',
     signuptimeto : '2017-12-31',
     contesttimefrom : '2017-12-31',
