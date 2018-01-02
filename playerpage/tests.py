@@ -12,6 +12,8 @@ import json
 
 def load_test_database():
     management.call_command('loaddata', 'user.json', verbosity=0)
+    for user in User.objects.all():
+        user.user_profile.delete()
     management.call_command('loaddata', 'user_profile.json', verbosity=0)
     management.call_command('loaddata', 'player.json', verbosity=0)
     management.call_command('loaddata', 'organizer.json', verbosity=0)
@@ -125,3 +127,5 @@ class TestPlayerParticipatingContests(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(response['data'][0].get('id'), 1)
+        self.assertEqual(response['data'][0].get('name'), 'publish_contest')
+        self.assertEqual(response['data'][0].get('organizerName'), 'nickname1')
