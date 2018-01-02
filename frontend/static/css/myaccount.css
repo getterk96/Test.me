@@ -30,7 +30,7 @@ nav#side-nav label {
     display : block;
 }
 
-#avatar>div>.fileuploader {
+.fileuploader {
     width : 1.5em;
     height : 1.5em;
     display : inline-block;
@@ -62,13 +62,15 @@ input[disabled] {
     box-shadow : none;
 }
 
-input.large:focus {
-    border : 2px solid rgba(73, 110, 193, 0.3);
+#basicinfo input,
+#additionalinfo input {
+    transition : border 0.3s;
+    border : 2px solid rgba(73, 110, 193, 0);
 }
 
-input.large {
-    border : 2px solid rgba(73, 110, 193, 0);
-    transition : border 0.3s;
+#basicinfo input:focus,
+#additionalinfo input:focus {
+    border : 2px solid rgba(73, 110, 193, 0.3);
 }
 
 span.label {

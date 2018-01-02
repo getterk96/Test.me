@@ -1,7 +1,7 @@
 const type_p = 0;
 const type_o = 1;
 
-window.usertype = type_p;
+window.usertype = type_o;
 
 var nav = new Vue({
     el : '#side-nav',
@@ -47,6 +47,9 @@ var init_header = function() {
     if (usertype == type_p) {
         nav.list = ['个人信息', '我的比赛', '我的队伍'];
         nav.choice = '个人信息';
+    } else {
+        nav.list = ['个人信息', '我的比赛'];
+        nav.choice = '个人信息';
     }
 };
 
@@ -75,6 +78,22 @@ window.user = {
     email : {
         editable : true,
         content : 'ica.riluci@gmail.com'
+    },
+    type : {
+        editable : false,
+        content : '本科生'
+    },
+    gender : {
+        editable : false,
+        content : '男'
+    },
+    birthday : {
+        editable : true,
+        content : '1997-03-15'
+    },
+    status : {
+        editable : false,
+        content : '未通过'
     }
 }
 
@@ -82,7 +101,12 @@ var controller = new Vue({
     el : '#body',
     data : {
         user : window.user,
-        modify_basic_info : false
+        modify_basic_info : false,
+        modify_password : false,
+        reupload_doc :false,
+        password : '',
+        cpassword : '',
+        doc_name : ''
     },
     computed : {
         page : function() {
@@ -112,11 +136,31 @@ var controller = new Vue({
             this.modify_basic_info = true;
             tmp = {};
             tmp['nickname'] = this.user.nickname.content;
+            tmp['email'] = this.user.email.content;
+            tmp['birthday'] = this.user.birthday.content;
         },
         cancel_modify_basic_info : function() {
             this.modify_basic_info = false;
             this.user.nickname.content = tmp['nickname'];
+            this.user.email.content = tmp['email'];
+            this.user.birthday.content  = tmp['birthday'];
         },
-        save_modify_basic_info : function() {}
+        save_modify_basic_info : function() {},
+        switch_modify_password : function() {
+            this.modify_password = !this.modify_password;
+            this.password = '';
+            this.cpassword = '';
+        },
+        switch_reupload_doc : function() {
+            this.reupload_doc = !this.reupload_doc;
+            this.doc_name = '';
+        },
+        save_password : function() {},
+        reupload_val_doc : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            this.doc_name = files[0].name;
+        }
     }
 })
