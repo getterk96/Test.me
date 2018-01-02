@@ -1,7 +1,7 @@
 const type_p = 0;
 const type_o = 1;
 
-window.usertype = type_o;
+window.usertype = type_p;
 
 var nav = new Vue({
     el : '#side-nav',
