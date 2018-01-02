@@ -182,7 +182,7 @@ class Contest(models.Model):
             raise InputError('Level exceeds the range limit.')
 
     @staticmethod
-    def check_sign_up_time(start, end):
+    def check_time_logic(start, end):
         if datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S") >= \
                 datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S'):
             raise InputError('Sign up start time must not be later then end time.')
@@ -208,6 +208,22 @@ class Period(models.Model):
             return Period.objects.exclude(status=Period.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Period")
+
+    @staticmethod
+    def check_name(name):
+        if len(name) > 20:
+            raise InputError('The length of name is restricted to 20.')
+
+    @staticmethod
+    def check_url(url):
+        if len(url) > 256:
+            raise InputError('The length of url is restricted to 256.')
+
+    @staticmethod
+    def check_time_logic(start, end):
+        if datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S") >= \
+                datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S'):
+            raise InputError('Period start time must not be later then end time.')
 
 
 class ExamQuestion(models.Model):

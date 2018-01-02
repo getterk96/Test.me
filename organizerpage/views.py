@@ -135,24 +135,22 @@ class ContestDetail(APIView):
         Contest.check_url(self.input['bannerUrl'])
         Contest.check_url(self.input['signUpAttachmentUrl'])
         Contest.check_level(self.input['level'])
-        Contest.check_sign_up_time(self.input['signUpStart'], self.input['signUpEnd'])
+        Contest.check_time_logic(self.input['signUpStart'], self.input['signUpEnd'])
         # update
-        try:
-            contest.name = self.input['name']
-            contest.description = self.input['description']
-            contest.logo_url = self.input['logoUrl']
-            contest.banner_url = self.input['bannerUrl']
-            contest.sign_up_start_time = self.input['signUpStart']
-            contest.sign_up_end_time = self.input['signUpEnd']
-            contest.available_slots = self.input['availableSlots']
-            contest.max_team_members = self.input['maxTeamMembers']
-            contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
-            contest.level = self.input['level']
-            tags = self.input['tags'].split(',')
-            contest.add_tags(tags)
-            contest.save()
-        except:
-            raise LogicError('Failed to update contest details.')
+        contest.name = self.input['name']
+        contest.description = self.input['description']
+        contest.logo_url = self.input['logoUrl']
+        contest.banner_url = self.input['bannerUrl']
+        contest.sign_up_start_time = self.input['signUpStart']
+        contest.sign_up_end_time = self.input['signUpEnd']
+        contest.available_slots = self.input['availableSlots']
+        contest.max_team_members = self.input['maxTeamMembers']
+        contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+        contest.level = self.input['level']
+        tags = self.input['tags'].split(',')
+        contest.add_tags(tags)
+        contest.save()
+
 
 class ContestCreate(APIView):
     @organizer_required
@@ -166,27 +164,24 @@ class ContestCreate(APIView):
         Contest.check_url(self.input['bannerUrl'])
         Contest.check_url(self.input['signUpAttachmentUrl'])
         Contest.check_level(self.input['level'])
-        Contest.check_sign_up_time(self.input['signUpStart'], self.input['signUpEnd'])
+        Contest.check_time_logic(self.input['signUpStart'], self.input['signUpEnd'])
         # create
-        try:
-            contest = Contest()
-            contest.name = self.input['name']
-            contest.description = self.input['description']
-            contest.logo_url = self.input['logoUrl']
-            contest.banner_url = self.input['bannerUrl']
-            contest.sign_up_start_time = self.input['signUpStart']
-            contest.sign_up_end_time = self.input['signUpEnd']
-            contest.available_slots = self.input['availableSlots']
-            contest.max_team_members = self.input['maxTeamMembers']
-            contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
-            contest.level = self.input['level']
-            contest.organizer_id = self.request.user.organizer.id
-            contest.status = Contest.SAVED
-            contest.save()
-            tags = self.input['tags'].split(',')
-            contest.add_tags(tags)
-        except:
-            raise LogicError('Failed to create contest.')
+        contest = Contest()
+        contest.name = self.input['name']
+        contest.description = self.input['description']
+        contest.logo_url = self.input['logoUrl']
+        contest.banner_url = self.input['bannerUrl']
+        contest.sign_up_start_time = self.input['signUpStart']
+        contest.sign_up_end_time = self.input['signUpEnd']
+        contest.available_slots = self.input['availableSlots']
+        contest.max_team_members = self.input['maxTeamMembers']
+        contest.sign_up_attachment_url = self.input['signUpAttachmentUrl']
+        contest.level = self.input['level']
+        contest.organizer_id = self.request.user.organizer.id
+        contest.status = Contest.SAVED
+        contest.save()
+        tags = self.input['tags'].split(',')
+        contest.add_tags(tags)
 
         return contest.id
 
@@ -386,9 +381,16 @@ class ContestTeamDetail(APIView):
 class PeriodCreate(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots'
                          , 'attachmentUrl')
+        # check validation
+        Period.check_name(self.input['name'])
+        Period.check_url(self.input['attachmentUrl'])
+        Period.check_time_logic(self.input['startTime'], self.input['endTime'])
+        # create
         period = Period()
+        period.contest = Contest.safe_get(id=self.input['id'])
         period.name = self.input['name']
         period.index = self.input['index']
         period.description = self.input['description']
@@ -396,7 +398,6 @@ class PeriodCreate(APIView):
         period.end_time = self.input['endTime']
         period.available_slots = self.input['availableSlots']
         period.attachment_url = self.input['attachmentUrl']
-        period.contest = Contest.safe_get(id=self.input['id'])
         period.save()
 
         return period.id
@@ -405,7 +406,9 @@ class PeriodCreate(APIView):
 class PeriodDetail(APIView):
     @organizer_required
     def get(self):
+        # check existence
         self.check_input('id')
+        # query
         period = Period.safe_get(id=self.input['id'])
         question_id = []
         for question in ExamQuestion.objects.exclude(status=ExamQuestion.REMOVED).filter(period_id=self.input['id']):
@@ -423,9 +426,16 @@ class PeriodDetail(APIView):
 
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id', 'index', 'name', 'description', 'startTime', 'endTime', 'availableSlots',
                          'attachmentUrl', 'questionId')
+        # check validation
+        Period.check_name(self.input['name'])
+        Period.check_url(self.input['attachmentUrl'])
+        Period.check_time_logic(self.input['startTime'], self.input['endTime'])
+        # query
         period = Period.safe_get(id=self.input['id'])
+        # update
         period.name = self.input['name']
         period.index = self.input['index']
         period.description = self.input['description']
@@ -446,8 +456,11 @@ class PeriodDetail(APIView):
 class PeriodRemove(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id')
+        # query
         period = Period.safe_get(id=self.input['id'])
+        # update
         period.status = Period.REMOVED
         period.save()
 
@@ -455,7 +468,9 @@ class PeriodRemove(APIView):
 class QuestionCreate(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
+        # create
         question = ExamQuestion()
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
@@ -470,7 +485,9 @@ class QuestionCreate(APIView):
 class QuestionDetail(APIView):
     @organizer_required
     def get(self):
+        # check existence
         self.check_input('id')
+        # query
         question = ExamQuestion.safe_get(id=self.input['id'])
         return {
             'description': question.description,
@@ -480,7 +497,9 @@ class QuestionDetail(APIView):
 
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id', 'periodId', 'description', 'startTime', 'attachmentUrl', 'submissionLimit')
+        # query
         question = ExamQuestion.safe_get(id=self.input['id'])
         question.description = self.input['description']
         question.attachment_url = self.input['attachmentUrl']
@@ -494,7 +513,9 @@ class QuestionDetail(APIView):
 class QuestionRemove(APIView):
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id')
+        # query
         question = ExamQuestion.safe_get(id=self.input['id'])
         question.status = ExamQuestion.REMOVED
         question.save()
@@ -503,7 +524,9 @@ class QuestionRemove(APIView):
 class AppealList(APIView):
     @organizer_required
     def get(self):
+        # check existence
         self.check_input('cid')
+        # query
         contest = Contest.safe_get(id=self.input['cid'])
         appeals = []
         for appeal in Appeal.objects.filter(target_contest=contest):
@@ -517,7 +540,9 @@ class AppealList(APIView):
 class AppealDetail(APIView):
     @organizer_required
     def get(self):
+        # check existence
         self.check_input('id')
+        # query
         appeal = Appeal.safe_get(id=self.input['id'])
         return {
             'title': appeal.title,
@@ -528,8 +553,11 @@ class AppealDetail(APIView):
 
     @organizer_required
     def post(self):
+        # check existence
         self.check_input('id', 'status')
+        # query
         appeal = Appeal.safe_get(id=self.input['id'])
+        # update
         appeal.status = self.input['status']
         appeal.save()
 
