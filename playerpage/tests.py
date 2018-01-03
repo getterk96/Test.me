@@ -655,3 +655,24 @@ class TestPlayerAppealRemove(PlayerPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(Appeal.objects.get(id=1).status, Appeal.REMOVED)
+
+
+class TestPlayerSearch(PlayerPageTestCase):
+
+    def test_player_search_get_not_exist(self):
+        found = resolve('/player/search', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"haha"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('id'), -1)
+
+    def test_player_search_get_exist(self):
+        found = resolve('/player/search', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"username3"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('id'), 3)

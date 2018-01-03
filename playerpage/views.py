@@ -615,7 +615,7 @@ class PlayerSearch(APIView):
     def get(self):
         self.check_input('username')
         try:
-            user = User.get(username=self.input['username'], user_type=User_profile.PLAYER)
+            user = User.objects.get(username=self.input['username'], user_profile__user_type=User_profile.PLAYER)
             return {'id': user.id}
         except ObjectDoesNotExist:
             return {'id': -1}
