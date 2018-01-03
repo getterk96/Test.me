@@ -47,12 +47,9 @@
                                 </template>
                                 <template v-else-if="item.type == 'datetime'">
                                     <div v-if="item.editable">
-                                        <input :class="['input', 'mid']" type="date" v-model="item.content.sd" />
-                                        <input  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
-                                        <input :class="['input', 'mid']" type="date" v-model="item.content.ed" />
-                                        <input  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                        <input :class="['input', 'mid']" type="date" v-model="item.content.d" />
+                                        <input  v-model="item.content.h" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                        <input  v-model="item.content.m" :class="['input', 'short']" type="number" min="0" max="59" />
                                     </div>
                                     <div v-else>
                                         <input disabled :class="['input', 'mid']" type="date" v-model="item.content.sd" />

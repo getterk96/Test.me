@@ -37,16 +37,24 @@ window.contest = {
             editable : true
         },
         {
-            name : 'time',
-            alias : '报名时间',
+            name : 'signupstime',
+            alias : '报名开始时间',
             type : 'datetime',
             content : {
-                sd : '1977-03-11',
-                ed : '1997-05-22',
-                sh : '19',
-                sm : '00',
-                eh : '19',
-                em : '00'
+                d : '1977-03-11',
+                h : '19',
+                m : '00'
+            },
+            editable : true
+        },
+        {
+            name : 'signupetime',
+            alias : '报名结束时间',
+            type : 'datetime',
+            content : {
+                d : '1977-03-11',
+                h : '19',
+                m : '00'
             },
             editable : true
         },
@@ -896,7 +904,7 @@ var upload_data = function(aim_status) {
             var data = {id : info.contest.period[i].question_id[j]};
             $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
         }
-        
+
         info.contest.period[i].question_id = [];
         var url = '/api/o/period/create';
         var m = 'POST';
@@ -918,9 +926,11 @@ var upload_data = function(aim_status) {
                 case 'p_file':
                     data['attachmentUrl'] = k.content;
                     break;
-                case 'time':
-                    data['startTime'] = k.content['sd'] + ' ' + k.content['sh'] + ':' + k.content['sm'] + ':00';
-                    data['endTime'] = k.content['ed'] + ' ' + k.content['eh'] + ':' + k.content['em'] + ':00';
+                case 'pstime':
+                    data['startTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                    break;
+                case 'petime':
+                    data['endTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
                     break;
             }
         }
@@ -967,9 +977,11 @@ var upload_data = function(aim_status) {
             case 'description' :
                 data['description'] = i.content;
                 break;
-            case 'time' :
-                data['signUpStart'] = i.content['sd'] + ' ' + i.content['sh'] + ':' + i.content['sm'] + ':00';
-                data['signUpEnd'] = i.content['ed'] + ' ' + i.content['eh'] + ':' + i.content['em'] + ':00';
+            case 'signupstime' :
+                data['signUpStart'] = i.content['d'] + ' ' + i.content['h'] + ':' + i.content['m'] + ':00';
+                break;
+            case 'signupetime' :
+                data['signUpEnd'] = i.content['d'] + ' ' + i.content['h'] + ':' + i.content['m'] + ':00';
                 break;
             case 'maxteam' :
                 data['maxTeamMembers'] = i.content;
