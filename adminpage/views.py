@@ -49,7 +49,8 @@ class AdminUserDelete(APIView):
             raise LogicError('No such user')
 
         for user in user_list:
-            user.status = User_profile.CANCELED
+            user.user_profile.status = User_profile.CANCELED
+            user.user_profile.save()
 
 
 class AdminUserRecover(APIView):

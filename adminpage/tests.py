@@ -45,3 +45,15 @@ class TestAdminUserList(AdminPageTestCase):
         self.assertEqual(len(response['data']), 3)
         self.assertEqual(response['data'][0].get('id'), 1)
 
+
+class TestAdminUserDelete(AdminPageTestCase):
+
+    def test_user_delete_post_success(self):
+        found = resolve('/user/delete', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"ids":[2, 3]}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(User.objects.get(id=2).user_profile.status, User_profile.CANCELED)
+
