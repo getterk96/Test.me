@@ -387,7 +387,8 @@ class PeriodCreate(APIView):
         # check validation
         Period.check_name(self.input['name'])
         Period.check_url(self.input['attachmentUrl'])
-        Period.check_time_logic(self.input['startTime'], self.input['endTime'])
+        Period.check_contest_related(self.input['id'], None, self.input['index'],
+                                     self.input['startTime'], self.input['endTime'])
         # create
         period = Period()
         period.contest = Contest.safe_get(id=self.input['id'])
@@ -432,7 +433,8 @@ class PeriodDetail(APIView):
         # check validation
         Period.check_name(self.input['name'])
         Period.check_url(self.input['attachmentUrl'])
-        Period.check_time_logic(self.input['startTime'], self.input['endTime'])
+        Period.check_contest_related(None, self.input['id'], self.input['index'],
+                                     self.input['startTime'], self.input['endTime'])
         # query
         period = Period.safe_get(id=self.input['id'])
         # update
@@ -470,6 +472,9 @@ class QuestionCreate(APIView):
     def post(self):
         # check existence
         self.check_input('periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
+        # check validation
+        ExamQuestion.check_url(self.input['attachmentUrl'])
+        ExamQuestion.check_period_related(self.input['periodId'], None, self.input['index'])
         # create
         question = ExamQuestion()
         question.description = self.input['description']
@@ -498,7 +503,10 @@ class QuestionDetail(APIView):
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('id', 'periodId', 'description', 'startTime', 'attachmentUrl', 'submissionLimit')
+        self.check_input('id', 'periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
+        # check validation
+        ExamQuestion.check_url(self.input['attachmentUrl'])
+        ExamQuestion.check_period_related(None, self.input['id'], self.input['index'])
         # query
         question = ExamQuestion.safe_get(id=self.input['id'])
         question.description = self.input['description']
