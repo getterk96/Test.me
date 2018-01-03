@@ -182,7 +182,7 @@
                             <th>申诉状态</th>
                             <th>&nbsp;</th>
                         </thead>
-                        <tr v-for="item in appeal_list[appeal_page]" :class="[item.selected ? 'table-select' : '', appeal_list.indexOf(item) == appeal_list.length - 1 ? 'last-row' : '']">
+                        <tr v-for="item in appeal_list[appeal_page]" :class="[item.selected ? 'table-select' : '', appeal_list[appeal_page].indexOf(item) == appeal_page_capacity - 1 ? 'last-row' : '']">
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.appealer.name }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.title }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ appeal_type_dict[item.type] }}</td>
@@ -230,6 +230,10 @@
                             <li>
                                 <div :class="['label']">内容</div>
                                 <textarea disabled v-model="appeal_list[a_single_page][a_single_idx].content" rows="5"></textarea>
+                            </li>
+                            <li>
+                                <div :class="['label']">附件</div>
+                                <a :href="appeal_list[a_single_page][a_single_idx].a_url">点此下载</a>
                             </li>
                         </ul>
                     </article>

@@ -92,7 +92,7 @@ window.contest = {
     is_guest : false,
     period_modifier_available : true
 };
-
+/*
 var ques_get_succ = function(response, param) {
     var data = response.data;
     var n = param['which'];
@@ -341,7 +341,7 @@ var org_get_contest_detail = function() {
         }
     );
 })();
-
+*/
 var init_header = function() {
     header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
     header.title = '比赛管理';
@@ -364,7 +364,7 @@ var init_header = function() {
     });
     nav.list = ['比赛信息', '申诉处理', '选手管理', '成绩录入'];
     nav.choice = '比赛信息';
-}
+};
 
 var nav = new Vue({
     el : '#side-nav',
@@ -382,7 +382,7 @@ var nav = new Vue({
             console.log('[err] No such item');
         }
     }
-})
+})/*
 var c_upload_pass = function(response) {
     for (i of info.contest.attr)
         if (i.name == 'c_file')
@@ -987,10 +987,10 @@ var upload_data = function(aim_status) {
         }
     }
     $t(url, m, data, post_succ, post_fail);
-}
+}*/
 
 // for develop without API
-/*
+
 init_header();
 var info = new Vue({
     el : '#body',
@@ -1005,7 +1005,7 @@ var info = new Vue({
         appeal_status_reverse : false,
         appeal_type_reverse : false,
         appeal_page_capacity : 2,
-        appeal_counter : 0,/*
+        appeal_counter : 0,
         appeal_list : [
             [
                 {
@@ -1080,8 +1080,8 @@ var info = new Vue({
                     selected : false
                 }
             ]
-        ],*/
-        appeal_list : [],
+        ],
+        // appeal_list : [],
         a_single_page : 0,
         a_single_idx : 0,
         appeal_page : 0,
@@ -1455,7 +1455,7 @@ var info = new Vue({
             }
             this.a_single_page = p;
             this.a_single_idx = i;
-            this.appeal_reply = this.appeal_list[page][idx].reply;
+            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
         },
         a_single_next : function() {
             var p = this.a_single_page;
@@ -1475,7 +1475,7 @@ var info = new Vue({
             }
             this.a_single_page  = p;
             this.a_single_idx = i;
-            this.appeal_reply = this.appeal_list[page][idx].reply;
+            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
         },
         process_selected_appeals : function() {
             var ids = [];
@@ -1513,4 +1513,3 @@ var info = new Vue({
         }
     }
 });
-*/

@@ -1,7 +1,7 @@
 window.cid = window.get_args('cid');
 
 window.usertype = 0;
-window.problem_list_ready = false;
+window.problem_list_ready = true;
 
 var level_dic = ["国际级", "国家级", "省级", "市级", "区级", "校级", "院系级"];
 var status_dic = ["未报名", "审核中", "审核通过"];
@@ -9,7 +9,7 @@ var info = {};
 
 const type_p = 0;
 const type_o = 1;
-        
+/*
 function period_get_succ(response, param) {
     var start_time = new Date(response.data['startTime']*1000);
     var end_time = new Date(response.data['endTime']*1000);
@@ -352,6 +352,187 @@ function answer_upload_pass(response, e) {
 function answer_upload_fail(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 }
+*/
+
+window.contest = {
+    getAttr : function(qname) {
+        for (i of this.attr)
+            if (i.name == qname)
+                return i.content;
+        console.log('[err] No such attr');
+        return null;
+    },
+    period : [
+        {
+            show : true,
+            attr : [
+                {
+                    name : 'name',
+                    alias : '阶段名称',
+                    type : 'text',
+                    content : 'period 1',
+                    editable : true
+                },
+                {
+                    name : 'description',
+                    alias : '阶段简介',
+                    type : 'ltext',
+                    content : 'description 1',
+                    editable : true
+                },
+                {
+                    name : 'time',
+                    alias : '阶段时间',
+                    type : 'datetime',
+                    content : {
+                        sd : '1977-03-11',
+                        ed : '1997-05-22',
+                        sh : '19',
+                        sm : '00',
+                        eh : '19',
+                        em : '00'
+                    },
+                    editable : true
+                },
+                {
+                    name : 'slots',
+                    alias : '可参与团队数',
+                    type : 'number',
+                    content : '100',
+                    editable : true
+                },
+                {
+                    name : 'p_file',
+                    alias : '阶段附件',
+                    editable : true,
+                    type : 'file',
+                    content : {
+                        url : '#',
+                        filename : 'fuck-zyn.pdf'
+                    }
+                }
+            ]
+        }
+    ],
+    attr : [
+        {
+            name : 'name',
+            alias : '比赛名称',
+            type : 'text',
+            content : 'contest 1',
+            editable : true
+        },
+        {
+            name : 'description',
+            alias : '比赛简介',
+            type : 'ltext',
+            content : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            editable : true
+        },
+        {
+            name : 'time',
+            alias : '报名时间',
+            type : 'datetime',
+            content : {
+                sd : '1977-03-11',
+                ed : '1997-05-22',
+                sh : '19',
+                sm : '00',
+                eh : '19',
+                em : '00'
+            },
+            editable : true
+        },
+        {
+            name : 'team_lim',
+            alias : '团队人数limit',
+            type : 'interval',
+            content : {
+                min : '5',
+                max : '200'
+            },
+            editable : true
+        },
+        {
+            name : 'slots',
+            alias : '可报名团队数',
+            type : 'number',
+            content : '100',
+            editable : true
+        },
+        {
+            name : 'c_file',
+            alias : '比赛附件',
+            type : 'file',
+            content : {
+                url : '#',
+                filename : 'fuckzyn.pdf'
+            }
+        }
+    ],
+    period_modifier_available : true
+};
+
+window.user_id = 1;
+
+window.plist = {
+    period : 'period1',
+    problems : [
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        },
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        },
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        }
+    ]
+};
+
+window.team = {
+    name : '405',
+    status : '未报名',
+    member : [
+        {
+            nickname : 'hentaiZYN',
+            avatar_url : '../../img/user.png',
+            school : 'THU',
+            id : '1',
+            accept : true,
+        },
+        {
+            nickname : 'o,manGJH',
+            avatar_url : '../../img/user.png',
+            school : 'THU',
+            id : '2',
+            accept : true
+        }
+    ],
+    leader_id : '1',
+    new_leader : ''
+}
+
+
+window.usertype = 0;
 
 var init_header = function(){
 
@@ -401,7 +582,7 @@ var nav = new Vue({
     }
 });
 
-nav.list = ['比赛信息', '队伍信息'];
+nav.list = ['比赛信息', '队伍信息', '我的申诉'];
 nav.choice = '比赛信息';
 if (problem_list_ready) { nav.list.push('比赛题目'); }
 
@@ -417,7 +598,34 @@ info = new Vue({
         signup_material : {
             attachment : window.team.attachment_url,
         },
-        problem_list : window.plist
+        problem_list : window.plist,
+        in_compose : false,
+        in_check : false,
+        appeal_title : '',
+        appeal_type : 0,
+        appeal_content : '',
+        appeal_file : '',
+        appeal_list : [
+                {
+                    reply : 'fuck gjh',
+                    type : 1,
+                    processed : 1,
+                    title : 'fuck zyn',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#'
+                },
+                {
+                    reply : '',
+                    type : 0,
+                    processed : 0,
+                    title : 'fuck zyn',
+                    content : 'fuckkkkkkkkkk zyn',
+                    a_url : '#'
+                }
+        ],
+        appeal_status_dict : ['未处理', '已处理'],
+        appeal_type_dict : ['资格', '成绩'],
+        appeal_oncheck : -1
     },
     computed : {
         page : function() {
@@ -441,7 +649,7 @@ info = new Vue({
             var data = new FormData();
             data.append('file', files[0]);
             data.append('destination', 'team_sign_up_attachment');
-            $t(url, m, data, upload_pass, upload_fail);
+            // $t(url, m, data, upload_pass, upload_fail);
         },
         switch_period_info : function(idx) {
             this.contest.period[idx].show = !this.contest.period[idx].show;
@@ -481,7 +689,7 @@ info = new Vue({
                 'description' : '',
                 'signUpAttachmentUrl' : this.signup_material.attachment
             };
-            $t(url, m, data, switch_succ, switch_fail);
+            // $t(url, m, data, switch_succ, switch_fail);
         },
         save : function() {
             var member_ids = [];
@@ -499,14 +707,14 @@ info = new Vue({
                 'description' : '',
                 'signUpAttachmentUrl' : this.signup_material.attachment
             };
-            $t(url, m, data, save_succ, save_fail);
+            // $t(url, m, data, save_succ, save_fail);
         },
         post : function() {
             this.save();
             var url = '/api/p/team/signup';
             var m = 'POST';
             var data = {'tid' : window.team_id};
-            $t(url, m, data, post_succ, post_fail);
+            // $t(url, m, data, post_succ, post_fail);
         },
         switch_problem_status : function(id) {
             this.problem_list.problems[id].show = !this.problem_list.problems[id].show;
@@ -520,8 +728,32 @@ info = new Vue({
             var data = new FormData();
             data.append('file', files[0]);
             data.append('destination', 'team_sign_up_attachment');
-            $t(url, m, data, answer_upload_pass, answer_upload_fail, e);
+            // $t(url, m, data, answer_upload_pass, answer_upload_fail, e);
+        },
+        switch_compose : function() {
+            this.in_compose = !this.in_compose;
+        },
+        select_appeal_type : function(t) {
+            if (!t in [0, 1])
+                return;
+            this.appeal_type = t;
+        },
+        appeal_a_upload : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            this.appeal_file = files[0].name;
+        },
+        send_appeal : function() {},
+        check_appeal : function(id) {
+            this.appeal_oncheck = id;
+            this.in_check = true;
+        },
+        close_a_check : function() {
+            this.in_check = false;
         }
     }
 });
 }
+
+init_header();
