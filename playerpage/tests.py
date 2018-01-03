@@ -499,3 +499,23 @@ class TestPlayerTeamDetail(PlayerPageTestCase):
         team.save()
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerTeamDismiss(PlayerPageTestCase):
+
+    def test_team_dismiss_post_not_leader(self):
+        found = resolve('/team/dismiss', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":2}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 3)
+        self.assertEqual(response['msg'], 'Only team leader can dismiss team')
+
+    def test_team_dismiss_post_success(self):
+        found = resolve('/team/dismiss', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
