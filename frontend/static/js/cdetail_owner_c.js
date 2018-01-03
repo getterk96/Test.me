@@ -339,12 +339,12 @@ var init_header = function() {
     header.title = '比赛管理';
     header.link_list.push({
         alias : '比赛论坛',
-        link : '../forum/index.html?cid=' + window.cid,
+        link : '../../forum/index.html?cid=' + window.cid,
         action : empty_f
     });
     header.link_list.push({
         alias : '个人中心',
-        link : '../myaccount/index.html',
+        link : '../../myaccount/index.html',
         action : empty_f
     });
     header.link_list.push({

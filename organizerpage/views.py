@@ -100,6 +100,7 @@ class OrganizingContests(APIView):
                 'teamsNumber': Team.objects.filter(contest_id=contest.id).count(),
                 'creatorId': contest.organizer.id,
                 'creatorName': contest.organizer.nickname,
+                'logoUrl' : contest.logo_url
             })
         return organizing_contests
 

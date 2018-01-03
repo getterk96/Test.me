@@ -125,7 +125,7 @@
                   </ul>
               </div>
           </template>
-          <template v-else-if="page == '我的队伍'">
+          <template v-else-if="page == '我收到的组队邀请'">
               <div :class="['session']" v-if="myteam.length == 0">
                   <ul :class="['waiting']">
                       <li><div :class="['load1', 'waiting-bubble']"></div></li>
@@ -147,8 +147,7 @@
                                   <li><button @click="view_contest(item.cid)">detail</button></li>
                               </ul>
                               <ul v-else-if="item.type == 'invite'">
-                                  <li><button @click="accept_invite(item.id)">accept</button></li>
-                                  <li><button :class="['negative']" @click="deny_invite(item.id)">deny</button></li>
+                                  <li><button @click="view_contest(item.id)">detail</button></li>
                               </ul>
                           </div>
                       </li>

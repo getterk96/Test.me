@@ -194,12 +194,12 @@ header.title = '比赛详情';
 if (usertype in [0, 1]) {
     header.link_list.push({
         alias : '比赛论坛',
-        link : '../forum/index.html?cid=' + window.cid,
+        link : '../../forum/index.html?cid=' + window.cid,
         action : empty_f
     });
     header.link_list.push({
         alias : '个人中心',
-        link : '../myaccount/index.html',
+        link : '../../myaccount/index.html',
         action : empty_f
     });
     header.link_list.push({

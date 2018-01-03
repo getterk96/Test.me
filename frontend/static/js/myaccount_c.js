@@ -164,7 +164,7 @@ var init_header = function() {
             action : empty_f
         })
     if (usertype == type_p) {
-        nav.list = ['个人信息', '我的比赛', '我的队伍'];
+        nav.list = ['个人信息', '我的比赛', '我收到的组队邀请'];
         nav.choice = '个人信息';
     } else {
         nav.list = ['个人信息', '我的比赛'];
@@ -188,6 +188,59 @@ var save_succ = function(response) {
 
 var save_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var get_contest_succ = function(response) {
+    var data = response.data;
+    for (i in data) {
+        var contest = {
+            logo : data[i]['logoUrl'],
+            id : data[i]['id'],
+            name : data[i]['name']
+        }
+        controller.mycontest.push(contest);
+    }
+}
+
+var get_contest_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var get_invi_succ = function(response) {
+    var data = response.data;
+    for (i in data) {
+        var team = {
+            name : data[i]['teamName'],
+            id : data[i]['id'],
+            cid : data[i]['contestId'],
+            type : 'invite'
+        }
+        controller.myteam.push(team);
+    }
+}
+
+var get_invi_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var get_contest = function() {
+    var url = '';
+    var m = 'GET';
+    var data = {};
+    if (window.usertype == type_o) {
+        url = '/api/o/contest/organizing_contests';
+    }
+    if (window.usertype == type_p) {
+        url = '/api/p/participating_contests';
+    }
+    $t(url, m, data, get_contest_succ, get_contest_fail);
+}
+
+var get_teams = function() {
+    var url = '/api/p/team/invitation';
+    var m = 'GET';
+    var data = {};
+    $t(url, m, data, get_invi_succ, get_invi_fail);
 }
 
 var init_controller = function() {
@@ -256,15 +309,13 @@ controller = new Vue({
             }
             if (window.usertype == type_p) {
                 url = '/api/p/personal_info';
-                elf.check_input('email', 'group', 'nickname', 'avatarUrl', 'contactPhone',
-                         'description', 'gender', 'birthday', 'playerType')
                 data = {
                     'email' : this.user.email.content,
                     'group' : this.user.org.content,
                     'nickname' : this.user.nickname.content,
                     'avatarUrl' : this.user.avatar.link,
                     'contactPhone' : '13000000000',
-                    'descritption' : this.user.description.content,
+                    'description' : this.user.description.content,
                     'gender' : gender_dic_rev[this.user.gender.content],
                     'birthday' : this.user.birthday.content,
                     'playerType' : player_type_dic.indexOf(this.user.type.content)
@@ -303,7 +354,16 @@ controller = new Vue({
                 return;
             this.doc_name = files[0].name;
         },
-        view_contest : function(cid) {},
+        view_contest : function(cid) {
+            var url = '';
+            if (window.usertype == type_o) {
+                url = '../cdetail/o/index.html?cid=' + cid.toString();
+            }
+            if (window.usertype == type_p) {
+                url = '../cdetail/g/index.html?cid=' + cid.toString();
+            }
+            window.location.assign(url);
+        },
         accept_invite : function(tid) {},
         deny_invite : function(tid) {},
         create_contest : function() {
@@ -312,4 +372,8 @@ controller = new Vue({
         }
     }
 })
+    get_contest();
+    if (window.usertype == type_p){
+        get_teams();
+    }
 }
