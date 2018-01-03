@@ -2,37 +2,34 @@ from django.test import TransactionTestCase
 from django.core import management
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from test_me_app.models import *
 import playerpage.urls
+import organizerpage.urls
 import json
 import datetime
 
 # Create your tests here.
 
 
-def load_test_database():
-    management.call_command('loaddata', 'user.json', verbosity=0)
-    for user in User.objects.all():
-        user.user_profile.delete()
-    management.call_command('loaddata', 'user_profile.json', verbosity=0)
-    management.call_command('loaddata', 'player.json', verbosity=0)
-    management.call_command('loaddata', 'organizer.json', verbosity=0)
-    management.call_command('loaddata', 'tag.json', verbosity=0)
-    management.call_command('loaddata', 'contest.json', verbosity=0)
-    management.call_command('loaddata', 'period.json', verbosity=0)
-    management.call_command('loaddata', 'team.json', verbosity=0)
-    management.call_command('loaddata', 'periodscore.json', verbosity=0)
-    management.call_command('loaddata', 'examquestion.json', verbosity=0)
-    management.call_command('loaddata', 'work.json', verbosity=0)
-    management.call_command('loaddata', 'teaminvitation.json', verbosity=0)
-    management.call_command('loaddata', 'appeal.json', verbosity=0)
-
-
 class PlayerPageTestCase(TransactionTestCase):
 
     def setUp(self):
-        load_test_database()
+        management.call_command('loaddata', 'playerpage/fixtures/user.json', verbosity=0)
+        for user in User.objects.all():
+            user.user_profile.delete()
+        management.call_command('loaddata', 'playerpage/fixtures/user_profile.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/player.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/organizer.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/tag.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/contest.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/period.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/team.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/periodscore.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/examquestion.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/work.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/teaminvitation.json', verbosity=0)
+        management.call_command('loaddata', 'playerpage/fixtures/appeal.json', verbosity=0)
 
     def tearDown(self):
         management.call_command('flush', verbosity=0, interactive=False)
