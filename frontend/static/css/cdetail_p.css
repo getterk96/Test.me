@@ -1,0 +1,12 @@
+h1.pl-title {
+    text-align : center;
+    font-size : 3em;
+}
+
+.q-description {
+    font-size : 1.2em;
+}
+
+label.fileuploader {
+    display : inline-block;
+}
