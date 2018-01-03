@@ -206,3 +206,28 @@ class TestAdminContestSearch(AdminPageTestCase):
         self.assertEqual(response['data'][0].get('id'), 1)
 
 
+class TestAdminContestDetail(AdminPageTestCase):
+
+    def test_contest_detail_get(self):
+        found = resolve('/contest/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('name'), 'publish_contest')
+
+    def test_contest_detail_post(self):
+        found = resolve('/contest/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1, "name":"contest233", "organizerId":1,'
+                                                '"description":"description233", "logoUrl":"logoUrl233",'
+                                                '"bannerUrl":"bannerUrl233", "signUpStartTime":"2017-01-01 00:00:00",'
+                                                '"signUpEndTime":"2017-01-03 00:00:00", "availableSlots": 200,'
+                                                '"maxTeamMembers": 20, "signUpAttachmentUrl": "url233",'
+                                                '"level":1, "tags":"tag1,tag2"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(Contest.objects.get(id=1).name, 'contest233')
+        self.assertEqual(Contest.objects.get(id=1).tags.count(), 2)
