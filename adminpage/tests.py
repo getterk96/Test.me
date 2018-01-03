@@ -20,6 +20,7 @@ class AdminPageTestCase(TransactionTestCase):
         management.call_command('loaddata', 'adminpage/fixtures/player.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/organizer.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/contest.json', verbosity=0)
+        management.call_command('loaddata', 'adminpage/fixtures/appeal.json', verbosity=0)
 
     def tearDown(self):
         management.call_command('flush', verbosity=0, interactive=False)
@@ -254,3 +255,25 @@ class TestAdminContestVerification(AdminPageTestCase):
         self.assertEqual(Contest.objects.get(id=1).status, Contest.CANCELLED)
 
 
+class TestAdminAppealDetail(AdminPageTestCase):
+
+    def test_appeal_detail_get(self):
+        found = resolve('/appeal/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('content'), 'content1')
+
+    def test_appeal_detail_post(self):
+        found = resolve('/appeal/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":1, "contestId": 1,'
+                                                '"title":"title233", "content":"content233",'
+                                                '"attachmentUrl":"attachmentUrl233",'
+                                                '"status":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(Appeal.objects.get(id=1).title, 'title233')

@@ -274,7 +274,8 @@ class AdminAppealDetail(APIView):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
         data = {
-            'contestName': appeal.contest.name,
+            'contestName': appeal.target_contest.name,
+            'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
@@ -284,11 +285,12 @@ class AdminAppealDetail(APIView):
 
     @admin_required
     def post(self):
-        self.check_input('id', 'contestId', 'content', 'attachmentUrl', 'status')
+        self.check_input('id', 'contestId', 'title', 'content', 'attachmentUrl', 'status')
         appeal = Appeal.safe_get(id=self.input['id'])
         appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.target_organizer = appeal.target_contest.organizer
         appeal.status = self.input['status']
+        appeal.title = self.input['title']
         appeal.content = self.input['content']
         appeal.attachment_url = self.input['attachmentUrl']
         appeal.save()
