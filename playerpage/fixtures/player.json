@@ -58,4 +58,40 @@
     "birthday": "2000-02-01",
     "player_type": 2,
     "user_id": 6}
+},{"model": "test_me_app.player",
+  "pk": 6,
+  "fields": {
+    "group": "group6",
+    "nickname": "nickname6",
+    "avatar_url": "avatar_url6",
+    "contact_phone": "6",
+    "description": "description6",
+    "gender": 0,
+    "birthday": "2000-02-01",
+    "player_type": 2,
+    "user_id": 7}
+},{"model": "test_me_app.player",
+  "pk": 7,
+  "fields": {
+    "group": "group7",
+    "nickname": "nickname7",
+    "avatar_url": "avatar_url7",
+    "contact_phone": "7",
+    "description": "description7",
+    "gender": 1,
+    "birthday": "2000-02-01",
+    "player_type": 2,
+    "user_id": 8}
+},{"model": "test_me_app.player",
+  "pk": 8,
+  "fields": {
+    "group": "group8",
+    "nickname": "nickname8",
+    "avatar_url": "avatar_url8",
+    "contact_phone": "8",
+    "description": "description8",
+    "gender": 1,
+    "birthday": "2000-02-01",
+    "player_type": 3,
+    "user_id": 9}
 }]

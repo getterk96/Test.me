@@ -40,4 +40,25 @@
     "status": 0,
     "user_id": 6
   }
+},{"model": "test_me_app.user_profile",
+  "pk": 7,
+  "fields": {
+    "user_type": 0,
+    "status": 0,
+    "user_id": 7
+  }
+},{"model": "test_me_app.user_profile",
+  "pk": 8,
+  "fields": {
+    "user_type": 0,
+    "status": 0,
+    "user_id": 8
+  }
+},{"model": "test_me_app.user_profile",
+  "pk": 9,
+  "fields": {
+    "user_type": 0,
+    "status": 0,
+    "user_id": 9
+  }
 }]

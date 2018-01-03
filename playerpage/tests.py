@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.core import management
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
@@ -27,14 +27,12 @@ def load_test_database():
     management.call_command('loaddata', 'work.json', verbosity=0)
 
 
-class PlayerPageTestCase(TestCase):
+class PlayerPageTestCase(TransactionTestCase):
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         load_test_database()
 
-    @classmethod
-    def tearDownClass(cls):
+    def tearDown(self):
         management.call_command('flush', verbosity=0, interactive=False)
 
 
@@ -74,7 +72,7 @@ class TestPlayerRegister(PlayerPageTestCase):
         found = resolve('/register', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
-        request.body.decode = Mock(return_value='{"username":"3", "password":"3",'
+        request.body.decode = Mock(return_value='{"username":"new_username", "password":"3",'
                                                 '"email":"2@2.com", "group": "test_group",'
                                                 '"gender":"female", "playerType":1, "birthday":"2017-11-23"}')
         response = json.loads(found.func(request).content.decode())
@@ -314,3 +312,190 @@ class TestPlayerTeamList(PlayerPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(response['data'][0].get('name'), 'team1')
+
+
+class TestPlayerTeamCreate(PlayerPageTestCase):
+
+    def test_team_create_post_wrong_time(self):
+        found = resolve('/team/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"team233", "members":["username3"],'
+                                                '"contestId": 1, "avatarUrl": "avatar_url233",'
+                                                '"description": "description233", '
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl233"}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=-1)
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Contest is not in sign up time')
+
+    def test_team_create_post_already_signup(self):
+        found = resolve('/team/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"team233", "members":["username3"],'
+                                                '"contestId": 1, "avatarUrl": "avatar_url233",'
+                                                '"description": "description233", '
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl233"}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'You are already in a team of this contest')
+
+    def test_team_create_post_wrong_member(self):
+        found = resolve('/team/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=7))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"team233", "members":["username_no_exist"],'
+                                                '"contestId": 1, "avatarUrl": "avatar_url233",'
+                                                '"description": "description233", '
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl233"}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 1)
+        self.assertEqual(response['msg'], 'Player does not exist')
+
+    def test_team_create_post_too_many_members(self):
+        found = resolve('/team/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=7))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"team233", "members":["username8", "username9"],'
+                                                '"contestId": 1, "avatarUrl": "avatar_url233",'
+                                                '"description": "description233", '
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl233"}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.max_team_members = 2
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Number of team member should be no more than 2')
+
+    def test_team_create_post_too_many_teams(self):
+        found = resolve('/team/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=7))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"team233", "members":["username8", "username9"],'
+                                                '"contestId": 1, "avatarUrl": "avatar_url233",'
+                                                '"description": "description233", '
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl233"}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.available_slots = 3
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'No more team could sign up, max team number: 3')
+
+    def test_team_create_post_success(self):
+        found = resolve('/team/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=7))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"team233", "members":["username8", "username9"],'
+                                                '"contestId": 1, "avatarUrl": "avatar_url233",'
+                                                '"description": "description233", '
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl233"}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+
+
+class TestPlayerTeamDetail(PlayerPageTestCase):
+
+    def test_team_detail_get_not_in(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":2}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 3)
+        self.assertEqual(response['msg'], 'You are not in this team')
+
+    def test_team_detail_get_success(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('name'), 'team1')
+
+    def test_team_detail_post_not_leader(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":2, "leaderId": 1, "memberIds":[],'
+                                                '"avatarUrl":"avatarUrl1", "description":"description1",'
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl1"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 3)
+        self.assertEqual(response['msg'], 'Only team leader can change team info')
+
+    def test_team_detail_post_signed_up(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":1, "leaderId": 1, "memberIds":[],'
+                                                '"avatarUrl":"avatarUrl1", "description":"description1",'
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl1"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Can not modify signed-up team info')
+
+    def test_team_detail_post_too_many_member(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":1, "leaderId": 1, "memberIds":[3, 4, 5],'
+                                                '"avatarUrl":"avatarUrl1", "description":"description1",'
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl1"}')
+        team = Team.objects.get(id=1)
+        team.status = Team.CREATING
+        team.save()
+        contest = Contest.objects.get(id=1)
+        contest.max_team_members = 2
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Number of team member should be no more than 2')
+
+    def test_team_detail_post_wrong_member(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":1, "leaderId": 1, "memberIds":[4],'
+                                                '"avatarUrl":"avatarUrl1", "description":"description1",'
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl1"}')
+        team = Team.objects.get(id=1)
+        team.status = Team.CREATING
+        team.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Member username4 is already in another team of this contest')
+
+    def test_team_detail_post_success(self):
+        found = resolve('/team/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":1, "leaderId": 1, "memberIds":[3],'
+                                                '"avatarUrl":"avatarUrl1", "description":"description1",'
+                                                '"signUpAttachmentUrl":"signUpAttachmentUrl1"}')
+        team = Team.objects.get(id=1)
+        team.status = Team.CREATING
+        team.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
