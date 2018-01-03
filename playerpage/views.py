@@ -506,7 +506,12 @@ class PlayerAppealCreate(APIView):
 
     @player_required
     def post(self):
+        # check existence
         self.check_input('contestId', 'title', 'content', 'attachmentUrl')
+        # check validation
+        Appeal.check_url(self.input['attachmentUrl'])
+        Appeal.check_title(self.input['title'])
+        # create
         appeal = Appeal.objects.create(initiator=self.request.user.player,
                                        target_contest=Contest.safe_get(id=self.input['contestId']),
                                        title=self.input['title'],
@@ -520,7 +525,9 @@ class PlayerAppealList(APIView):
 
     @player_required
     def get(self):
+        # check existence
         self.check_input('cid')
+        # query
         contest = Contest.safe_get(id=self.input['cid'])
         appeals = []
         for appeal in Appeal.objects.exclude(status=Appeal.REMOVED).\
@@ -537,10 +544,12 @@ class PlayerAppealDetail(APIView):
 
     @player_required
     def get(self):
+        # check existence
         self.check_input('id')
+        # query
         appeal = Appeal.safe_get(id=self.input['id'])
         return {
-            'contestName': appeal.contest.name,
+            'contestName': appeal.target_contest.name,
             'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
@@ -549,8 +558,15 @@ class PlayerAppealDetail(APIView):
 
     @player_required
     def post(self):
+        # check existence
         self.check_input('id', 'contestId', 'title', 'content', 'attachmentUrl', 'status')
+        # check validation
+        Appeal.check_url(self.input['attachmentUrl'])
+        Appeal.check_title(self.input['title'])
+        Appeal.check_status(self.input['status'])
+        # query
         appeal = Appeal.safe_get(id=self.input['id'])
+        # update
         appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.status = self.input['status']
         appeal.title = self.input['title']
@@ -565,8 +581,11 @@ class PlayerAppealRemove(APIView):
 
     @player_required
     def post(self):
+        # check existence
         self.check_input('id')
+        # query
         appeal = Appeal.safe_get(id=self.input['id'])
+        # remove
         appeal.status = Appeal.REMOVED
         appeal.save()
 
