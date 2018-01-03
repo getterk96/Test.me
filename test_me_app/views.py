@@ -64,7 +64,15 @@ class UserType(APIView):
         
 class ChangePassword(APIView):
 
+    @login_required
     def post(self):
         self.check_input('password')
         self.request.user.set_password(self.input['password'])
         self.request.user.save()
+
+class UserId(APIView):
+
+    @login_required
+    def get(self):
+        return self.request.user.id
+    
