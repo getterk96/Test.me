@@ -585,3 +585,26 @@ class TestPlayerTeamSignUp(PlayerPageTestCase):
         team_invitation.save()
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerAppealCreate(PlayerPageTestCase):
+
+    def test_appeal_create_post_contest_not_exist(self):
+        found = resolve('/appeal/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"contestId": 233, "title":"title1",'
+                                                '"content":"content1", "attachmentUrl":"attachmentUrl1"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'No Such Contest')
+
+    def test_appeal_create_post_success(self):
+        found = resolve('/appeal/create', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"contestId": 1, "title":"title1",'
+                                                '"content":"content1", "attachmentUrl":"attachmentUrl1"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+
