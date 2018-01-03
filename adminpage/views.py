@@ -15,7 +15,7 @@ class AdminUserList(APIView):
             users.append({
                 'id': user.id,
                 'username': user.username,
-                'userType': user.user_type
+                'userType': user.user_profile.user_type
             })
         return users
 
@@ -27,11 +27,11 @@ class AdminUserSearch(APIView):
         self.check_input('username', 'userType')
         users = []
         for user in User.objects.filter(username__contains=self.input['username'],
-                                        user_type=self.input['userType']):
+                                        user_profile__user_type=self.input['userType']):
             users.append({
                 'id': user.id,
                 'username': user.username,
-                'userType': user.user_type
+                'userType': user.user_profile.user_type
             })
         return users
 
@@ -49,7 +49,8 @@ class AdminUserDelete(APIView):
             raise LogicError('No such user')
 
         for user in user_list:
-            user.status = User_profile.CANCELED
+            user.user_profile.status = User_profile.CANCELED
+            user.user_profile.save()
 
 
 class AdminUserRecover(APIView):
@@ -65,7 +66,8 @@ class AdminUserRecover(APIView):
             raise LogicError('No such user')
 
         for user in user_list:
-            user.status = User_profile.NORMAL
+            user.user_profile.status = User_profile.NORMAL
+            user.user_profile.save()
 
 
 class AdminPlayerDetail(APIView):
@@ -74,7 +76,7 @@ class AdminPlayerDetail(APIView):
     def get(self):
         self.check_input('id')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.PLAYER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.PLAYER)
         except ObjectDoesNotExist:
             raise LogicError('No such player')
 
@@ -97,7 +99,7 @@ class AdminPlayerDetail(APIView):
         self.check_input('id', 'email', 'group', 'nickname', 'avatarUrl', 'contactPhone',
                          'description', 'gender', 'birthday', 'playerType')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.PLAYER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.PLAYER)
         except ObjectDoesNotExist:
             raise LogicError('No such player')
         Player.check_contact_phone(self.input['contactPhone'])
@@ -123,7 +125,7 @@ class AdminOrganizerDetail(APIView):
     def get(self):
         self.check_input('id')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.ORGANIZER)
         except ObjectDoesNotExist:
             raise LogicError('No such organizer')
 
@@ -143,9 +145,9 @@ class AdminOrganizerDetail(APIView):
     @admin_required
     def post(self):
         self.check_input('id', 'email', 'group', 'nickname', 'avatarUrl', 'description',
-                         'contactPhone', 'email', 'verifyUrl')
+                         'contactPhone', 'verifyUrl')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.ORGANIZER)
         except ObjectDoesNotExist:
             raise LogicError('No such organizer')
 
@@ -166,7 +168,7 @@ class AdminOrganizerVerification(APIView):
     def post(self):
         self.check_input('id', 'verify')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.ORGANIZER)
         except ObjectDoesNotExist:
             raise LogicError('No such organizer')
 
@@ -272,7 +274,8 @@ class AdminAppealDetail(APIView):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
         data = {
-            'contestName': appeal.contest.name,
+            'contestName': appeal.target_contest.name,
+            'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
@@ -282,11 +285,12 @@ class AdminAppealDetail(APIView):
 
     @admin_required
     def post(self):
-        self.check_input('id', 'contestId', 'content', 'attachmentUrl', 'status')
+        self.check_input('id', 'contestId', 'title', 'content', 'attachmentUrl', 'status')
         appeal = Appeal.safe_get(id=self.input['id'])
         appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.target_organizer = appeal.target_contest.organizer
         appeal.status = self.input['status']
+        appeal.title = self.input['title']
         appeal.content = self.input['content']
         appeal.attachment_url = self.input['attachmentUrl']
         appeal.save()
@@ -300,9 +304,5 @@ class AdminAppealRemove(APIView):
     def post(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
-        try:
-            appeal.delete()
-        except:
-            raise LogicError("Appeal Delete Failed")
-
-        return self.input['id']
+        appeal.status = Appeal.REMOVED
+        appeal.save()
