@@ -119,7 +119,7 @@ class ContestDetail(APIView):
             'level': contest.level,
             'currentTime': int(time.time()),
             'tags': contest.get_tags(),
-            'periods': list(contest.period_set.values_list('id', flat=True))
+            'periods': list(contest.period_set.exclude(status = Period.REMOVED).values_list('id', flat=True))
         }
 
     @organizer_required
@@ -501,11 +501,15 @@ class AppealList(APIView):
         contest = Contest.safe_get(id=self.input['cid'])
         appeals = []
         for appeal in Appeal.objects.filter(target_contest=contest):
-            appeals.append({
-                'id': appeal.id,
-                'title': appeal.title,
-                'status': appeal.status
-            })
+            appeals.append(appeal.id)
+        return appeals
+    
+    def post(self):
+        self.check_input('id', 'status')
+        for i in self.input['id']:
+            appeal = Appeal.objects.safe_get(id = i)
+            appeal.status = self.input['status']
+            appeal.save()
 
 
 class AppealDetail(APIView):
@@ -513,11 +517,17 @@ class AppealDetail(APIView):
     def get(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
+        members = []
+        for i in appeal.initiator.members:
+            members.append(i.nickname)
         return {
             'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
+            'type': appeal.type,
+            'appealer': appeal.initiator.name,
+            'members': members
         }
 
     @organizer_required

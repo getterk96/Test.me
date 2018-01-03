@@ -95,7 +95,8 @@ class PlayerParticipatingContests(APIView):
                           player.join_teams.exclude(status=Team.DISMISSED)):
             contests.append({'id': team.contest.id,
                              'name': team.contest.name,
-                             'organizerName': team.contest.organizer.nickname})
+                             'organizerName': team.contest.organizer.nickname,
+                             'logoUrl':team.contest.logo_url})
         return contests
 
 
@@ -506,13 +507,14 @@ class PlayerAppealCreate(APIView):
 
     @player_required
     def post(self):
-        self.check_input('contestId', 'title', 'content', 'attachmentUrl')
+        self.check_input('contestId', 'title', 'content', 'attachmentUrl', 'type')
         appeal = Appeal.objects.create(initiator=self.request.user.player,
                                        target_contest=Contest.safe_get(id=self.input['contestId']),
                                        title=self.input['title'],
                                        content=self.input['content'],
                                        attachment_url=self.input['attachmentUrl'],
-                                       status=Appeal.TOSOLVE)
+                                       status=Appeal.TOSOLVE,
+                                       type = self.input['type'])
         return appeal.id
 
 

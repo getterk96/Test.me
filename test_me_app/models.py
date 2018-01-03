@@ -301,16 +301,19 @@ class Work(models.Model):
 
 
 class Appeal(models.Model):
-    initiator = models.ForeignKey(Player)
+    initiator = models.ForeignKey(Team)
     target_contest = models.ForeignKey(Contest)
     title = models.CharField(max_length=256)
     content = models.TextField()
     attachment_url = models.CharField(max_length=256)
-
+    type = models.IntegerField()
+    SCORE = 0
+    QUALIFICATION = 1
+    
     status = models.IntegerField()
     TOSOLVE = 0
     SOLVED = 1
-    ACCEPTED = 2
+    IGNORED = 2
     REMOVED = -1
 
     @staticmethod
