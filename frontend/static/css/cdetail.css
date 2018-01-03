@@ -24,17 +24,17 @@ nav#side-nav label {
 
 .input.long,
 .display.long {
-    width : calc(50vw - 13em);
+    width : 20em;
 }
 
 .input.short,
 .display.short {
-    width : 2em;
+    width : 4em;
 }
 
 .input.mid,
 .display.mid {
-    width : 9em;
+    width : 12em;
 }
 
 .input {
@@ -204,5 +204,5 @@ ul.inline-form li {
 .form li>textarea {
     background : transparent;
     border-radius : 0.5em;
-    width : 50%; 
+    width : 50%;
 }

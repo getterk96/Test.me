@@ -193,6 +193,76 @@
                      </article>
                 </div>
             </template>
+            <template v-else-if="page === '我的申诉'">
+                <template v-if="!in_compose && !in_check">
+                    <div :class="['o-bar']" v-if="is_self(team.leader_id)">
+                        <button :class="['operator']" @click="switch_compose">创建申诉</button>
+                    </div>
+                    <div :class="['session']">
+                        <table :class="['searchresult']" cellspacing='0'>
+                            <thead>
+                                <th>申诉标题</th>
+                                <th>申诉类型</th>
+                                <th>申诉状态</th>
+                                <th>&nbsp;</th>
+                            </thead>
+                            <tr v-for="item in appeal_list" :class="[appeal_list.indexOf(item) == appeal_list.length - 1 ? 'last-row' : '']">
+                                <td>{{ item.title }}</td>
+                                <td>{{ appeal_type_dict[item.type] }}</td>
+                                <td :class="[item.processed == 1 ? 'green' : '', item.processed == 0 ? 'red' : '']">{{ appeal_status_dict[item.processed] }}</td>
+                                <td><button :class="['blue']" @click="check_appeal(appeal_list.indexOf(item))">详情</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </template>
+                <template v-else-if="in_compose && is_self(team.leader_id)">
+                    <div :class="['o-bar']">
+                        <button :class="['operator', 'negative']" @click="switch_compose">取消</button>
+                    </div>
+                    <div :class="['session', 'a-composer']">
+                        <input v-model="appeal_title" placeholder="在此输入标题" :class="['a-title']" />
+                        <div :class="['a-type']">
+                            选择申诉类型
+                            <ul>
+                                <li>
+                                    <label :class="['choice', 0 == appeal_type ? 'chosen' : 'unchosen']" @click='select_appeal_type(0)'>{{ appeal_type_dict[0] }}</label>
+                                </li>
+                                <li>
+                                    <label :class="['choice', 1 == appeal_type ? 'chosen' : 'unchosen']" @click='select_appeal_type(1)'>{{ appeal_type_dict[1] }}</label>
+                                </li>
+                            </ul>
+                        </div>
+                        <textarea v-model="appeal_content" rows="10" placeholder="在此处填写内容" :class="['a-content']"></textarea>
+                        <div :class="['a-att']">
+                            <span :class="['bold']">上传附件</span>
+                            <label :class="['fileuploader']">
+                                <input type="file" @change="appeal_a_upload"/>
+                            </label>
+                            {{ appeal_file }}
+                        </div>
+                    </div>
+                    <div :class="['s-u-resp']">
+                        <button @click="send_appeal" :class="['response-button']">提交</button>
+                    </div>
+                </template>
+                <template v-else-if="in_check">
+                    <div :class="['o-bar']">
+                        <button :class="['operator', 'negative']" @click="close_a_check">返回</button>
+                    </div>
+                    <div :class="['session']">
+                        <input v-model="appeal_list[appeal_oncheck].title" :class="['a-title']" disabled />
+                        <div :class="['a-type']">
+                            {{ '类型:' + appeal_type_dict[appeal_list[appeal_oncheck].type] + ',状态:' + appeal_status_dict[appeal_list[appeal_oncheck].processed] }}
+                        </div>
+                        <textarea v-model="appeal_list[appeal_oncheck].content" rows="10" :class="['a-content']" disabled></textarea>
+                        <textarea v-model="'组织方回复:' + appeal_list[appeal_oncheck].reply" rows="10" :class="['a-content']" disabled></textarea>
+                        <div :class="['a-att']">
+                            <span :class="['bold']">附件</span>
+                            <a :href="appeal_list[appeal_oncheck].a_url">点此下载</a>
+                        </div>
+                    </div>
+                </template>
+            </template>
         </div>
     </body>
     <script src="../../js/uni_c.js"></script>

@@ -10,3 +10,40 @@ h1.pl-title {
 label.fileuploader {
     display : inline-block;
 }
+
+.a-title {
+    width : 60%;
+    text-align : center;
+    font-size : 2em;
+    padding : 0.5em;
+    display : block;
+    margin : auto;
+    box-shadow : 0 0 0.2em rgba(0, 0, 0, 0.3) inset;
+    border : 0.05em solid rgba(127, 172, 222, 0);
+    transition : border 0.3s;
+    border-radius : 0.5em;
+}
+
+.a-title:focus {
+    border : 0.05em solid rgba(127, 172, 222, 0.6);
+}
+
+.a-composer ul,
+.a-composer li {
+    display : inline-block;
+}
+
+.a-type {
+    margin : 1em auto;
+    text-align : center;
+}
+
+.a-content {
+    width : 70%;
+    margin : auto;
+    display : block;
+}
+
+.a-att {
+    margin-left : 15%;
+}
