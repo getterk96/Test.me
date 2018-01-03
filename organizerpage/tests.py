@@ -289,7 +289,7 @@ class TestContests(TestCase):
                                                                     '"tags": "test"}')
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['code'], 0)
+        self.assertEqual(Contest.objects.get(id=int(str_id)).name, 'test0')
 
     def test_post_contest_detail_failed_by_end_earlier_than_start(self):
         found = resolve('/contest/detail', urlconf=organizerpage.urls)
@@ -374,4 +374,176 @@ class TestContests(TestCase):
         found.func(request)
         self.assertEqual(Contest.objects.get(name='test').status, Contest.REMOVED)
 
-# Create your tests here.
+
+class TestPeriodCreate(TestCase):
+
+    def setUp(self):
+        found = resolve('/register', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
+                                                '"availableSlots": 3,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+
+    def test_post_create_period_successfully(self):
+        found = resolve('/period/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+','
+                                                '"index":0,'
+                                                '"name":"test_period",'
+                                                '"description":"test_period",'
+                                                '"startTime":"2017-12-31 06:00:54",'
+                                                '"endTime": "2017-12-31 06:00:55",'
+                                                '"availableSlots": 3,'
+                                                '"attachmentUrl": "None"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+
+    def test_post_create_period_failed_by_end_earlier_than_start(self):
+        found = resolve('/period/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+','
+                                                '"index":0,'
+                                                '"name":"test_period",'
+                                                '"description":"test_period",'
+                                                '"startTime":"2017-12-31 06:00:56",'
+                                                '"endTime": "2017-12-31 06:00:55",'
+                                                '"availableSlots": 3,'
+                                                '"attachmentUrl": "None"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Period start time must not be later then end time.')
+
+
+class TestPeriods(TestCase):
+
+    def setUp(self):
+        found = resolve('/register', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
+                                                '"availableSlots": 0,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        found = resolve('/period/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"index":0,'
+                                                                    '"name":"test_period",'
+                                                                    '"description":"test_period",'
+                                                                    '"startTime":"2017-12-31 06:00:54",'
+                                                                    '"endTime": "2017-12-31 06:00:55",'
+                                                                    '"availableSlots": 3,'
+                                                                    '"attachmentUrl": "None"}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+
+    def test_get_period_successfully(self):
+        found = resolve('/period/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        str_id = str(Period.objects.get(name='test_period').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + '}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['data']['name'], 'test_period')
+
+    def test_get_period_detail_failed_by_period_not_exist(self):
+        found = resolve('/period/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":10086}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'No Such Period')
+
+    def test_post_period_detail_successfully(self):
+        found = resolve('/period/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Period.objects.get(name='test_period').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"index":0,'
+                                                                    '"name":"test_period0",'
+                                                                    '"description":"test_period0",'
+                                                                    '"startTime":"2017-12-31 06:00:54",'
+                                                                    '"endTime": "2017-12-31 06:00:55",'
+                                                                    '"availableSlots": 3,'
+                                                                    '"attachmentUrl": "None",'
+                                                                    '"questionId":""}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        self.assertEqual(Period.objects.get(id=int(str_id)).name, 'test_period0')
+
+    def test_post_contest_detail_failed_by_wrong_level(self):
+        found = resolve('/contest/detail', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name='test').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + ','
+                                                                    '"name":"test",'
+                                                                    '"description":"test",'
+                                                                    '"logoUrl": "None",'
+                                                                    '"bannerUrl":"None",'
+                                                                    '"signUpStart":"2017-12-31 04:00:54",'
+                                                                    '"signUpEnd": "2017-12-31 04:00:55",'
+                                                                    '"availableSlots": 0,'
+                                                                    '"maxTeamMembers": 5,'
+                                                                    '"signUpAttachmentUrl": "None",'
+                                                                    '"level": "abcd",'
+                                                                    '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Level should be a number.')
+
+    def test_post_remove_period_successfully(self):
+        found = resolve('/period/remove', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        str_id = str(Period.objects.get(name='test_period').id)
+        request.body.decode = Mock(return_value='{"id":' + str_id + '}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        self.assertEqual(Period.objects.get(name='test_period').status, Period.REMOVED)
