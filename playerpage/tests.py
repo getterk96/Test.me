@@ -4,6 +4,7 @@ from django.http import HttpRequest
 from unittest.mock import Mock, patch
 from test_me_app.models import *
 import playerpage.urls
+import organizerpage.urls
 import json
 
 # Create your tests here.
@@ -65,3 +66,209 @@ class TestPlayerPersonalInfo(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 1)
         self.assertEqual(response['msg'], 'Wrong contact phone')
+
+
+class TestAppealCreate(TestCase):
+
+    def setUp(self):
+        found = resolve('/register', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
+                                                '"availableSlots": 2,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        found = resolve('/register', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"2", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"2@1.com",'
+                                                '"gender":"male",'
+                                                '"playerType":0,'
+                                                '"birthday":"2017-12-31"}')
+        found.func(request)
+
+    def test_post_create_appeal_successfully(self):
+        found = resolve('/appeal/create', urlconf = playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"contestId":'+str_id+','
+                                                '"title":"test_appeal",'
+                                                '"content": "test_appeal_0",'
+                                                '"attachmentUrl":"None"}')
+        request.user = User.objects.get(username='2')
+        found.func(request)
+
+
+class TestAppeal(TestCase):
+
+    def setUp(self):
+        found = resolve('/register', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"1", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"1@1.com",'
+                                                '"verifyFileUrl":"/a/a"}')
+        found.func(request)
+        found = resolve('/contest/create', urlconf=organizerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"name":"test",'
+                                                '"description":"test",'
+                                                '"logoUrl": "None",'
+                                                '"bannerUrl":"None",'
+                                                '"signUpStart":"2017-12-31 04:00:54",'
+                                                '"signUpEnd": "2017-12-31 04:00:55",'
+                                                '"availableSlots": 2,'
+                                                '"maxTeamMembers": 5,'
+                                                '"signUpAttachmentUrl": "None",'
+                                                '"level": 0,'
+                                                '"tags": "test"}')
+        request.user = User.objects.get(username='1')
+        found.func(request)
+        found = resolve('/register', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"2", "password":"1",'
+                                                '"group": "a",'
+                                                '"email":"2@1.com",'
+                                                '"gender":"male",'
+                                                '"playerType":0,'
+                                                '"birthday":"2017-12-31"}')
+        found.func(request)
+        found = resolve('/appeal/create', urlconf = playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"contestId":'+str_id+','
+                                                '"title":"test_appeal_0",'
+                                                '"content": "test_appeal_0",'
+                                                '"attachmentUrl":"None"}')
+        request.user = User.objects.get(username='2')
+        found.func(request)
+        found = resolve('/appeal/create', urlconf = playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"contestId":'+str_id+','
+                                                '"title":"test_appeal_1",'
+                                                '"content": "test_appeal_1",'
+                                                '"attachmentUrl":"None"}')
+        request.user = User.objects.get(username='2')
+        found.func(request)
+
+    def test_get_appeal_list_successfully(self):
+        found = resolve('/appeal/list', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'GET')
+        request.body = Mock()
+        str_id = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"cid":'+str_id+'}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(len(response['data']), 2)
+
+    def test_get_appeal_list_failed_by_no_such_contest(self):
+        found = resolve('/appeal/list', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":10086}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'No Such Contest')
+
+    def test_get_appeal_detail_successfully(self):
+        found = resolve('/appeal/detail', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'GET')
+        request.body = Mock()
+        str_id = str(Appeal.objects.get(title="test_appeal_0").id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+'}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+
+    def test_get_appeal_detail_failed_by_no_such_appeal(self):
+        found = resolve('/appeal/detail', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'GET')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":10086}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'No Such Appeal')
+
+    def test_post_appeal_detail_successfully(self):
+        found = resolve('/appeal/detail', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Appeal.objects.get(title="test_appeal_0").id)
+        str_cid = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+','
+                                                '"contestId":'+str_cid+','
+                                                '"title":"test_appeal_1",'
+                                                '"content": "test_appeal_1",'
+                                                '"attachmentUrl":"None",'
+                                                '"status":0}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+
+    def test_post_appeal_detail_failed_by_status_not_a_num(self):
+        found = resolve('/appeal/detail', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Appeal.objects.get(title="test_appeal_0").id)
+        str_cid = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+','
+                                                '"contestId":'+str_cid+','
+                                                '"title":"test_appeal_1",'
+                                                '"content": "test_appeal_1",'
+                                                '"attachmentUrl":"None",'
+                                                '"status":"test"}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'The field status should be a number.')
+
+    def test_post_appeal_detail_failed_by_status_exceeding_range(self):
+        found = resolve('/appeal/detail', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Appeal.objects.get(title="test_appeal_0").id)
+        str_cid = str(Contest.objects.get(name="test").id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+','
+                                                '"contestId":'+str_cid+','
+                                                '"title":"test_appeal_1",'
+                                                '"content": "test_appeal_1",'
+                                                '"attachmentUrl":"None",'
+                                                '"status":10086}')
+        request.user = User.objects.get(username='2')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['msg'], 'Status exceeds supposed range.')
+
+    def test_post_remove_appeal_successfully(self):
+        found = resolve('/appeal/remove', urlconf = playerpage.urls)
+        request = Mock(wraps = HttpRequest(), method = 'POST')
+        request.body = Mock()
+        str_id = str(Appeal.objects.get(title="test_appeal_0").id)
+        request.body.decode = Mock(return_value='{"id":'+str_id+'}')
+        request.user = User.objects.get(username='2')
+        found.func(request)
+        self.assertEqual(Appeal.objects.get(title="test_appeal_0").status, Appeal.REMOVED)
