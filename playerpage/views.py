@@ -372,7 +372,7 @@ class PlayerTeamDetail(APIView):
         for member in team.members.all():
             invitation = TeamInvitation.safe_get(player=member)
             members.append({
-                'id': member.id,
+                'id': member.user.id,
                 'name': member.user.username,
                 'invitationStatus': invitation.status,
             })
@@ -387,7 +387,7 @@ class PlayerTeamDetail(APIView):
 
         return {
             'name': team.name,
-            'leader': {'id': team.leader.id, 'name': team.leader.user.username},
+            'leader': {'id': team.leader.user.id, 'name': team.leader.user.username},
             'members': members,
             'contestId': team.contest.id,
             'contestName': team.contest.name,

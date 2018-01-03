@@ -19,6 +19,7 @@ class AdminPageTestCase(TransactionTestCase):
         management.call_command('loaddata', 'adminpage/fixtures/user_profile.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/player.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/organizer.json', verbosity=0)
+        management.call_command('loaddata', 'adminpage/fixtures/contest.json', verbosity=0)
 
     def tearDown(self):
         management.call_command('flush', verbosity=0, interactive=False)
@@ -168,4 +169,18 @@ class TestAdminOrganizerVerification(AdminPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(User.objects.get(id=3).organizer.verify_status, Organizer.REJECTED)
+
+
+class TestAdminContestList(AdminPageTestCase):
+
+    def test_contest_list_get(self):
+        found = resolve('/contest/list', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(len(response['data']), 1)
+        self.assertEqual(response['data'][0].get('contestName'), 'publish_contest')
+
 

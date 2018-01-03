@@ -1,0 +1,18 @@
+[{"model": "test_me_app.contest",
+  "pk": 1,
+  "fields": {
+    "name": "publish_contest",
+    "organizer_id": 1,
+    "description": "description1",
+    "logo_url": "logo_url1",
+    "banner_url": "banner_url1",
+    "sign_up_start_time": "2000-01-01 00:00:00",
+    "sign_up_end_time": "2000-01-01 12:00:00",
+    "available_slots": 100,
+    "max_team_members": 10,
+    "sign_up_attachment_url": "sign_up_attachment_url1",
+    "tags": [],
+    "level": 1,
+    "status": 2
+  }
+}]
