@@ -3,6 +3,8 @@ const type_o = 1;
 
 window.usertype = type_p;
 
+var level_dic = ["国际级", "国家级", "省级", "市级", "区级", "校级", "院系级"];
+
 var init_header = function() {
     header.greeting = 'Test.Me';
     header.title = '比赛大厅';
@@ -29,8 +31,8 @@ var init_header = function() {
 };
 
 var test_item = {
-    name : 'Contest1',
-    organizer : '405',
+    name : 'a contest',
+    organizer : 'org',
     signuptimefrom : '2017-12-30',
     signuptimeto : '2017-12-31',
     contesttimefrom : '2017-12-31',
@@ -49,8 +51,6 @@ var test_item2 = {
     logo : '../img/user.png',
     url : '../index.html'
 }
-
-
 
 init_header();
 
@@ -75,7 +75,29 @@ var controller = new Vue({
         searchcontest : function() {
             console.log("you're querying contest " + this.querytext);
             this.no_viewport = true;
-
+            var url = "/api/p/contest/search/simple";
+            var m = "GET";
+            var data = {"keyword" : this.querytext};
+            $t(url, m, data, this.search_succ, this.search_fail);
+        },
+        search_succ : function(response) {
+            this.querylist = [];
+            for (i in response.data) {
+                var st = new Date(response.data[i]["signUpStartTime"] * 1000);
+                var ed = new Date(response.data[i]["signUpEndTime"] * 1000);
+                this.querylist.push({
+                    "name" : response.data[i]["name"],
+                    "organizer" : response.data[i]["organizerName"],
+                    "signuptimefrom" : st.getFullYear() + '-' + (st.getMonth() + 1) + '-' + st.getDate() + ' ' + st.getHours() + ':' + st.getMinutes(),
+                    "signuptimeto" : ed.getFullYear() + '-' + (ed.getMonth() + 1) + '-' + ed.getDate() + ' ' + ed.getHours() + ':' + ed.getMinutes(),
+                    "logo" : response.data[i]["logoUrl"],
+                    "url" : "../cdetail/g/index.html?cid=" + response.data[i]["id"].toString(),
+                    "level" : level_dic[response.data[i]["level"]],
+                });
+            }
+        },
+        search_fail : function(response) {
+            alert('[' + response.code.toString() + ']' + response.msg);
         },
         next_rec : function() {
             for (item of this.rec)

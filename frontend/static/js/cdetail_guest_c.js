@@ -127,6 +127,10 @@ window.invitation = [];
 
 function ply_get_succ(response) {
     var data = response.data;
+    if (data['alreadySignUp'] == 1) {
+        window.location.assign('../p/index.html?cid=' + window.cid);
+        return;
+    }
     var start_time = new Date(data['signUpStartTime'] * 1000);
     var end_time = new Date(data['signUpEndTime'] * 1000);
     for (i in window.contest.attr) {

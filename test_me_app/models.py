@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from django.db import models
 from django.utils import timezone
@@ -142,9 +143,6 @@ class Contest(models.Model):
             if not content:
                 continue
             tag, created = Tag.objects.get_or_create(content=content)
-            if not created:
-                self.save()
-                raise LogicError("Tag Create Error")
             tag.save()
             self.tags.add(tag)
 
@@ -173,6 +171,21 @@ class Contest(models.Model):
     def check_url(url):
         if len(url) > 256:
             raise InputError('The length of url is restricted to 256.')
+
+    @staticmethod
+    def check_level(level):
+        try:
+            int_level = int(level)
+        except:
+            raise InputError('Level should be a number.')
+        if int_level > 6 or int_level < 0:
+            raise InputError('Level exceeds the range limit.')
+
+    @staticmethod
+    def check_sign_up_time(start, end):
+        if datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S") >= \
+                datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S'):
+            raise InputError('Sign up start time must not be later then end time.')
 
 
 class Period(models.Model):
@@ -288,16 +301,19 @@ class Work(models.Model):
 
 
 class Appeal(models.Model):
-    initiator = models.ForeignKey(Player)
+    initiator = models.ForeignKey(Team)
     target_contest = models.ForeignKey(Contest)
     title = models.CharField(max_length=256)
     content = models.TextField()
     attachment_url = models.CharField(max_length=256)
-
+    type = models.IntegerField()
+    SCORE = 0
+    QUALIFICATION = 1
+    
     status = models.IntegerField()
     TOSOLVE = 0
     SOLVED = 1
-    ACCEPTED = 2
+    IGNORED = 2
     REMOVED = -1
 
     @staticmethod

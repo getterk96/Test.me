@@ -195,7 +195,7 @@
                             <th>&nbsp;</th>
                         </thead>
                         <tr v-for="item in appeal_list[appeal_page]" :class="[item.selected ? 'table-select' : '', appeal_list.indexOf(item) == appeal_list.length - 1 ? 'last-row' : '']">
-                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.appealer.name + '[id=' + item.appealer.id + ']'}}</td>
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.appealer.name }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.title }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.type }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))" :class="[item.status == 'processed' ? 'green' : '', item.status == 'ignored' ? 'red' : '']">{{ item.status }}</td>
@@ -227,7 +227,7 @@
                                 <div :class="['label']">Team member</div>
                                 <ul :class="['inline-form']">
                                     <li v-for="p in appeal_list[a_single_page][a_single_idx].appealer.member">
-                                        <a :class="['blue']">{{ p.name + '[id=' + p.id + ']'}}</a>
+                                        <a :class="['blue']">{{ p.name }}</a>
                                     </li>
                                 </ul>
                             </li>
