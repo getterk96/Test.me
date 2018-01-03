@@ -147,3 +147,25 @@ class TestAdminOrganizerDetail(AdminPageTestCase):
         self.assertEqual(response['code'], 0)
         organizer = User.objects.get(id=3).organizer
         self.assertEqual(organizer.avatar_url, "avatarUrl123")
+
+
+class TestAdminOrganizerVerification(AdminPageTestCase):
+
+    def test_organizer_verification_post_verified(self):
+        found = resolve('/organizer/verification', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":3, "verify":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(User.objects.get(id=3).organizer.verify_status, Organizer.VERIFIED)
+
+    def test_organizer_verification_post_rejected(self):
+        found = resolve('/organizer/verification', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":3, "verify":0}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(User.objects.get(id=3).organizer.verify_status, Organizer.REJECTED)
+

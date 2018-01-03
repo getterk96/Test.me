@@ -168,7 +168,7 @@ class AdminOrganizerVerification(APIView):
     def post(self):
         self.check_input('id', 'verify')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.ORGANIZER)
         except ObjectDoesNotExist:
             raise LogicError('No such organizer')
 
