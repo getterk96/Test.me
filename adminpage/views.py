@@ -15,7 +15,7 @@ class AdminUserList(APIView):
             users.append({
                 'id': user.id,
                 'username': user.username,
-                'userType': user.user_type
+                'userType': user.user_profile.user_type
             })
         return users
 
