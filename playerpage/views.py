@@ -83,6 +83,7 @@ class PlayerPersonalInfo(APIView):
         player.birthday = self.input['birthday']
         player.player_type = self.input['playerType']
         player.save()
+        self.request.user.save()
 
 
 class PlayerParticipatingContests(APIView):

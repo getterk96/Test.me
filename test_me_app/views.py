@@ -40,7 +40,7 @@ class Upload(APIView):
     def post(self):
         self.check_input('file', 'destination')
         file = self.input['file'][0]
-        new_name = time.strftime('%Y.%m.%d %H-%M-%S') + '.' + file.name.split('.')[-1]
+        new_name = time.strftime('%Y-%m-%d-%H-%M-%S') + '.' + file.name.split('.')[-1]
         save_path = settings.MEDIA_ROOT + '\\' + self.input['destination'] + '\\'
         if not os.path.exists(settings.MEDIA_ROOT):
             os.mkdir(settings.MEDIA_ROOT)
@@ -56,7 +56,7 @@ class Upload(APIView):
         else:
             save_file.write(file.read())
         save_file.close()
-        return save_path + new_name
+        return 'http://' + settings.SITE_DOMAIN + '/media/' + self.input['destination'] + '/' + new_name
 
 
 class UserType(APIView):
@@ -64,3 +64,11 @@ class UserType(APIView):
     @login_required
     def get(self):
         return self.request.user.user_profile.user_type
+
+        
+class ChangePassword(APIView):
+
+    def post(self):
+        self.check_input('password')
+        self.request.user.set_password(self.input['password'])
+        self.request.user.save()
