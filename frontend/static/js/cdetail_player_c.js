@@ -1,7 +1,7 @@
 window.cid = window.get_args('cid');
 
 window.usertype = 0;
-window.problem_list_ready = true;
+window.problem_list_ready = false;
 
 var level_dic = ["国际级", "国家级", "省级", "市级", "区级", "校级", "院系级"];
 var status_dic = ["未报名", "审核中", "审核通过"];
@@ -9,7 +9,7 @@ var info = {};
 
 const type_p = 0;
 const type_o = 1;
-/*
+
 function period_get_succ(response, param) {
     var start_time = new Date(response.data['startTime']*1000);
     var end_time = new Date(response.data['endTime']*1000);
@@ -352,8 +352,8 @@ function answer_upload_pass(response, e) {
 function answer_upload_fail(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 }
-*/
 
+/*
 window.contest = {
     getAttr : function(qname) {
         for (i of this.attr)
@@ -471,10 +471,10 @@ window.contest = {
         }
     ],
     period_modifier_available : true
-};
+};*/
 
-window.user_id = 1;
-
+// window.user_id = 1;
+/*
 window.plist = {
     period : 'period1',
     problems : [
@@ -529,10 +529,10 @@ window.team = {
     ],
     leader_id : '1',
     new_leader : ''
-}
+}*/
 
 
-window.usertype = 0;
+// window.usertype = 0;
 
 var init_header = function(){
 
@@ -649,7 +649,7 @@ info = new Vue({
             var data = new FormData();
             data.append('file', files[0]);
             data.append('destination', 'team_sign_up_attachment');
-            // $t(url, m, data, upload_pass, upload_fail);
+            $t(url, m, data, upload_pass, upload_fail);
         },
         switch_period_info : function(idx) {
             this.contest.period[idx].show = !this.contest.period[idx].show;
@@ -689,7 +689,7 @@ info = new Vue({
                 'description' : '',
                 'signUpAttachmentUrl' : this.signup_material.attachment
             };
-            // $t(url, m, data, switch_succ, switch_fail);
+            $t(url, m, data, switch_succ, switch_fail);
         },
         save : function() {
             var member_ids = [];
@@ -707,14 +707,14 @@ info = new Vue({
                 'description' : '',
                 'signUpAttachmentUrl' : this.signup_material.attachment
             };
-            // $t(url, m, data, save_succ, save_fail);
+            $t(url, m, data, save_succ, save_fail);
         },
         post : function() {
             this.save();
             var url = '/api/p/team/signup';
             var m = 'POST';
             var data = {'tid' : window.team_id};
-            // $t(url, m, data, post_succ, post_fail);
+            $t(url, m, data, post_succ, post_fail);
         },
         switch_problem_status : function(id) {
             this.problem_list.problems[id].show = !this.problem_list.problems[id].show;
@@ -728,7 +728,7 @@ info = new Vue({
             var data = new FormData();
             data.append('file', files[0]);
             data.append('destination', 'team_sign_up_attachment');
-            // $t(url, m, data, answer_upload_pass, answer_upload_fail, e);
+            $t(url, m, data, answer_upload_pass, answer_upload_fail, e);
         },
         switch_compose : function() {
             this.in_compose = !this.in_compose;
@@ -756,4 +756,4 @@ info = new Vue({
 });
 }
 
-init_header();
+// init_header();

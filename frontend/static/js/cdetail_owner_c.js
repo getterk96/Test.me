@@ -92,7 +92,7 @@ window.contest = {
     is_guest : false,
     period_modifier_available : true
 };
-/*
+
 var ques_get_succ = function(response, param) {
     var data = response.data;
     var n = param['which'];
@@ -341,7 +341,7 @@ var org_get_contest_detail = function() {
         }
     );
 })();
-*/
+
 var init_header = function() {
     header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
     header.title = '比赛管理';
@@ -382,7 +382,7 @@ var nav = new Vue({
             console.log('[err] No such item');
         }
     }
-})/*
+})
 var c_upload_pass = function(response) {
     for (i of info.contest.attr)
         if (i.name == 'c_file')
@@ -987,10 +987,10 @@ var upload_data = function(aim_status) {
         }
     }
     $t(url, m, data, post_succ, post_fail);
-}*/
+}
 
 // for develop without API
-
+/*
 init_header();
 var info = new Vue({
     el : '#body',
@@ -1512,4 +1512,4 @@ var info = new Vue({
             upload_data(1);
         }
     }
-});
+});*/
