@@ -623,3 +623,23 @@ class TestPlayerAppealList(PlayerPageTestCase):
         self.assertEqual(response['data'][0].get('title'), 'title1')
 
 
+class TestPlayerAppealDetail(PlayerPageTestCase):
+
+    def test_appeal_detail_get(self):
+        found = resolve('/appeal/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('content'), 'content1')
+
+    def test_appeal_detail_posts(self):
+        found = resolve('/appeal/detail', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":1, "contestId":1,'
+                                                '"title":"title2", "content":"content2",'
+                                                '"attachmentUrl":"attachmentUrl2", "status": 1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
