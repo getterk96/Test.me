@@ -8,9 +8,12 @@ import time, datetime
 
 
 def player_signup_contest(player, contest):
-    for team in chain(player.lead_teams.all(), player.join_teams.all()):
+    for team in player.lead_teams.all():
         if team.contest == contest:
             return team
+    for invitation in TeamInvitation.objects.filter(player=player, team__contest=contest):
+        if invitation.status == TeamInvitation.CONFIRMED:
+            return invitation.team
     raise LogicError('You have not sign up this contest')
 
 
@@ -23,7 +26,6 @@ class PlayerRegister(APIView):
         Player.check_player_type(self.input['playerType'])
         # create
         try:
-            print(User.objects.all().count())
             user = User.objects.create_user(username=self.input['username'],
                                             password=self.input['password'],
                                             email=self.input['email'])
@@ -158,7 +160,6 @@ class PlayerContestSearchSimple(APIView):
 
         # search
         results = Contest.objects.filter(name__contains=self.input['keyword'])
-        print(len(self.input['keyword']))
         # return
         contests = []
         for result in results:
@@ -288,7 +289,7 @@ class PlayerTeamList(APIView):
         teams = []
         for team in chain(player.lead_teams.exclude(status=Team.DISMISSED),
                           player.join_teams.exclude(status=Team.DISMISSED)):
-            if team.status == Team.VERIFYING or team.status == Team.VERIFIED:
+            if team.status == Team.VERIFYING or team.status == Team.VERIFIED or team.status == Team.CREATING:
                 teams.append({
                     'id': team.id,
                     'name': team.name,
@@ -373,11 +374,14 @@ class PlayerTeamDetail(APIView):
         # member
         members = []
         for member in team.members.all():
-            invitation = TeamInvitation.safe_get(player=member)
+            invitation = TeamInvitation.safe_get(player=member, team=team)
             members.append({
                 'id': member.user.id,
                 'name': member.user.username,
+                'nickname': member.nickname,
                 'invitationStatus': invitation.status,
+                'avatarUrl': member.avatar_url,
+                'group': member.group
             })
 
         # period
@@ -390,7 +394,12 @@ class PlayerTeamDetail(APIView):
 
         return {
             'name': team.name,
-            'leader': {'id': team.leader.user.id, 'name': team.leader.user.username},
+            'leader': {'id': team.leader.user.id,
+                'name': team.leader.user.username,
+                'nickname': team.leader.nickname,
+                'avatarUrl': team.leader.avatar_url,
+                'group': team.leader.group
+            },
             'members': members,
             'contestId': team.contest.id,
             'contestName': team.contest.name,
@@ -443,7 +452,7 @@ class PlayerTeamDetail(APIView):
                     pass
                 if member_team and member_team != team:
                     raise LogicError('Member ' + member.username + ' is already in another team of this contest')
-                new_members.append(member)
+                new_members.append(member.player)
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
 
@@ -452,18 +461,21 @@ class PlayerTeamDetail(APIView):
         # delete old members with invitations
         for member in team.members.all():
             if member not in new_members:
-                invitation = TeamInvitation.safe_get(team=team, player=member.player)
+                print('1 ', member.user.id)
+                invitation = TeamInvitation.safe_get(team=team, player=member)
                 invitation.status = TeamInvitation.REMOVED
                 invitation.save()
         team.members.clear()
 
         # add new members
         for member in new_members:
-            team.members.add(member.player)
+            team.members.add(member)
             try:
-                TeamInvitation.safe_get(team=team, player=member.player)
+                print('2 ', member.id)
+                TeamInvitation.safe_get(team=team, player=member)
             except LogicError:
-                TeamInvitation.objects.create(team=team, player=member.player)
+                print('3 ', member.id)
+                TeamInvitation.objects.create(team=team, player=member)
 
         # other info
         team.avatar_url = self.input['avatarUrl']
@@ -520,6 +532,7 @@ class PlayerTeamInvitation(APIView):
         elif self.input['confirm'] == 0:
             invitation.status = TeamInvitation.REFUSED
         invitation.save()
+        
 
 
 class PlayerTeamSignUp(APIView):
@@ -537,7 +550,7 @@ class PlayerTeamSignUp(APIView):
         if player != team.leader:
             raise LogicError('Only team leader can sign up for team')
         for invitation in team.teaminvitation_set.all():
-            if invitation.status != TeamInvitation.CONFIRMED:
+            if invitation.status != TeamInvitation.CONFIRMED and invitation.status != TeamInvitation.REMOVED:
                 raise LogicError('Team can sign up until all members confirm')
         team.status = Team.VERIFYING
         team.save()
@@ -547,12 +560,7 @@ class PlayerAppealCreate(APIView):
 
     @player_required
     def post(self):
-        # check existence
-        self.check_input('contestId', 'title', 'content', 'attachmentUrl')
-        # check validation
-        Appeal.check_url(self.input['attachmentUrl'])
-        Appeal.check_title(self.input['title'])
-        # create
+        self.check_input('contestId', 'title', 'content', 'attachmentUrl', 'type')
         appeal = Appeal.objects.create(initiator=self.request.user.player,
                                        target_contest=Contest.safe_get(id=self.input['contestId']),
                                        title=self.input['title'],
@@ -567,9 +575,7 @@ class PlayerAppealList(APIView):
 
     @player_required
     def get(self):
-        # check existence
         self.check_input('cid')
-        # query
         contest = Contest.safe_get(id=self.input['cid'])
         appeals = []
         for appeal in Appeal.objects.exclude(status=Appeal.REMOVED).\
@@ -586,9 +592,7 @@ class PlayerAppealDetail(APIView):
 
     @player_required
     def get(self):
-        # check existence
         self.check_input('id')
-        # query
         appeal = Appeal.safe_get(id=self.input['id'])
         return {
             'contestName': appeal.target_contest.name,
@@ -600,15 +604,8 @@ class PlayerAppealDetail(APIView):
 
     @player_required
     def post(self):
-        # check existence
         self.check_input('id', 'contestId', 'title', 'content', 'attachmentUrl', 'status')
-        # check validation
-        Appeal.check_url(self.input['attachmentUrl'])
-        Appeal.check_title(self.input['title'])
-        Appeal.check_status(self.input['status'])
-        # query
         appeal = Appeal.safe_get(id=self.input['id'])
-        # update
         appeal.target_contest = Contest.safe_get(id=self.input['contestId'])
         appeal.status = self.input['status']
         appeal.title = self.input['title']
@@ -623,11 +620,8 @@ class PlayerAppealRemove(APIView):
 
     @player_required
     def post(self):
-        # check existence
         self.check_input('id')
-        # query
         appeal = Appeal.safe_get(id=self.input['id'])
-        # remove
         appeal.status = Appeal.REMOVED
         appeal.save()
 
