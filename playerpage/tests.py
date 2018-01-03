@@ -643,3 +643,15 @@ class TestPlayerAppealDetail(PlayerPageTestCase):
                                                 '"attachmentUrl":"attachmentUrl2", "status": 1}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerAppealRemove(PlayerPageTestCase):
+
+    def test_appeal_remove_post(self):
+        found = resolve('/appeal/remove', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(Appeal.objects.get(id=1).status, Appeal.REMOVED)
