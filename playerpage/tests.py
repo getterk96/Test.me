@@ -25,6 +25,7 @@ def load_test_database():
     management.call_command('loaddata', 'periodscore.json', verbosity=0)
     management.call_command('loaddata', 'examquestion.json', verbosity=0)
     management.call_command('loaddata', 'work.json', verbosity=0)
+    management.call_command('loaddata', 'teaminvitation.json', verbosity=0)
 
 
 class PlayerPageTestCase(TransactionTestCase):
@@ -519,3 +520,26 @@ class TestPlayerTeamDismiss(PlayerPageTestCase):
         request.body.decode = Mock(return_value='{"tid":1}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerTeamInvitation(PlayerPageTestCase):
+
+    def test_team_invitation_get(self):
+        found = resolve('/team/invitation', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=5))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'][0].get('teamName'), 'team2')
+
+    def test_team_invitation_post(self):
+        found = resolve('/team/invitation', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=5))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"iid":1, "confirm":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(TeamInvitation.objects.get(id=1).status, TeamInvitation.CONFIRMED)
+
+
