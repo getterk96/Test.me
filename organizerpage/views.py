@@ -60,12 +60,13 @@ class PersonalInfo(APIView):
             'email': self.request.user.email,
             'description': organizer.description,
             'verifyStatus': organizer.verify_status,
+            'group' : organizer.group
         }
 
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
+        self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email', 'group')
         # check validation
         Organizer.check_email(self.input['email'])
         Organizer.check_nickname(self.input['nickname'])
@@ -77,8 +78,10 @@ class PersonalInfo(APIView):
             organizer.description = self.input['description']
             organizer.avatar_url = self.input['avatarUrl']
             organizer.contact_phone = self.input['contactPhone']
-            organizer.email = self.input['email']
+            organizer.group = self.input['group']
+            organizer.user.email = self.input['email']
             organizer.save()
+            organizer.user.save()
         except:
             raise LogicError('Failed to change user info.')
 
