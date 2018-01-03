@@ -79,3 +79,17 @@ class TestAdminUserDelete(AdminPageTestCase):
         self.assertEqual(response['code'], 0)
         self.assertEqual(User.objects.get(id=2).user_profile.status, User_profile.CANCELED)
 
+
+class TestAdminUserRecover(AdminPageTestCase):
+
+    def test_user_recover_post(self):
+        found = resolve('/user/recover', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        user = User.objects.get(id=2)
+        user.user_profile.status = User_profile.CANCELED
+        user.user_profile.save()
+        request.body.decode = Mock(return_value='{"ids":[2]}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(User.objects.get(id=2).user_profile.status, User_profile.NORMAL)
