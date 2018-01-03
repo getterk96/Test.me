@@ -93,3 +93,31 @@ class TestAdminUserRecover(AdminPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(User.objects.get(id=2).user_profile.status, User_profile.NORMAL)
+
+
+class TestAdminPlayerDetail(AdminPageTestCase):
+
+    def test_player_detail_get(self):
+        found = resolve('/player/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id": 2}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('nickname'), 'nickname1')
+        self.assertEqual(response['data'].get('gender'), 'female')
+
+    def test_player_detail_post(self):
+        found = resolve('/player/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id": 2, "email": "233@test.me",'
+                                                '"group": "group233", "nickname":"nickname233",'
+                                                '"avatarUrl":"avatarUrl233", "contactPhone":"233",'
+                                                '"description":"description", "gender":"male",'
+                                                '"birthday":"2008-01-01","playerType":2}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        player = User.objects.get(id=2).player
+        self.assertEqual(player.group, "group233")
+        self.assertEqual(player.gender, 1)

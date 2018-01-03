@@ -76,7 +76,7 @@ class AdminPlayerDetail(APIView):
     def get(self):
         self.check_input('id')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.PLAYER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.PLAYER)
         except ObjectDoesNotExist:
             raise LogicError('No such player')
 
@@ -99,7 +99,7 @@ class AdminPlayerDetail(APIView):
         self.check_input('id', 'email', 'group', 'nickname', 'avatarUrl', 'contactPhone',
                          'description', 'gender', 'birthday', 'playerType')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.PLAYER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.PLAYER)
         except ObjectDoesNotExist:
             raise LogicError('No such player')
         Player.check_contact_phone(self.input['contactPhone'])
