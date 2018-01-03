@@ -1,6 +1,7 @@
 window.cid = window.get_args('cid');
 
 window.usertype = 0;
+window.problem_list_ready = true;
 
 const type_p = 0;
 const type_o = 1;
@@ -233,8 +234,42 @@ var nav = new Vue({
     }
 });
 
+window.plist = {
+    period : 'period1',
+    problems : [
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        },
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        },
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        }
+    ]
+};
+
 nav.list = ['比赛信息', '队伍信息'];
 nav.choice = '比赛信息';
+if (problem_list_ready) { nav.list.push('比赛题目'); }
 
 window.show_period = [true];
 
@@ -247,7 +282,8 @@ var info = new Vue({
         contest : window.contest,
         signup_material : {
             attachment : ''
-        }
+        },
+        problem_list : window.plist
     },
     computed : {
         page : function() {
@@ -294,6 +330,19 @@ var info = new Vue({
         },
         post : function() {
             //api
+        },
+        switch_problem_status : function(id) {
+            this.problem_list.problems[id].show = !this.problem_list.problems[id].show;
+        },
+        upload_answer : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            for (item of this.problem_list.problems)
+                if ('p-' + this.problem_list.problems.indexOf(item).toString() == e.target.id) {
+                    item.answer = files[0].name;
+                    break;
+                }
         }
     }
 });

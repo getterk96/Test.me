@@ -9,6 +9,7 @@
         <script src="../../js/uni.js"></script>
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail_p.css" />
     </head>
     <body>
         <div id="header">
@@ -170,6 +171,26 @@
                 <div :class="['s-u-resp']" v-if="is_self(team.leader_id)">
                     <button @click="save" :class="['response-button']">暂存修改</button>
                     <button @click="post" :class="['response-button']">提交报名</button>
+                </div>
+            </template>
+            <template v-else-if="page == '比赛题目'">
+                <h1 :class="['pl-title']">{{ problem_list.period }}</h1>
+                <div :class="['session']" v-for="item in problem_list.problems">
+                    <button :class="['s-title', item.show ? '' : 'collapse']" @click="switch_problem_status(problem_list.problems.indexOf(item))"><span :class="['title']">{{ problem_list.problems.indexOf(item) + 1}}</span></button>
+                    <article :class="['s-body']" v-if="item.show">
+                        <div :class="['q-description']">{{ item.description }}</div>
+                        <div>
+                            <span :class="['bold']">题目附件 : </span>
+                            <a :href="item.attachment.url" :class="['underlined']">{{ item.attachment.filename }}</a>
+                        </div>
+                        <div v-if="is_self(team.leader_id)">
+                            <span :class="['bold']">提交答案 : </span>
+                            <label :class="['fileuploader']">
+                                <input type="file" :id="'p-' + problem_list.problems.indexOf(item).toString()" @change="upload_answer" />
+                            </label>
+                            {{ item.answer }}
+                        </div>
+                     </article>
                 </div>
             </template>
         </div>
