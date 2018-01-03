@@ -26,6 +26,7 @@ def load_test_database():
     management.call_command('loaddata', 'examquestion.json', verbosity=0)
     management.call_command('loaddata', 'work.json', verbosity=0)
     management.call_command('loaddata', 'teaminvitation.json', verbosity=0)
+    management.call_command('loaddata', 'appeal.json', verbosity=0)
 
 
 class PlayerPageTestCase(TransactionTestCase):
@@ -607,4 +608,18 @@ class TestPlayerAppealCreate(PlayerPageTestCase):
                                                 '"content":"content1", "attachmentUrl":"attachmentUrl1"}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
+
+class TestPlayerAppealList(PlayerPageTestCase):
+
+    def test_appeal_list_get(self):
+        found = resolve('/appeal/list', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(len(response['data']), 1)
+        self.assertEqual(response['data'][0].get('title'), 'title1')
+
 
