@@ -5,6 +5,7 @@ from django.http import HttpRequest
 from unittest.mock import Mock
 from test_me_app.models import *
 import playerpage.urls
+import organizerpage.urls
 import json
 import datetime
 

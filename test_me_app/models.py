@@ -1,3 +1,4 @@
+import pytz
 import re
 import datetime
 
@@ -8,6 +9,7 @@ from django.db.models.signals import post_save
 from codex.baseerror import *
 from django.core.exceptions import ObjectDoesNotExist
 
+tz = pytz.timezone('Asia/Shanghai')
 
 # Create your models here.
 
@@ -182,7 +184,7 @@ class Contest(models.Model):
             raise InputError('Level exceeds the range limit.')
 
     @staticmethod
-    def check_sign_up_time(start, end):
+    def check_time_logic(start, end):
         if datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S") >= \
                 datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S'):
             raise InputError('Sign up start time must not be later then end time.')
@@ -209,6 +211,57 @@ class Period(models.Model):
         except ObjectDoesNotExist:
             raise LogicError("No Such Period")
 
+    @staticmethod
+    def check_name(name):
+        if len(name) > 20:
+            raise InputError('The length of name is restricted to 20.')
+
+    @staticmethod
+    def check_url(url):
+        if len(url) > 256:
+            raise InputError('The length of url is restricted to 256.')
+
+    @staticmethod
+    def check_contest_related(contest_id, period_id, index, start, end):
+        if datetime.datetime.strptime(start, "%Y-%m-%d %H:%M:%S") >= \
+                datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S'):
+            raise InputError('Period start time must not be later then end time.')
+
+        contest = 0
+        periods = 0
+        if contest_id:
+            contest = Contest.objects.get(id=contest_id)
+            periods = contest.period_set.exclude(status=Period.REMOVED).all()
+        if period_id:
+            contest = Period.objects.get(id=period_id).contest
+            periods = contest.period_set.exclude(status=Period.REMOVED).exclude(id=period_id).all()
+
+        index_list = list(periods.values_list('index', flat=True))
+        if index in index_list:
+            raise InputError('The index has been taken by another period.')
+
+        if periods.count() >= contest.available_slots:
+            raise LogicError('This contest cannot hold more periods.')
+
+        index_list.append(index)
+        index_list = sorted(index_list)
+        p = index_list.index(index)
+        if p < len(index_list) - 1 :
+            if datetime.datetime.strptime(end, '%Y-%m-%d %H:%M:%S', ).replace(tzinfo=pytz.UTC) >= \
+                    periods.get(index=index_list[p + 1]).start_time:
+                raise InputError('The new period\'s end time: '+end+
+                                 ' is later than the later period\'s start time: '+
+                                 datetime.datetime.strftime(periods.get(index=index_list[p + 1]).start_time,
+                                                            "%Y-%m-%d %H:%M:%S") + '.')
+
+        if p > 0:
+            if datetime.datetime.strptime(start, '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.UTC) <= \
+                    periods.get(index=index_list[p - 1]).end_time:
+                raise InputError('The new period\'s start time: '+start+
+                                 ' is earlier than the former period\'s end time: '+
+                                 datetime.datetime.strftime(periods.get(index=index_list[p - 1]).end_time,
+                                                            "%Y-%m-%d %H:%M:%S") + '.')
+
 
 class ExamQuestion(models.Model):
     period = models.ForeignKey(Period)
@@ -227,6 +280,29 @@ class ExamQuestion(models.Model):
             return ExamQuestion.objects.exclude(status=ExamQuestion.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Exam Question")
+
+    @staticmethod
+    def check_url(url):
+        if len(url) > 256:
+            raise InputError('The length of url is restricted to 256.')
+
+    @staticmethod
+    def check_period_related(period_id, question_id, index):
+        period = 0
+        questions = 0
+        if period_id:
+            period = Period.objects.get(id=period_id)
+            questions = period.examquestion_set.exclude(status=ExamQuestion.REMOVED).all()
+        if question_id:
+            period = ExamQuestion.objects.get(id=question_id).period
+            questions = period.examquestion_set.exclude(status=ExamQuestion.REMOVED).exclude(id=question_id).all()
+
+        index_list = list(questions.values_list('index', flat=True))
+        if index in index_list:
+            raise InputError('The index has been taken by another question.')
+
+        if questions.count() >= period.available_slots:
+            raise LogicError('This period cannot hold more questions.')
 
 
 class Team(models.Model):
@@ -322,3 +398,23 @@ class Appeal(models.Model):
             return Appeal.objects.exclude(status=Appeal.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")
+
+    @staticmethod
+    def check_url(url):
+        if len(url) > 256:
+            raise InputError('The length of url is restricted to 256.')
+
+    @staticmethod
+    def check_title(title):
+        if len(title) > 256:
+            raise InputError('The length of title is restricted to 256.')
+
+    @staticmethod
+    def check_status(status):
+        try:
+            int_status = int(status)
+        except:
+            raise InputError('The field status should be a number.')
+        if int_status > 2 or int_status < -1:
+            raise InputError('Status exceeds supposed range.')
+
