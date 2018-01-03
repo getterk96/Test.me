@@ -1,0 +1,14 @@
+[{"model": "test_me_app.period",
+  "pk": 1,
+  "fields": {
+    "contest_id": 1,
+    "index": 1,
+    "name": "period1",
+    "available_slots": 10,
+    "start_time": "2000-01-01 01:00:00",
+    "end_time": "2000-01-01 12:00:00",
+    "description": "description1",
+    "attachment_url": "attachment_url1",
+    "status": 1
+  }
+}]

@@ -183,3 +183,26 @@ li.userbox>div.info li {
     background-color :  rgba(73, 110, 193, 1);
     color : #ffffff;
 }
+
+.o-bar .operator.negative:hover {
+    background-color : rgba(225, 20, 20, 1);
+    color : #ffffff;
+}
+
+ul.inline-form {
+    vertical-align : top;
+}
+
+ul.inline-form li {
+    margin-right : 2em;
+}
+
+.form li>* {
+    vertical-align : top;
+}
+
+.form li>textarea {
+    background : transparent;
+    border-radius : 0.5em;
+    width : 50%; 
+}

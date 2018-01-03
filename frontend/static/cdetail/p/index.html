@@ -2,13 +2,14 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Test.Me</title>
+        <title>比赛详情</title>
         <script src="https://unpkg.com/vue"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
         <script src="../../js/uni.js"></script>
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail_p.css" />
     </head>
     <body>
         <div id="header">
@@ -30,9 +31,9 @@
             </ul>
         </nav>
         <div id="body">
-            <template v-if="page == 'contest info'">
+            <template v-if="page == '比赛信息'">
                 <div :class="['session']">
-                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">Basic Information</span></button>
+                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">基本信息</span></button>
                     <article :class="['s-body']" v-if="show_basic_info">
                         <ul :class="['form']">
                             <template v-for="item in contest.attr">
@@ -41,20 +42,19 @@
                                     <template v-if="item.type == 'ltext'">
                                         <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
                                     </template>
+                                    <template v-else-if="item.type == 'text'">
+                                        <input :class="['display']" v-model="item.content" disabled />
+                                    </template>
                                     <template v-else-if="item.type == 'datetime'">
-                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.sd" />
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.sh" />h
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.sm" />m-
-                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.ed" />
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.eh" />h
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.em" />m
+                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.d" />
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.h" />时
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.m" />分
                                     </template>
                                     <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
-                                        <input type="number" disabled :class="['display', 'short']" v-model="item.content.min" />-
-                                        <input type="number" disabled :class="['display', 'short']" v-model="item.content.max" /> peoples
+                                        <input type="number" disabled :class="['display', 'mid']" v-model="item.content.max" />
                                     </template>
                                     <template v-else-if="item.type == 'number' && item.name == 'slots'">
-                                        <input type="number" disabled :class="['display', 'short']" v-model="item.content" /> teams
+                                        <input type="number" disabled :class="['display', 'mid']" v-model="item.content" />
                                     </template>
                                     <template v-else-if="item.type == 'file'">
                                         <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
@@ -77,20 +77,20 @@
                                         <template v-if="item.type == 'ltext'">
                                             <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
                                         </template>
+                                        <template v-else-if="item.type == 'text'">
+                                            <input :class="['display']" v-model="item.content" disabled />
+                                        </template>
                                         <template v-else-if="item.type == 'datetime'">
-                                            <input type="date" :class="['display', 'mid']" disabled v-model="item.content.sd" />
-                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.sh" />h
-                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.sm" />m-
-                                            <input type="date" :class="['display', 'mid']" disabled v-model="item.content.ed" />
-                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.eh" />h
-                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.em" />m
+                                            <input type="date" :class="['display', 'mid']" disabled v-model="item.content.d" />
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.h" />时
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.m" />分
                                         </template>
                                         <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
                                             <input type="number" disabled :class="['display', 'mid']" v-model="item.content.min" />-
-                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content.max" /> peoples
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content.max" />
                                         </template>
                                         <template v-else-if="item.type == 'number' && item.name == 'slots'">
-                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content" /> teams
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content" />
                                         </template>
                                         <template v-else-if="item.type == 'file'">
                                             <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
@@ -171,6 +171,26 @@
                 <div :class="['s-u-resp']" v-if="is_self(team.leader_id)">
                     <button @click="save" :class="['response-button']">暂存修改</button>
                     <button @click="post" :class="['response-button']">提交报名</button>
+                </div>
+            </template>
+            <template v-else-if="page == '比赛题目'">
+                <h1 :class="['pl-title']">{{ problem_list.period }}</h1>
+                <div :class="['session']" v-for="item in problem_list.problems">
+                    <button :class="['s-title', item.show ? '' : 'collapse']" @click="switch_problem_status(problem_list.problems.indexOf(item))"><span :class="['title']">{{ problem_list.problems.indexOf(item) + 1}}</span></button>
+                    <article :class="['s-body']" v-if="item.show">
+                        <div :class="['q-description']">{{ item.description }}</div>
+                        <div>
+                            <span :class="['bold']">题目附件 : </span>
+                            <a :href="item.attachment.url" :class="['underlined']">{{ item.attachment.filename }}</a>
+                        </div>
+                        <div v-if="is_self(team.leader_id)">
+                            <span :class="['bold']">提交答案 : </span>
+                            <label :class="['fileuploader']">
+                                <input type="file" :id="'p-' + problem_list.problems.indexOf(item).toString()" @change="upload_answer" />
+                            </label>
+                            {{ item.answer }}
+                        </div>
+                     </article>
                 </div>
             </template>
         </div>

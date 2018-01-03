@@ -1,0 +1,8 @@
+[{"model": "test_me_app.teaminvitation",
+  "pk": 1,
+  "fields": {
+    "team_id": 2,
+    "player_id": 4,
+    "status": 0
+  }
+}]

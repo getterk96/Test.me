@@ -60,12 +60,13 @@ class PersonalInfo(APIView):
             'email': self.request.user.email,
             'description': organizer.description,
             'verifyStatus': organizer.verify_status,
+            'group' : organizer.group
         }
 
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email')
+        self.check_input('nickname', 'avatarUrl', 'description', 'contactPhone', 'email', 'group')
         # check validation
         Organizer.check_email(self.input['email'])
         Organizer.check_nickname(self.input['nickname'])
@@ -77,8 +78,10 @@ class PersonalInfo(APIView):
             organizer.description = self.input['description']
             organizer.avatar_url = self.input['avatarUrl']
             organizer.contact_phone = self.input['contactPhone']
-            organizer.email = self.input['email']
+            organizer.group = self.input['group']
+            organizer.user.email = self.input['email']
             organizer.save()
+            organizer.user.save()
         except:
             raise LogicError('Failed to change user info.')
 
@@ -97,6 +100,7 @@ class OrganizingContests(APIView):
                 'teamsNumber': Team.objects.filter(contest_id=contest.id).count(),
                 'creatorId': contest.organizer.id,
                 'creatorName': contest.organizer.nickname,
+                'logoUrl' : contest.logo_url
             })
         return organizing_contests
 
@@ -125,8 +129,7 @@ class ContestDetail(APIView):
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('id', 'name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd',
-                         'availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
+        self.check_input('id', 'name', 'description', 'logoUrl', 'bannerUrl', 'signUpStart', 'signUpEnd','availableSlots', 'maxTeamMembers', 'signUpAttachmentUrl', 'level', 'tags')
         # query
         contest = Contest.safe_get(id=self.input['id'])
         # check validation
@@ -319,8 +322,7 @@ class ContestTeamDetail(APIView):
 
     @organizer_required
     def post(self):
-        self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl',
-                         'periodId''status', 'periods')
+        self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl', 'periodId''status', 'periods')
         team = Team.safe_get(id=self.input['id'])
 
         # basic info
@@ -538,11 +540,15 @@ class AppealList(APIView):
         contest = Contest.safe_get(id=self.input['cid'])
         appeals = []
         for appeal in Appeal.objects.filter(target_contest=contest):
-            appeals.append({
-                'id': appeal.id,
-                'title': appeal.title,
-                'status': appeal.status
-            })
+            appeals.append(appeal.id)
+        return appeals
+    
+    def post(self):
+        self.check_input('id', 'status')
+        for i in self.input['id']:
+            appeal = Appeal.objects.safe_get(id = i)
+            appeal.status = self.input['status']
+            appeal.save()
 
 
 class AppealDetail(APIView):
@@ -552,11 +558,17 @@ class AppealDetail(APIView):
         self.check_input('id')
         # query
         appeal = Appeal.safe_get(id=self.input['id'])
+        members = []
+        for i in appeal.initiator.members:
+            members.append(i.nickname)
         return {
             'title': appeal.title,
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
+            'type': appeal.type,
+            'appealer': appeal.initiator.name,
+            'members': members
         }
 
     @organizer_required

@@ -127,6 +127,10 @@ window.invitation = [];
 
 function ply_get_succ(response) {
     var data = response.data;
+    if (data['alreadySignUp'] == 1) {
+        window.location.assign('../p/index.html?cid=' + window.cid);
+        return;
+    }
     var start_time = new Date(data['signUpStartTime'] * 1000);
     var end_time = new Date(data['signUpEndTime'] * 1000);
     for (i in window.contest.attr) {
@@ -270,12 +274,12 @@ var init_header = function() {
     if (usertype in [0, 1]) {
         header.link_list.push({
             alias : '比赛论坛',
-            link : '../forum/index.html?cid=' + window.cid,
+            link : '../../forum/index.html?cid=' + window.cid,
             action : empty_f
         });
         header.link_list.push({
             alias : '个人中心',
-            link : '../myaccount/index.html',
+            link : '../../myaccount/index.html',
             action : empty_f
         });
         header.link_list.push({

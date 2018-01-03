@@ -1,6 +1,7 @@
 window.cid = window.get_args('cid');
 
 window.usertype = 0;
+window.problem_list_ready = true;
 
 const type_p = 0;
 const type_o = 1;
@@ -46,16 +47,24 @@ window.contest = {
                     editable : true
                 },
                 {
-                    name : 'time',
-                    alias : '阶段时间',
+                    name : 'stime',
+                    alias : '开始时间',
                     type : 'datetime',
                     content : {
-                        sd : '1977-03-11',
-                        ed : '1997-05-22',
-                        sh : '19',
-                        sm : '00',
-                        eh : '19',
-                        em : '00'
+                        d : '1997-05-22',
+                        h : '19',
+                        m : '00'
+                    },
+                    editable : true
+                },
+                {
+                    name : 'etime',
+                    alias : '结束时间',
+                    type : 'datetime',
+                    content : {
+                        d : '1997-05-22',
+                        h : '19',
+                        m : '00'
                     },
                     editable : true
                 },
@@ -88,6 +97,13 @@ window.contest = {
             editable : true
         },
         {
+            name : 'level',
+            alias : 'level',
+            type : 'text',
+            content : 'international',
+            editable : true
+        },
+        {
             name : 'description',
             alias : '比赛简介',
             type : 'ltext',
@@ -95,22 +111,30 @@ window.contest = {
             editable : true
         },
         {
-            name : 'time',
-            alias : '报名时间',
+            name : 'stime',
+            alias : '报名开始时间',
             type : 'datetime',
             content : {
-                sd : '1977-03-11',
-                ed : '1997-05-22',
-                sh : '19',
-                sm : '00',
-                eh : '19',
-                em : '00'
+                d : '1977-03-11',
+                h : '19',
+                m : '00'
+            },
+            editable : true
+        },
+        {
+            name : 'etime',
+            alias : '报名结束时间',
+            type : 'datetime',
+            content : {
+                d : '1977-03-11',
+                h : '19',
+                m : '00'
             },
             editable : true
         },
         {
             name : 'team_lim',
-            alias : '团队人数limit',
+            alias : '团队人数上限',
             type : 'interval',
             content : {
                 min : '5',
@@ -139,7 +163,7 @@ window.contest = {
 };
 
 //api
-window.user_id = '2';
+window.user_id = '1';
 
 window.team = {
     name : '405',
@@ -170,12 +194,12 @@ header.title = '比赛详情';
 if (usertype in [0, 1]) {
     header.link_list.push({
         alias : '比赛论坛',
-        link : '../forum/index.html?cid=' + window.cid,
+        link : '../../forum/index.html?cid=' + window.cid,
         action : empty_f
     });
     header.link_list.push({
         alias : '个人中心',
-        link : '../myaccount/index.html',
+        link : '../../myaccount/index.html',
         action : empty_f
     });
     header.link_list.push({
@@ -210,8 +234,42 @@ var nav = new Vue({
     }
 });
 
-nav.list = ['队伍信息'];
-nav.choice = '队伍信息';
+window.plist = {
+    period : 'period1',
+    problems : [
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        },
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        },
+        {
+            description : "The monks of Turstarkuri watched the rugged valleys below their mountain monastery as wave after wave of invaders swept through the lower kingdoms. Ascetic and pragmatic, in their remote monastic eyrie they remained aloof from mundane strife, wrapped in meditation that knew no gods or elements of magic. Then came the Legion of the Dead God, crusaders with a sinister mandate to replace all local worship with their Unliving Lord's poisonous nihilosophy. From a landscape that had known nothing but blood and battle for a thousand years, they tore the souls and bones of countless fallen legions and pitched them against Turstarkuri. The monastery stood scarcely a fortnight against the assault, and the few monks who bothered to surface from their meditations believed the invaders were but demonic visions sent to distract them from meditation. They died where they sat on their silken cushions. Only one youth survived--a pilgrim who had come as an acolyte, seeking wisdom, but had yet to be admitted to the monastery. He watched in horror as the monks to whom he had served tea and nettles were first slaughtered, then raised to join the ranks of the Dead God's priesthood. With nothing but a few of Turstarkuri's prized dogmatic scrolls, he crept away to the comparative safety of other lands, swearing to obliterate not only the Dead God's magic users--but to put an end to magic altogether.",
+            show : true,
+            attachment : {
+                filename : 'fuck.pdf',
+                url : '#'
+            },
+            answer : ''
+        }
+    ]
+};
+
+nav.list = ['比赛信息', '队伍信息'];
+nav.choice = '比赛信息';
+if (problem_list_ready) { nav.list.push('比赛题目'); }
 
 window.show_period = [true];
 
@@ -224,7 +282,8 @@ var info = new Vue({
         contest : window.contest,
         signup_material : {
             attachment : ''
-        }
+        },
+        problem_list : window.plist
     },
     computed : {
         page : function() {
@@ -271,6 +330,19 @@ var info = new Vue({
         },
         post : function() {
             //api
+        },
+        switch_problem_status : function(id) {
+            this.problem_list.problems[id].show = !this.problem_list.problems[id].show;
+        },
+        upload_answer : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            for (item of this.problem_list.problems)
+                if ('p-' + this.problem_list.problems.indexOf(item).toString() == e.target.id) {
+                    item.answer = files[0].name;
+                    break;
+                }
         }
     }
 });

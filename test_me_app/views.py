@@ -39,24 +39,20 @@ class Upload(APIView):
 
     def post(self):
         self.check_input('file', 'destination')
-        file = self.input['file'][0]
-        new_name = time.strftime('%Y.%m.%d %H:%M:%S') + '.' + file.name.split('.')[-1]
-        save_path = settings.MEDIA_ROOT + '/' + self.input['destination'] + '/'
-        if not os.path.exists(settings.MEDIA_ROOT):
-            os.mkdir(settings.MEDIA_ROOT)
-        if not os.path.exists(save_path):
-            os.mkdir(save_path)
         try:
-            save_file = open(save_path + new_name, 'w+b')
+            file = self.input.get('file')[0]
+            new_name = self.input.get('destination') + '\\' + time.strftime('%Y%m%d%H%M%S') + '.' + file.name.split('.')[-1]
+            save_path = settings.MEDIA_ROOT + '\\' + new_name
+            save_file = open(save_path, 'w+b')
+            if file.multiple_chunks():
+                for chunk in file.chunks():
+                    save_file.write(chunk)
+            else:
+                save_file.write(file.read())
+            save_file.close()
         except:
-            raise LogicError('Failed to save file' + file.name)
-        if file.multiple_chunks():
-            for chunk in file.chunks():
-                save_file.write(chunk)
-        else:
-            save_file.write(file.read())
-        save_file.close()
-        return save_path + new_name
+            raise LogicError('Upload failed')
+        return 'http://' + settings.SITE_DOMAIN + '/media/' + new_name
 
 
 class UserType(APIView):
@@ -64,3 +60,11 @@ class UserType(APIView):
     @login_required
     def get(self):
         return self.request.user.user_profile.user_type
+
+        
+class ChangePassword(APIView):
+
+    def post(self):
+        self.check_input('password')
+        self.request.user.set_password(self.input['password'])
+        self.request.user.save()

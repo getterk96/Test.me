@@ -1,0 +1,21 @@
+[{"model": "test_me_app.appeal",
+  "pk": 1,
+  "fields": {
+    "initiator_id": 1,
+    "target_contest_id": 1,
+    "title": "title1",
+    "content": "content1",
+    "attachment_url": "attachment_url1",
+    "status": 0
+  }
+},{"model": "test_me_app.appeal",
+  "pk": 2,
+  "fields": {
+    "initiator_id": 1,
+    "target_contest_id": 1,
+    "title": "title2",
+    "content": "content2",
+    "attachment_url": "attachment_url2",
+    "status": -1
+  }
+}]

@@ -1,0 +1,12 @@
+[{"model": "test_me_app.organizer",
+  "pk": 1,
+  "fields": {
+    "group": "group1",
+    "nickname": "nickname1",
+    "avatar_url": "avatar_url1",
+    "contact_phone": "contact_phone1",
+    "description": "description",
+    "verify_file_url": "verify_file_url1",
+    "verify_status": 0,
+    "user_id": 3}
+}]
