@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8" />
-        <title>Test.Me</title>
+        <title>比赛管理</title>
         <script src="https://unpkg.com/vue"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
@@ -32,7 +32,7 @@
         <div id="body">
             <template v-if="page == '比赛信息'">
                 <div :class="['session']">
-                    <button :class="['s-title', show_basic_info ? '' :  'collapse']" @click="switch_basic_info"><span :class="['title']">比赛基本信息</span></button>
+                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">比赛基本信息</span></button>
                     <article :class="['s-body']" v-if="show_basic_info">
                         <ul :class="['form']">
                             <li v-for='item in contest.attr'>
@@ -52,12 +52,9 @@
                                         <input  v-model="item.content.m" :class="['input', 'short']" type="number" min="0" max="59" />
                                     </div>
                                     <div v-else>
-                                        <input disabled :class="['input', 'mid']" type="date" v-model="item.content.sd" />
-                                        <input disabled  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input disabled  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
-                                        <input disabled :class="['input', 'mid']" type="date" v-model="item.content.ed" />
-                                        <input disabled  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input disabled  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                        <input disabled :class="['input', 'mid']" type="date" v-model="item.content.d" />
+                                        <input disabled  v-model="item.content.h" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                        <input disabled  v-model="item.content.m" :class="['input', 'short']" type="number" min="0" max="59" />
                                     </div>
                                 </template>
                                 <template v-else-if="item.type == 'number'">
@@ -94,20 +91,14 @@
                                 </template>
                                 <template v-else-if="item.type == 'datetime'">
                                     <div v-if="item.editable">
-                                        <input :class="['input', 'mid']" type="date" v-model="item.content.sd" />
-                                        <input  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
-                                        <input :class="['input', 'mid']" type="date" v-model="item.content.ed" />
-                                        <input  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                        <input :class="['input', 'mid']" type="date" v-model="item.content.d" />
+                                        <input  v-model="item.content.h" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                        <input  v-model="item.content.m" :class="['input', 'short']" type="number" min="0" max="59" />
                                     </div>
                                     <div v-else>
-                                        <input disabled :class="['input', 'mid']" type="date" v-model="item.content.sd" />
-                                        <input disabled  v-model="item.content.sh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input disabled  v-model="item.content.sm" :class="['input', 'short']" type="number" min="0" max="59" />-
-                                        <input disabled :class="['input', 'mid']" type="date" v-model="item.content.ed" />
-                                        <input disabled  v-model="item.content.eh" :class="['input', 'short']" type="number" min="0" max="23" />:
-                                        <input disabled  v-model="item.content.em" :class="['input', 'short']" type="number" min="0" max="59"/>
+                                        <input disabled :class="['input', 'mid']" type="date" v-model="item.content.d" />
+                                        <input disabled  v-model="item.content.h" :class="['input', 'short']" type="number" min="0" max="23" />:
+                                        <input disabled  v-model="item.content.m" :class="['input', 'short']" type="number" min="0" max="59" />
                                     </div>
                                 </template>
                                 <template v-else-if="item.type == 'number'">
@@ -116,7 +107,7 @@
                                 </template>
                                 <template v-else-if="item.type == 'file'">
                                     <label :class="['fileuploader']">
-                                        <input type="file" :id="'p' + p.lid" @change="p_file_change" required/>
+                                        <input type="file" :id="'p' + p.lid" @change="p_file_change" required />
                                     </label>
                                     {{ item.content }}
                                 </template>
@@ -164,64 +155,64 @@
             </template>
             <template v-else-if="page == '申诉处理'">
                 <div :class="['session']" v-if="appeal_batch">
-                    <span v-if="selected_appeal > 0">{{ selected_appeal }}{{ ' chosen' }}</span>
+                    <span v-if="selected_appeal > 0">{{ '已选择 ' }}{{ selected_appeal }}{{ ' 条申诉' }}</span>
                     <div :class="['o-bar']">
-                        <button :class="['operator']" @click="select_page_appeal">select page</button>
-                        <button :class="['operator']" @click="unselect_page_appeal">unselect page</button>
-                        <button :class="['operator']" @click="select_all_appeal">select all</button>
-                        <button :class="['operator']" @click="unselect_all_appeal">unselect all</button>
+                        <button :class="['operator']" @click="select_page_appeal">此页全选</button>
+                        <button :class="['operator']" @click="unselect_page_appeal">此页全不选</button>
+                        <button :class="['operator']" @click="select_all_appeal">全选</button>
+                        <button :class="['operator']" @click="unselect_all_appeal">全不选</button>
                         <button :class="['operator']" @click="appeal_sort_status">
-                            <span v-if="appeal_status_reverse">Unprocessed First</span>
-                            <span v-else>Ignored First</span>
+                            <span v-if="appeal_status_reverse">未处理优先</span>
+                            <span v-else>已搁置优先</span>
                         </button>
                         <button :class="['operator']" @click="appeal_sort_type">
-                            <span v-if="appeal_type_reverse">Criteria First</span>
-                            <span v-else>Result First</span>
+                            <span v-if="appeal_type_reverse">资格申诉优先</span>
+                            <span v-else>成绩申诉优先</span>
                         </button>
                     </div>
                     <div :class="['o-bar']">
-                        <button :class="['operator']" @click="process_selected_appeals">set as processed</button>
-                        <button :class="['operator', 'negative']" @click="ignore_selected_appeals">ignore</button>
+                        <button :class="['operator']" @click="process_selected_appeals">设为已处理</button>
+                        <button :class="['operator', 'negative']" @click="ignore_selected_appeals">搁置选中</button>
                     </div>
                     <table :class="['searchresult']" cellspacing='0'>
                         <thead>
-                            <th>appealer</th>
-                            <th>appeal title</th>
-                            <th>appeal type</th>
-                            <th>appeal status</th>
+                            <th>申诉团队</th>
+                            <th>申诉标题</th>
+                            <th>申诉类型</th>
+                            <th>申诉状态</th>
                             <th>&nbsp;</th>
                         </thead>
                         <tr v-for="item in appeal_list[appeal_page]" :class="[item.selected ? 'table-select' : '', appeal_list.indexOf(item) == appeal_list.length - 1 ? 'last-row' : '']">
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.appealer.name }}</td>
                             <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.title }}</td>
-                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ item.type }}</td>
-                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))" :class="[item.status == 'processed' ? 'green' : '', item.status == 'ignored' ? 'red' : '']">{{ item.status }}</td>
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))">{{ appeal_type_dict[item.type] }}</td>
+                            <td @click="select_appeal(appeal_page, appeal_list[appeal_page].indexOf(item))" :class="[item.status == 0 ? 'green' : '', item.status == 1 ? 'red' : '']">{{ appeal_status_dict[item.status] }}</td>
                             <td><button :class="['blue']" @click="a_single_process(appeal_page, appeal_list[appeal_page].indexOf(item))">详情</button></td>
                         </tr>
                     </table>
                     <div :class="['page-nav']">
-                        <button v-if="appeal_page > 0" @click="prev_a_page">previous page</button>
-                        <button v-else disabled>previous page</button>
+                        <button v-if="appeal_page > 0" @click="prev_a_page">上一页</button>
+                        <button v-else disabled>上一页</button>
                         {{ appeal_page + 1 }}{{ '/' + appeal_list.length }}
-                        <button v-if="appeal_page < appeal_list.length - 1" @click="next_a_page">next page</button>
-                        <button v-else disabled>next page</button>
+                        <button v-if="appeal_page < appeal_list.length - 1" @click="next_a_page">下一页</button>
+                        <button v-else disabled>下一页</button>
                     </div>
                 </div>
                 <div :class="['session']" v-else>
                     <div :class="['o-bar']">
-                        <button :class="['operator', 'negative']" @click="a_batch_process">Back to batch</button>
-                        <button :class="['operator']" @click="a_single_prev">Previous One</button>
-                        <button :class="['operator']" @click="a_single_next">Next One</button>
+                        <button :class="['operator', 'negative']" @click="a_batch_process">批量处理</button>
+                        <button :class="['operator']" @click="a_single_prev">上一条</button>
+                        <button :class="['operator']" @click="a_single_next">下一条</button>
                     </div>
                     <button :class="['s-title']" disabled><span>{{ appeal_list[a_single_page][a_single_idx].title }}</span></button>
                     <article :class="['s-body']">
                         <ul :class="['form']">
                             <li>
-                                <div :class="['label']">Appealer</div>
+                                <div :class="['label']">申诉团队</div>
                                 <input disabled v-model="appeal_list[a_single_page][a_single_idx].appealer.name" />
                             </li>
                             <li>
-                                <div :class="['label']">Team member</div>
+                                <div :class="['label']">团队成员</div>
                                 <ul :class="['inline-form']">
                                     <li v-for="p in appeal_list[a_single_page][a_single_idx].appealer.member">
                                         <a :class="['blue']">{{ p.name }}</a>
@@ -229,57 +220,64 @@
                                 </ul>
                             </li>
                             <li>
-                                <div :class="['label']">Type</div>
-                                <input disabled v-model="appeal_list[a_single_page][a_single_idx].type" />
+                                <div :class="['label']">申诉类型</div>
+                                <input disabled v-model="appeal_type_dict[appeal_list[a_single_page][a_single_idx].type]" />
                             </li>
                             <li>
-                                <div :class="['label']">Status</div>
-                                <input disabled v-model="appeal_list[a_single_page][a_single_idx].status" :class="[appeal_list[a_single_page][a_single_idx].status == 'processed' ? 'green' : '', appeal_list[a_single_page][a_single_idx].status == 'ignored' ? 'red' : '']" />
+                                <div :class="['label']">申诉状态</div>
+                                <input disabled v-model="appeal_status_dict[appeal_list[a_single_page][a_single_idx].status]" :class="[appeal_list[a_single_page][a_single_idx].status == 0 ? 'green' : '', appeal_list[a_single_page][a_single_idx].status == 1 ? 'red' : '']" />
                             </li>
                             <li>
-                                <div :class="['label']">Content</div>
+                                <div :class="['label']">内容</div>
                                 <textarea disabled v-model="appeal_list[a_single_page][a_single_idx].content" rows="5"></textarea>
                             </li>
                         </ul>
                     </article>
-                    <article :class=['s-body'] v-if="appeal_list[a_single_page][a_single_idx].status == 'to process'">
+                    <article :class=['s-body'] v-if="appeal_list[a_single_page][a_single_idx].status == 2">
                         <ul :class="['form']" v-if="show_appeal_reply">
                             <li>
-                                <div :class="['label']">Reply Text</div>
+                                <div :class="['label']">回复</div>
                                 <textarea v-model="appeal_reply" rows="5"></textarea>
                             </li>
                         </ul>
                         <div :class=['o-bar'] >
-                        <button :class="['operator', 'negative']">ignore</button>
-                        <button :class="['operator']" v-if="show_appeal_reply">Reply</button>
-                        <button :class="['operator']" v-else @click="switch_appeal_reply()">Process</button>
+                            <button :class="['operator', 'negative']">搁置</button>
+                            <template v-if="show_appeal_reply">
+                                <button :class="['operator', 'negative']" @click="switch_appeal_reply">取消</button>
+                                <button :class="['operator']">回复</button>
+                            </template>
+                            <button :class="['operator']" v-else @click="switch_appeal_reply">处理</button>
                         </div>
                     </article>
-                    <article :class="['s-body']" v-else-if="appeal_list[a_single_page][a_single_idx].status == 'ignored'">
+                    <article :class="['s-body']" v-else-if="appeal_list[a_single_page][a_single_idx].status == 1">
                         <ul :class="['form']" v-if="show_appeal_reply">
                             <li>
-                                <div :class="['label']">Reply Text</div>
+                                <div :class="['label']">回复</div>
                                 <textarea v-model="appeal_reply" rows="5"></textarea>
                             </li>
                         </ul>
                         <div :class=['o-bar'] >
-                        <button :class="['operator', 'negative']" @click="switch_appeal_reply" v-if="show_appeal_reply">ignore</button>
-                        <button :class="['operator']" v-if="show_appeal_reply">Reply</button>
-                        <button :class="['operator']" v-else @click="switch_appeal_reply">Process</button>
+                            <template v-if="show_appeal_reply">
+                            <button :class="['operator', 'negative']" @click="switch_appeal_reply">取消</button>
+                            <button :class="['operator']">回复</button>
+                            </template>
+                            <button :class="['operator']" v-else @click="switch_appeal_reply">处理</button>
                         </div>
                     </article>
-                    <article :class="['s-body']" v-else-if="appeal_list[a_single_page][a_single_idx].status == 'processed'">
+                    <article :class="['s-body']" v-else-if="appeal_list[a_single_page][a_single_idx].status == 0">
                         <ul :class="['form']">
                             <li>
-                                <div :class="['label']">Reply Text</div>
-                                <textarea v-model="appeal_reply" rows="5"  v-if="show_appeal_reply" disabled></textarea>
+                                <div :class="['label']">回复</div>
+                                <textarea v-model="appeal_reply" rows="5"  v-if="!show_appeal_reply" disabled></textarea>
                                 <textarea v-model="appeal_reply" rows="5" v-else></textarea>
                             </li>
                         </ul>
-                        <div :class=['o-bar'] >
-                            <button :class="['operator', 'negative']" v-if="!show_appeal_reply" @click="switch_appeal_reply">Cancel</button>
-                            <button :class="['operator']" v-if="!show_appeal_reply">Reply</button>
-                            <button :class="['operator']" v-else @click="switch_appeal_reply">Re-process</button>
+                        <div :class=['o-bar']>
+                            <template v-if="show_appeal_reply">
+                                <button :class="['operator', 'negative']" @click="switch_appeal_reply">取消</button>
+                                <button :class="['operator']">回复</button>
+                            </template>
+                            <button :class="['operator']" v-else @click="switch_appeal_reply">重新处理</button>
                         </div>
                     </article>
                 </div>
@@ -296,7 +294,7 @@
                     <article :class="['s-body']">
                         <ul :class="['form']">
                             <li>
-                                <div :class="['label']">Result file</div>
+                                <div :class="['label']">成绩文件</div>
                                 <label :class="['fileuploader']">
                                     <input type="file" @change="r_file_change" v-if="upload_result_avail" />
                                     <input type="file" v-else disabled/>

@@ -383,7 +383,6 @@ var nav = new Vue({
         }
     }
 })
-
 var c_upload_pass = function(response) {
     for (i of info.contest.attr)
         if (i.name == 'c_file')
@@ -436,26 +435,26 @@ info = new Vue({
     data : {
         show_basic_info : true,
         show_period_info : true,
+        show_appeal_reply : false,
         contest : window.contest,
         result_file_name : 'hahahah',
         upload_result_avail : true,
+        appeal_reply : '',
         appeal_status_reverse : false,
         appeal_type_reverse : false,
-        appeal_page_capacity : 20,
+        appeal_page_capacity : 2,
         appeal_counter : 0,
         appeal_list : [],
+        a_single_page : 0,
+        a_single_idx : 0,
         appeal_page : 0,
         selected_appeal : 0,
         appeal_batch : true,
         show_upload_toknow : true,
+        appeal_status_dict : ['已处理', '已搁置', '未处理'],
+        appeal_type_dict : ['资格', '成绩']
     },
     computed : {
-        is_guest : function() {
-            return contest.is_guest;
-        },
-        is_organizer : function() {
-            return usertype == type_o;
-        },
         page : function() {
             return nav.choice;
         }
@@ -573,13 +572,6 @@ info = new Vue({
             for (i of this.contest.period[idx].attr)
                 if (i.name == 'name')
                     return(i.content);
-        },
-        remove_period : function(idx) {
-            if ((idx >= this.contest.period.length) || (idx < 0)) {
-                console.log('[err] No such element');
-                return;
-            }
-            this.contest.period.splice(idx, 1);
         },
         insert_new_question : function(pidx) {
             var new_question = {
@@ -782,24 +774,24 @@ info = new Vue({
         },
         appeal_status_cp : function(a, b) {
             if (a == b) { return false; }
-            if (a == 'processed') { return false; }
-            if (b == 'processed') { return true; }
-            if ((a == 'ignored' && this.appeal_status_reverse) || (a == 'to process' && !this.appeal_status_reverse))
+            if (a == 0) { return false; }
+            if (b == 0) { return true; }
+            if ((a == 1 && this.appeal_status_reverse) || (a == 2 && !this.appeal_status_reverse))
                 return true;
             return false;
         },
         appeal_type_cp : function(a, b) {
             if (a == b) { return false; }
-            if ((a == 'criteria' && !this.appeal_type_reverse) || (a == 'score' && this.appeal_type_reverse))
+            if ((a == 0 && !this.appeal_type_reverse) || (a == 1 && this.appeal_type_reverse))
                 return true;
-            return fals
+            return false;
         },
         a_single_process : function(page, idx) {
             this.a_single_page = page;
             this.a_single_idx = idx;
             this.appeal_batch = false;
-            if (this.appeal_list[this.a_single_page][this.a_single_idx].status == 'processed') { this.show_appeal_reply = true; }
-            else { this.show_appeal_reply = false; }
+            this.show_appeal_reply = false;
+            this.appeal_reply = this.appeal_list[page][idx].reply;
         },
         a_batch_process : function() {
             this.appeal_batch = true;
@@ -862,8 +854,9 @@ info = new Vue({
             var data = {id : ids, status : 2};
             $t(url, m, data, process_succ, process_fail);
         },
-        switch_appeal_reply : function() {
+        switch_appeal_reply : function(mode) {
             this.show_appeal_reply = !this.show_appeal_reply;
+            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
         },
         publish : function() {
             upload_data(0);
@@ -996,137 +989,23 @@ var upload_data = function(aim_status) {
     $t(url, m, data, post_succ, post_fail);
 }
 
-
 // for develop without API
-/*window.contest = {
-    getAttr : function(qname) {
-        for (i of this.attr)
-            if (i.name == qname)
-                return i.content;
-        console.log('[err] No such attr');
-        return null;
-    },
-    period_counter : 1,
-    period_id : [],
-    period : [],
-    attr : [
-        {
-            name : 'name',
-            alias : '比赛名称',
-            type : 'text',
-            content : 'contest 1',
-            editable : true
-        },
-        {
-            name : 'description',
-            alias : '比赛简介',
-            type : 'ltext',
-            content : 'description 1',
-            editable : true
-        },
-        {
-            name : 'time',
-            alias : '报名时间',
-            type : 'datetime',
-            content : {
-                sd : '1977-03-11',
-                ed : '1997-05-22',
-                sh : '19',
-                sm : '00',
-                eh : '19',
-                em : '00'
-            },
-            editable : true
-        },
-        {
-            name : 'maxteam',
-            alias : '团队人数上限',
-            type : 'number',
-            content : '100',
-            editable : true
-        },
-        {
-            name : 'slots',
-            alias : '可报名团队数',
-            type : 'number',
-            content : '100',
-            editable : true
-        },
-        {
-            name : 'processed',
-            alias : '已审核',
-            type : 'progress',
-            content : {
-                base : 'slots',
-                value : '100'
-            },
-            editable : true
-        },
-        {
-            name : 'c_file',
-            alias : '比赛附件',
-            type : 'file',
-            content : ''
-        }
-    ],
-    is_guest : false,
-    period_modifier_available : true
-};
-
-var nav = new Vue({
-    el : '#side-nav',
-    data : {
-        list : [],
-        choice : ''
-    },
-    methods : {
-        select : function(target) {
-            for (i of this.list)
-                if (i == target) {
-                    this.choice = target;
-                    return;
-                }
-            console.log('[err] No such item');
-        }
-    }
-});
-
-header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
-header.title = '比赛';
-header.title += '管理';
-
-header.link_list.push({
-    alias : '比赛论坛',
-    link : '../forum/index.html?cid=' + window.cid,
-    action : empty_f
-    });
-    header.link_list.push({
-        alias : '个人中心',
-        link : '../myaccount/index.html',
-        action : empty_f
-    });
-    header.link_list.push({
-        alias : '登出',
-        link : '#',
-        action : function() {
-            logout();
-        }
-    });
-nav.list = ['比赛信息', '申诉处理', '选手管理', '成绩录入'];
-nav.choice = '比赛信息';
-
-info = new Vue({
+/*
+init_header();
+var info = new Vue({
     el : '#body',
     data : {
         show_basic_info : true,
         show_period_info : true,
-        show_upload_toknow : true,
+        show_appeal_reply : false,
         contest : window.contest,
         result_file_name : 'hahahah',
         upload_result_avail : true,
+        appeal_reply : '',
         appeal_status_reverse : false,
         appeal_type_reverse : false,
         appeal_page_capacity : 2,
+        appeal_counter : 0,/*
         appeal_list : [
             [
                 {
@@ -1144,8 +1023,9 @@ info = new Vue({
                             }
                         ]
                     },
-                    type : 'score',
-                    status : 'to process',
+                    reply : 'fuck gjh',
+                    type : 1,
+                    status : 0,
                     title : 'fuck zyn',
                     content : 'fuckkkkkkkkkk zyn',
                     a_url : '#',
@@ -1153,7 +1033,7 @@ info = new Vue({
                 },
                 {
                     appealer : {
-                        name : '405',
+                        name : '4051',
                         id : '1',
                         member : [
                             {
@@ -1166,8 +1046,9 @@ info = new Vue({
                             }
                         ]
                     },
-                    type : 'criteria',
-                    status : 'processed',
+                    reply : '',
+                    type : 0,
+                    status : 2,
                     title : 'fuck zyn',
                     content : 'fuckkkkkkkkkk zyn',
                     a_url : '#',
@@ -1177,7 +1058,7 @@ info = new Vue({
             [
                 {
                     appealer : {
-                        name : '405',
+                        name : '4052',
                         id : '1',
                         member : [
                             {
@@ -1190,52 +1071,45 @@ info = new Vue({
                             }
                         ]
                     },
-                    type : 'score',
-                    status : 'ignored',
+                    reply : '',
+                    type : 1,
+                    status : 1,
                     title : 'fuck zyn too',
                     content : 'fuckkkkkkkkkk zyn',
                     a_url : '#',
                     selected : false
                 }
             ]
-        ],
+        ],*/
+        appeal_list : [],
+        a_single_page : 0,
+        a_single_idx : 0,
         appeal_page : 0,
         selected_appeal : 0,
         appeal_batch : true,
-        a_single_page : 0,
-        a_single_idx : 0,
-        show_appeal_reply : false,
-        appeal_reply : ''
+        show_upload_toknow : true,
+        appeal_status_dict : ['已处理', '已搁置', '未处理'],
+        appeal_type_dict : ['资格', '成绩']
     },
     computed : {
-        is_guest : function() {
-            return contest.is_guest;
-        },
-        is_organizer : function() {
-            return usertype == type_o;
-        },
         page : function() {
             return nav.choice;
-        },
-        last_period_name : function() {
-            for (a of this.contest.period[0].attr)
-                if (a.name == 'name')
-                    return a.content;
-            alert('No valid period');
-            return('wow');
         }
     },
     methods : {
         switch_basic_info : function() {
             this.show_basic_info = !this.show_basic_info;
         },
-        switch_upload_toknow : function() {
-            this.show_upload_toknow = !this.show_upload_toknow;
-        },
         c_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
                 return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'contest_attachment');
+            $t(url, m, data, c_upload_pass, c_upload_fail);
         },
         switch_period_info : function() {
             this.show_period_info = !this.show_period_info;
@@ -1244,6 +1118,12 @@ info = new Vue({
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
                 return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'period_attachment');
+            $t(url, m, data, p_upload_pass, p_upload_fail, {'aim' : e.target.id});
         },
         q_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -1255,12 +1135,13 @@ info = new Vue({
                         for (k of j.attr)
                             if (k.name == 'q_file')
                                 k.content = files[0].name;
-        },
-        r_file_change : function(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length)
-                return;
-            this.result_file_name = files[0].name;
+                                //api
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'period_attachment');
+            $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
         },
         insert_new_period : function() {
             var new_period = {
@@ -1281,16 +1162,24 @@ info = new Vue({
                         editable : true
                     },
                     {
-                        name : 'time',
-                        alias : '阶段时间',
+                        name : 'pstime',
+                        alias : '阶段开始时间',
                         type : 'datetime',
                         content : {
-                            sd : '',
-                            ed : '',
-                            sh : '',
-                            sm : '',
-                            eh : '',
-                            em : ''
+                            d : '',
+                            h : '',
+                            m : ''
+                        },
+                        editable : true
+                    },
+                    {
+                        name : 'petime',
+                        alias : '阶段结束时间',
+                        type : 'datetime',
+                        content : {
+                            d : '',
+                            h : '',
+                            m : ''
                         },
                         editable : true
                     },
@@ -1530,24 +1419,24 @@ info = new Vue({
         },
         appeal_status_cp : function(a, b) {
             if (a == b) { return false; }
-            if (a == 'processed') { return false; }
-            if (b == 'processed') { return true; }
-            if ((a == 'ignored' && this.appeal_status_reverse) || (a == 'to process' && !this.appeal_status_reverse))
+            if (a == 0) { return false; }
+            if (b == 0) { return true; }
+            if ((a == 1 && this.appeal_status_reverse) || (a == 2 && !this.appeal_status_reverse))
                 return true;
             return false;
         },
         appeal_type_cp : function(a, b) {
             if (a == b) { return false; }
-            if ((a == 'criteria' && !this.appeal_type_reverse) || (a == 'score' && this.appeal_type_reverse))
+            if ((a == 0 && !this.appeal_type_reverse) || (a == 1 && this.appeal_type_reverse))
                 return true;
-            return fals
+            return false;
         },
         a_single_process : function(page, idx) {
             this.a_single_page = page;
             this.a_single_idx = idx;
             this.appeal_batch = false;
-            if (this.appeal_list[this.a_single_page][this.a_single_idx].status == 'processed') { this.show_appeal_reply = true; }
-            else { this.show_appeal_reply = false; }
+            this.show_appeal_reply = false;
+            this.appeal_reply = this.appeal_list[page][idx].reply;
         },
         a_batch_process : function() {
             this.appeal_batch = true;
@@ -1566,6 +1455,7 @@ info = new Vue({
             }
             this.a_single_page = p;
             this.a_single_idx = i;
+            this.appeal_reply = this.appeal_list[page][idx].reply;
         },
         a_single_next : function() {
             var p = this.a_single_page;
@@ -1585,15 +1475,41 @@ info = new Vue({
             }
             this.a_single_page  = p;
             this.a_single_idx = i;
+            this.appeal_reply = this.appeal_list[page][idx].reply;
         },
-        process_selected_appeals : function() {},
-        ignore_selected_appeals : function() {},
-        switch_appeal_reply : function() {
+        process_selected_appeals : function() {
+            var ids = [];
+            for (i in this.appeal_list)
+                for (j in this.appeal_list[i]) {
+                    if (this.appeal_list[i][j].selected == true)
+                        ids.push(appeal_list[i][j].id);
+                }
+            var url = '/api/o/appeal/list';
+            var m = 'POST';
+            var data = {id : ids, status : 1};
+            $t(url, m, data, process_succ, process_fail);
+        },
+        ignore_selected_appeals : function() {
+            var ids = [];
+            for (i in this.appeal_list)
+                for (j in this.appeal_list[i]) {
+                    if (this.appeal_list[i][j].selected == true)
+                        ids.push(appeal_list[i][j].id);
+                }
+            var url = '/api/o/appeal/list';
+            var m = 'POST';
+            var data = {id : ids, status : 2};
+            $t(url, m, data, process_succ, process_fail);
+        },
+        switch_appeal_reply : function(mode) {
             this.show_appeal_reply = !this.show_appeal_reply;
+            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
         },
         publish : function() {
+            upload_data(0);
         },
         save : function() {
+            upload_data(1);
         }
     }
 });
