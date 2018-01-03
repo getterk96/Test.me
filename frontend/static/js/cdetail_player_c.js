@@ -46,16 +46,24 @@ window.contest = {
                     editable : true
                 },
                 {
-                    name : 'time',
-                    alias : '阶段时间',
+                    name : 'stime',
+                    alias : '开始时间',
                     type : 'datetime',
                     content : {
-                        sd : '1977-03-11',
-                        ed : '1997-05-22',
-                        sh : '19',
-                        sm : '00',
-                        eh : '19',
-                        em : '00'
+                        d : '1997-05-22',
+                        h : '19',
+                        m : '00'
+                    },
+                    editable : true
+                },
+                {
+                    name : 'etime',
+                    alias : '结束时间',
+                    type : 'datetime',
+                    content : {
+                        d : '1997-05-22',
+                        h : '19',
+                        m : '00'
                     },
                     editable : true
                 },
@@ -88,6 +96,13 @@ window.contest = {
             editable : true
         },
         {
+            name : 'level',
+            alias : 'level',
+            type : 'text',
+            content : 'international',
+            editable : true
+        },
+        {
             name : 'description',
             alias : '比赛简介',
             type : 'ltext',
@@ -95,22 +110,30 @@ window.contest = {
             editable : true
         },
         {
-            name : 'time',
-            alias : '报名时间',
+            name : 'stime',
+            alias : '报名开始时间',
             type : 'datetime',
             content : {
-                sd : '1977-03-11',
-                ed : '1997-05-22',
-                sh : '19',
-                sm : '00',
-                eh : '19',
-                em : '00'
+                d : '1977-03-11',
+                h : '19',
+                m : '00'
+            },
+            editable : true
+        },
+        {
+            name : 'etime',
+            alias : '报名结束时间',
+            type : 'datetime',
+            content : {
+                d : '1977-03-11',
+                h : '19',
+                m : '00'
             },
             editable : true
         },
         {
             name : 'team_lim',
-            alias : '团队人数limit',
+            alias : '团队人数上限',
             type : 'interval',
             content : {
                 min : '5',
