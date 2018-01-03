@@ -184,3 +184,25 @@ class TestAdminContestList(AdminPageTestCase):
         self.assertEqual(response['data'][0].get('contestName'), 'publish_contest')
 
 
+class TestAdminContestSearch(AdminPageTestCase):
+
+    def test_contest_search_get_not_exist(self):
+        found = resolve('/contest/search', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"contestName": "aaa", "organizerName": "nickname"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(len(response['data']), 0)
+
+    def test_contest_search_get_exist(self):
+        found = resolve('/contest/search', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"contestName": "_contes", "organizerName": "nick"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(len(response['data']), 1)
+        self.assertEqual(response['data'][0].get('id'), 1)
+
+
