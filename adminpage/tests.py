@@ -277,3 +277,24 @@ class TestAdminAppealDetail(AdminPageTestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(Appeal.objects.get(id=1).title, 'title233')
+
+
+class TestAdminAppealRemove(AdminPageTestCase):
+
+    def test_appeal_remove_post_success(self):
+        found = resolve('/appeal/remove', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(Appeal.objects.get(id=1).status, Appeal.REMOVED)
+
+    def test_appeal_remove_post_not_exist(self):
+        found = resolve('/appeal/remove', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id":3}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'No Such Appeal')

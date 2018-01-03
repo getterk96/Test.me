@@ -304,9 +304,5 @@ class AdminAppealRemove(APIView):
     def post(self):
         self.check_input('id')
         appeal = Appeal.safe_get(id=self.input['id'])
-        try:
-            appeal.delete()
-        except:
-            raise LogicError("Appeal Delete Failed")
-
-        return self.input['id']
+        appeal.status = Appeal.REMOVED
+        appeal.save()
