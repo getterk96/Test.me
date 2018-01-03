@@ -27,11 +27,11 @@ class AdminUserSearch(APIView):
         self.check_input('username', 'userType')
         users = []
         for user in User.objects.filter(username__contains=self.input['username'],
-                                        user_type=self.input['userType']):
+                                        user_profile__user_type=self.input['userType']):
             users.append({
                 'id': user.id,
                 'username': user.username,
-                'userType': user.user_type
+                'userType': user.user_profile.user_type
             })
         return users
 
