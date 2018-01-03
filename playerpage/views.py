@@ -11,7 +11,7 @@ def player_signup_contest(player, contest):
     for team in chain(player.lead_teams.all(), player.join_teams.all()):
         if team.contest == contest:
             return team
-    raise ValidateError('You have not sign up this contest')
+    raise LogicError('You have not sign up this contest')
 
 
 class PlayerRegister(APIView):
@@ -293,7 +293,8 @@ class PlayerTeamList(APIView):
                     'id': team.id,
                     'name': team.name,
                     'leaderName': team.leader.nickname,
-                    'contestName': team.contest.name
+                    'contestName': team.contest.name,
+                    'cid' : team.contest.id
                 })
         return teams
 
