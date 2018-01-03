@@ -810,6 +810,7 @@ info = new Vue({
             }
             this.a_single_page = p;
             this.a_single_idx = i;
+            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
         },
         a_single_next : function() {
             var p = this.a_single_page;
@@ -829,6 +830,7 @@ info = new Vue({
             }
             this.a_single_page  = p;
             this.a_single_idx = i;
+            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
         },
         process_selected_appeals : function() {
             var ids = [];
