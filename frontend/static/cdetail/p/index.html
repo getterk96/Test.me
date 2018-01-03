@@ -50,7 +50,6 @@
                                         <input type="number" :class="['display', 'short']" disabled v-model="item.content.em" />m
                                     </template>
                                     <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
-                                        <input type="number" disabled :class="['display', 'short']" v-model="item.content.min" />-
                                         <input type="number" disabled :class="['display', 'short']" v-model="item.content.max" /> peoples
                                     </template>
                                     <template v-else-if="item.type == 'number' && item.name == 'slots'">

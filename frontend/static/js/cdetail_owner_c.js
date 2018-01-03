@@ -6,6 +6,7 @@ const type_p = 0;
 const type_o = 1;
 
 var info = {};
+var status_dic = ['to solve', 'sovled', 'ignored'];
 
 //api
 
@@ -249,20 +250,73 @@ var org_get_succ = function(response) {
     //logoUrl bannerUrl level currentTime tags
     init_header();
     init_contest();
+    url = '/api/o/appeal/list';
+    m = 'GET';
+    data = {'cid' : window.cid};
+    $t(url, m, data, appeal_get_succ, appeal_get_fail);
 };
 
 var org_get_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 };
 
+var player_get_succ = function(response) {
+};
+
+var player_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
+var appeal_detail_get_succ = function(response, param) {
+    var data = response.data;
+    var members = [];
+    for (i of data['members'])
+        members.push({'name' : i});
+    var appeal = {
+        appler : {
+            name : data['appealer'],
+            member : members,
+        },
+        type : (data['type'] == 0 ? 'score' : 'qualification'),
+        a_url : data['attachmentUrl'],
+        selected : false,
+        content : data['content'],
+        title : data['title'],
+        status : status_dic[data['status']],
+        id : param['id']
+    };
+    if (info.appeal_counter % info.appeal_page_capacity == 0) {
+        info.appeal_list.push([]);
+    }
+    info.appeal_list[info.appeal_counter / info.appeal_page_capacity].push(appeal);
+    ++info.appeal_counter;
+};
+
+var appeal_detail_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
+var appeal_get_succ = function(response) {
+    for (i in response.data) {
+        var url = '/api/o/appeal/detail';
+        var m = 'GET';
+        var data = {'id' : response.data[i]};
+        $t(url, m, data, appeal_detail_get_succ, appeal_detail_get_fail, {id : response.data[i]});
+    }
+}
+
+var appeal_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
 
 var org_get_contest_detail = function() {
     var url = '/api/o/contest/detail';
     var m = 'GET';
     var data = {'id' : window.cid};
     $t(url, m, data, org_get_succ, org_get_fail);
-    url = '/api/o/contest/team_batch_manage';
-    $t(url, m, data, player_get_succ, player_get_fail);
+    //url = '/api/o/contest/team_batch_manage';
+    //data = {'cid' : window.cid};
+    //$t(url, m, data, player_get_succ, player_get_fail);
 };
 
 (function () {
@@ -272,8 +326,6 @@ var org_get_contest_detail = function() {
             usertype = response['data'];
             if (usertype == type_o) {
                 org_get_contest_detail();
-            }
-            if (usertype == type_p) {
             }
         },
         function (response) {
@@ -361,7 +413,14 @@ var q_upload_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 }
 
+var process_succ = function(response) {
+    alert('批量处理完成！');
+    window.location.assign('./index.html?cid=' + window.cid);
+}
 
+var process_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
 
 var init_contest = function () {
 info = new Vue({
@@ -374,51 +433,13 @@ info = new Vue({
         upload_result_avail : true,
         appeal_status_reverse : false,
         appeal_type_reverse : false,
-        appeal_page_capacity : 2,
-        appeal_list : [
-            [
-                {
-                    appealer : {
-                        name : '405',
-                        id : '1'
-                    },
-                    type : 'score',
-                    status : 'to process',
-                    title : 'fuck zyn',
-                    content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#',
-                    selected : false
-                },
-                {
-                    appealer : {
-                        name : '405',
-                        id : '1'
-                    },
-                    type : 'critirea',
-                    status : 'processed',
-                    title : 'fuck zyn',
-                    content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#',
-                    selected : false
-                }
-            ],
-            [
-                {
-                    appealer : {
-                        name : '405',
-                        id : '1'
-                    },
-                    type : 'score',
-                    status : 'ignored',
-                    title : 'fuck zyn too',
-                    content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#',
-                    selected : false
-                }
-            ]
-        ],
+        appeal_page_capacity : 20,
+        appeal_counter : 0,
+        appeal_list : [],
         appeal_page : 0,
-        selected_appeal : 0
+        selected_appeal : 0,
+        appeal_batch : true,
+        show_upload_toknow : true,
     },
     computed : {
         is_guest : function() {
@@ -763,7 +784,78 @@ info = new Vue({
             if (a == b) { return false; }
             if ((a == 'criteria' && !this.appeal_type_reverse) || (a == 'score' && this.appeal_type_reverse))
                 return true;
-            return false;
+            return fals
+        },
+        a_single_process : function(page, idx) {
+            this.a_single_page = page;
+            this.a_single_idx = idx;
+            this.appeal_batch = false;
+            if (this.appeal_list[this.a_single_page][this.a_single_idx].status == 'processed') { this.show_appeal_reply = true; }
+            else { this.show_appeal_reply = false; }
+        },
+        a_batch_process : function() {
+            this.appeal_batch = true;
+        },
+        a_single_prev : function() {
+            var p = this.a_single_page;
+            var i = this.a_single_idx;
+            --i;
+            if (i < 0) {
+                --p;
+                i = this.appeal_page_capacity - 1;
+            }
+            if (p < 0) {
+                alert('No previous one');
+                return;
+            }
+            this.a_single_page = p;
+            this.a_single_idx = i;
+        },
+        a_single_next : function() {
+            var p = this.a_single_page;
+            var i = this.a_single_idx;
+            ++i;
+            if (i == this.appeal_page_capacity) {
+                i = 0;
+                ++p;
+            }
+            if (p == this.appeal_list.length) {
+                alert('No more appeal');
+                return;
+            }
+            if ((p == this.appeal_list.length - 1) && i == this.appeal_list[p].length) {
+                alert('No more appeal');
+                return;
+            }
+            this.a_single_page  = p;
+            this.a_single_idx = i;
+        },
+        process_selected_appeals : function() {
+            var ids = [];
+            for (i in this.appeal_list)
+                for (j in this.appeal_list[i]) {
+                    if (this.appeal_list[i][j].selected == true)
+                        ids.push(appeal_list[i][j].id);
+                }
+            var url = '/api/o/appeal/list';
+            var m = 'POST';
+            var data = {id : ids, status : 1};
+            $t(url, m, data, process_succ, process_fail);
+        },
+        ignore_selected_appeals : function() {
+            var ids = [];
+            for (i in this.appeal_list)
+                for (j in this.appeal_list[i]) {
+                    if (this.appeal_list[i][j].selected == true)
+                        ids.push(appeal_list[i][j].id);
+                }
+            var url = '/api/o/appeal/list';
+            var m = 'POST';
+            var data = {id : ids, status : 2};
+            $t(url, m, data, process_succ, process_fail);
+        },
+        switch_appeal_reply : function() {
+            this.show_appeal_reply = !this.show_appeal_reply;
         },
         publish : function() {
             upload_data(0);
