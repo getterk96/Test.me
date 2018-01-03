@@ -543,3 +543,45 @@ class TestPlayerTeamInvitation(PlayerPageTestCase):
         self.assertEqual(TeamInvitation.objects.get(id=1).status, TeamInvitation.CONFIRMED)
 
 
+class TestPlayerTeamSignUp(PlayerPageTestCase):
+
+    def test_team_sign_up_post_wrong_time(self):
+        found = resolve('/team/signup', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":2}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=-1)
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Contest is not in sign up time')
+
+    def test_team_sign_up_post_not_all_confirmed(self):
+        found = resolve('/team/signup', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":2}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 2)
+        self.assertEqual(response['msg'], 'Team can sign up until all members confirm')
+
+    def test_team_sign_up_post_success(self):
+        found = resolve('/team/signup', urlconf=playerpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=4))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"tid":2}')
+        contest = Contest.objects.get(id=1)
+        contest.sign_up_start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
+        contest.sign_up_end_time = datetime.datetime.now() + datetime.timedelta(days=2)
+        contest.save()
+        team_invitation = TeamInvitation.objects.get(id=1)
+        team_invitation.status = TeamInvitation.CONFIRMED
+        team_invitation.save()
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
