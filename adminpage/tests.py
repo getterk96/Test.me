@@ -121,3 +121,29 @@ class TestAdminPlayerDetail(AdminPageTestCase):
         player = User.objects.get(id=2).player
         self.assertEqual(player.group, "group233")
         self.assertEqual(player.gender, 1)
+
+
+class TestAdminOrganizerDetail(AdminPageTestCase):
+
+    def test_organizer_detail_get(self):
+        found = resolve('/organizer/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id": 3}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(response['data'].get('nickname'), 'nickname1')
+        self.assertEqual(response['data'].get('verifyUrl'), 'verify_file_url1')
+
+    def test_organizer_detail_post(self):
+        found = resolve('/organizer/detail', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"id": 3, "email": "3@test.me",'
+                                                '"group": "group123", "nickname": "nickname123",'
+                                                '"avatarUrl":"avatarUrl123", "description":"description123",'
+                                                '"contactPhone":"123", "verifyUrl":"verifyUrl123"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        organizer = User.objects.get(id=3).organizer
+        self.assertEqual(organizer.avatar_url, "avatarUrl123")

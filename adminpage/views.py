@@ -125,7 +125,7 @@ class AdminOrganizerDetail(APIView):
     def get(self):
         self.check_input('id')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.ORGANIZER)
         except ObjectDoesNotExist:
             raise LogicError('No such organizer')
 
@@ -145,9 +145,9 @@ class AdminOrganizerDetail(APIView):
     @admin_required
     def post(self):
         self.check_input('id', 'email', 'group', 'nickname', 'avatarUrl', 'description',
-                         'contactPhone', 'email', 'verifyUrl')
+                         'contactPhone', 'verifyUrl')
         try:
-            user = User.objects.get(id=self.input['id'], user_type=User_profile.ORGANIZER)
+            user = User.objects.get(id=self.input['id'], user_profile__user_type=User_profile.ORGANIZER)
         except ObjectDoesNotExist:
             raise LogicError('No such organizer')
 
