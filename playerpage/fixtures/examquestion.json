@@ -1,0 +1,11 @@
+[{"model": "test_me_app.examquestion",
+  "pk": 1,
+  "fields": {
+    "period_id": 1,
+    "index": 1,
+    "description": "description1",
+    "attachment_url": "attachment_url1",
+    "submission_limit": 3,
+    "status": 1
+  }
+}]

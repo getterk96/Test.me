@@ -6,4 +6,5 @@ urlpatterns = [
     url(r'^logout', Logout.as_view()),
     url(r'^upload', Upload.as_view()),
     url(r'^user_type', UserType.as_view()),
+    url(r'^change_password', ChangePassword.as_view())
 ]
