@@ -1,7 +1,7 @@
 const type_p = 0;
 const type_o = 1;
 
-window.usertype = type_o;
+window.usertype = type_p;
 
 var nav = new Vue({
     el : '#side-nav',
@@ -106,7 +106,9 @@ var controller = new Vue({
         reupload_doc :false,
         password : '',
         cpassword : '',
-        doc_name : ''
+        doc_name : '',
+        mycontest : [],
+        myteam : []
     },
     computed : {
         page : function() {
@@ -161,6 +163,9 @@ var controller = new Vue({
             if (!files.length)
                 return;
             this.doc_name = files[0].name;
-        }
+        },
+        view_contest : function(cid) {},
+        accept_invite : function(tid) {},
+        deny_invite : function(tid) {}
     }
 })
