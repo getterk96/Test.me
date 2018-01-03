@@ -395,3 +395,23 @@ class Appeal(models.Model):
             return Appeal.objects.exclude(status=Appeal.REMOVED).get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Appeal")
+
+    @staticmethod
+    def check_url(url):
+        if len(url) > 256:
+            raise InputError('The length of url is restricted to 256.')
+
+    @staticmethod
+    def check_title(title):
+        if len(title) > 256:
+            raise InputError('The length of title is restricted to 256.')
+
+    @staticmethod
+    def check_status(status):
+        try:
+            int_status = int(status)
+        except:
+            raise InputError('The field status should be a number.')
+        if int_status > 2 or int_status < -1:
+            raise InputError('Status exceeds supposed range.')
+
