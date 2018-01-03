@@ -231,3 +231,26 @@ class TestAdminContestDetail(AdminPageTestCase):
         self.assertEqual(response['code'], 0)
         self.assertEqual(Contest.objects.get(id=1).name, 'contest233')
         self.assertEqual(Contest.objects.get(id=1).tags.count(), 2)
+
+
+class TestAdminContestVerification(AdminPageTestCase):
+
+    def test_contest_verification_post_publish(self):
+        found = resolve('/contest/verification', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1, "verify":1}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(Contest.objects.get(id=1).status, Contest.PUBLISHED)
+
+    def test_contest_verification_post_cancel(self):
+        found = resolve('/contest/verification', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"cid":1, "verify":0}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
+        self.assertEqual(Contest.objects.get(id=1).status, Contest.CANCELLED)
+
+
