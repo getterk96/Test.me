@@ -443,7 +443,7 @@ class PeriodDetail(APIView):
         period.end_time = self.input['endTime']
         period.available_slots = self.input['availableSlots']
         period.attachment_url = self.input['attachmentUrl']
-        questions_id = self.input['questionId'].split(' ')
+        questions_id = [x for x in self.input['questionId'].split(' ') if x != '']
         period.save()
         for question_id in questions_id:
             question = ExamQuestion.safe_get(id=question_id)
