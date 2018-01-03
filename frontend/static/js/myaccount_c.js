@@ -1,7 +1,7 @@
 const type_p = 0;
 const type_o = 1;
 
-window.usertype = type_p;
+window.usertype = type_o;
 
 var nav = new Vue({
     el : '#side-nav',
@@ -166,6 +166,10 @@ var controller = new Vue({
         },
         view_contest : function(cid) {},
         accept_invite : function(tid) {},
-        deny_invite : function(tid) {}
+        deny_invite : function(tid) {},
+        create_contest : function(tid) {
+            //check whether this user has the authentication to create a contest
+            window.location.assign('../create-contest/index.html');
+        }
     }
 })
