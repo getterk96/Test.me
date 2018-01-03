@@ -95,6 +95,10 @@
               </div>
           </template>
           <template v-else-if="page == '我的比赛'">
+              <div :class="['session']" v-if="user_type == 1">
+                  <button :class="['operator', 'settings']" @click="create_contest">创建比赛
+                  </button>
+              </div>
               <div :class="['session']" v-if="mycontest.length == 0">
                   <ul :class="['waiting']">
                       <li><div :class="['load1', 'waiting-bubble']"></div></li>
