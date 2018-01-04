@@ -515,6 +515,9 @@ info = new Vue({
         }
     },
     methods : {
+        normalize_selected_players : function() {},
+        promote_selected_players : function() {},
+        ban_selected_players : function() {},
         unselect_all_player : function() {
             for (i of this.player_list) {
                 for (j of i) {

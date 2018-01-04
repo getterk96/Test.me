@@ -337,11 +337,12 @@
                         <button :class="['operator']" @click="appeal_sort_type">
                             <span v-if="appeal_type_reverse">资格申诉优先</span>
                             <span v-else>成绩申诉优先</span>
-                        </button>
+                        </button>-->
                     </div>
                     <div :class="['o-bar']">
-                        <button :class="['operator']"   @click="process_selected_appeals">设为已处理</button>
-                        <button :class="['operator', 'negative']" @click="ignore_selected_appeals">搁置选中</button>-->
+                        <button :class="['operator']" @click="normalize_selected_players">允许参赛</button>
+                        <button :class="['operator']" @click="promote_selected_players">使晋级</button>
+                        <button :class="['operator', 'negative']"   @click="ban_selected_players">禁赛</button>
                     </div>
                     <table :class="['searchresult']" cellspacing='0'>
                         <thead>
