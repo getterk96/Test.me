@@ -505,6 +505,42 @@ info = new Vue({
         }
     },
     methods : {
+        unselect_all_player : function() {
+            for (i of this.player_list) {
+                for (j of i) {
+                    if (j.selected) {
+                        --this.selected_player;
+                        j.selected = false;
+                    }
+                }
+            }
+        },
+        select_all_player : function() {
+            for (i of this.player_list) {
+                for (j of i) {
+                    if (!j.selected) {
+                        ++this.selected_player;
+                        j.selected = true;
+                    }
+                }
+            }
+        },
+        unselect_page_player : function() {
+            for (i of this.player_list[this.player_page]) {
+                if (i.selected) {
+                    --this.selected_player;
+                    i.selected = false;
+                }
+            }
+        },
+        select_page_player : function() {
+            for (i of this.player_list[this.player_page]) {
+                if (!i.selected) {
+                    ++this.selected_player;
+                    i.selected = true;
+                }
+            }
+        },
         select_player : function(page, idx) {
             this.player_list[page][idx].selected = !this.player_list[page][idx].selected;
             if (this.player_list[page][idx].selected) { ++this.selected_player; }

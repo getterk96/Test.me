@@ -323,6 +323,24 @@
             </template>
             <template v-else-if="page == '选手管理'">
                 <div :class="['session']" v-if="player_batch">
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="select_page_player">此页全选</button>
+                        <button :class="['operator']" @click="unselect_page_player">此页全不选</button>
+                        <button :class="['operator']" @click="select_all_player">全选</button>
+                        <button :class="['operator']" @click="unselect_all_player">全不选</button>
+                        <!--<button :class="['operator']" @click="appeal_sort_status">
+                            <span v-if="appeal_status_reverse">未处理优先</span>
+                            <span v-else>已搁置优先</span>
+                        </button>
+                        <button :class="['operator']" @click="appeal_sort_type">
+                            <span v-if="appeal_type_reverse">资格申诉优先</span>
+                            <span v-else>成绩申诉优先</span>
+                        </button>
+                    </div>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']"   @click="process_selected_appeals">设为已处理</button>
+                        <button :class="['operator', 'negative']" @click="ignore_selected_appeals">搁置选中</button>-->
+                    </div>
                     <span v-if="selected_player > 0">{{ '已选择 ' }}{{ selected_player }}{{ ' 支队伍' }}</span>
                     <table :class="['searchresult']" cellspacing='0'>
                         <thead>
