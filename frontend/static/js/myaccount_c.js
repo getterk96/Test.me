@@ -375,11 +375,11 @@ controller = new Vue({
         },
         start_modify_description : function() {
             this.modify_description  = true;
-            tmp['description'] = this.user.description;
+            tmp['description'] = this.user.description.content;
         },
-        cancel_modify_descripiton : function() {
+        cancel_modify_description : function() {
             this.modify_description = false;
-            this.user.description = tmp['description'];
+            this.user.description.content = tmp['description'];
         },
         save_description : function() {
             //todo

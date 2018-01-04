@@ -362,3 +362,22 @@ div.waiting-bubble {
     0% { opacity : 0; -moz-transform : translateY(5em); }
     100% { opacity : 1; -moz-transform : translateY(0); }
 }
+
+.user-description {
+    display : block;
+    width : 80%;
+    margin : auto;
+    background : transparent;
+    border-radius : 0.2em;
+    box-shadow : 0 0 0.2em rgba(0, 0, 0, 0.4) inset;
+    border : 0.1em solid rgba(73, 110, 193, 0);
+    transition : border 0.3s;
+}
+
+.user-description:focus {
+    border : 0.1em solid rgba(73, 110, 193, 0.7);
+}
+
+.user-description[disable] {
+    background : transparent;
+}
