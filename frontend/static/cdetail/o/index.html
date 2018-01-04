@@ -9,6 +9,7 @@
         <script src="../../js/uni.js"></script>
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail_o.css" />
         <script src="mock_data.js"></script>
     </head>
     <body>
@@ -323,6 +324,7 @@
             </template>
             <template v-else-if="page == '选手管理'">
                 <div :class="['session']" v-if="player_batch">
+                    <span v-if="selected_player > 0">{{ '已选择 ' }}{{ selected_player }}{{ ' 支队伍' }}</span>
                     <div :class="['o-bar']">
                         <button :class="['operator']" @click="select_page_player">此页全选</button>
                         <button :class="['operator']" @click="unselect_page_player">此页全不选</button>
@@ -341,12 +343,21 @@
                         <button :class="['operator']"   @click="process_selected_appeals">设为已处理</button>
                         <button :class="['operator', 'negative']" @click="ignore_selected_appeals">搁置选中</button>-->
                     </div>
-                    <span v-if="selected_player > 0">{{ '已选择 ' }}{{ selected_player }}{{ ' 支队伍' }}</span>
                     <table :class="['searchresult']" cellspacing='0'>
                         <thead>
                             <th>团队</th>
-                            <th>{{ get_p_name(player_p0) }}成绩</th>
-                            <th>{{ get_p_name(player_p1) }}成绩</th>
+                            <th>
+                                <select v-model="player_p0_name">
+                                    <option v-for="p in contest.period">{{ get_p_name(contest.period.indexOf(p)) }}</option>
+                                </select>
+                                成绩
+                            </th>
+                            <th>
+                                <select v-model="player_p1_name">
+                                    <option v-for="p in contest.period">{{ get_p_name(contest.period.indexOf(p)) }}</option>
+                                </select>
+                                成绩
+                            </th>
                             <th>总分</th>
                             <th>资格状态</th>
                             <th>&nbsp;</th>

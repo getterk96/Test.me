@@ -479,11 +479,21 @@ info = new Vue({
         p_status_dict : window.player_status_dict,
         player_list : window.mock_pl,
         player_page : 0,
-        player_p0 : 0,
-        player_p1 : 0,
+        player_p0_name : '',
+        player_p1_name : '',
         selected_player : 0
     },
     computed : {
+        player_p0 : function() {
+            for (var i = 0; i < this.contest.period.length; ++i) {
+                if (this.get_p_name(i) == this.player_p0_name) { return i; }
+            }
+        },
+        player_p1 : function() {
+            for (var i = 0; i < this.contest.period.length; ++i) {
+                if (this.get_p_name(i) == this.player_p1_name) { return i; }
+            }
+        },
         page : function() {
             return nav.choice;
         },
