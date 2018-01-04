@@ -333,8 +333,8 @@
                             <th>资格状态</th>
                             <th>&nbsp;</th>
                         </thead>
-                        <tr v-for="item in player_list[appeal_page]" :class="[item.selected ? 'table-select' : '', player_list[appeal_page].indexOf(item) == player_page_capacity - 1 ? 'last-row' : '']">
-                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.name }}</td>
+                        <tr v-for="item in player_list[player_page]" :class="[item.selected ? 'table-select' : '', player_list[appeal_page].indexOf(item) == player_page_capacity - 1 ? 'last-row' : '']">
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.name +'[id=' + item.id + ']' }}</td>
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p0] }}</td>
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p1] }}</td>
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark) }}</td>
@@ -342,6 +342,13 @@
                             <td><!--<button :class="['blue']" @click="p_single_process(player_page, player_list[player_page].indexOf(item))">-->详情<!--</button>--></td>
                         </tr>
                     </table>
+                    <div :class="['page-nav']">
+                        <button v-if="player_page > 0" @click="prev_p_page">上一页</button>
+                        <button v-else disabled>上一页</button>
+                        {{ player_page + 1 }}{{ '/' + player_list.length }}
+                        <button v-if="player_page < player_list.length - 1" @click="next_p_page">下一页</button>
+                        <button v-else disabled>下一页</button>
+                    </div>
                 </div>
                 <div :class="['session']" v-else>
                 </div>

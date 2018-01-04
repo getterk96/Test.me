@@ -510,6 +510,12 @@ info = new Vue({
             if (this.player_list[page][idx].selected) { ++this.selected_player; }
             else { --this.selected_player; }
         },
+        prev_p_page : function() {
+            if (this.player_page > 0) { --this.player_page; }
+        },
+        next_p_page : function() {
+            if (this.player_page < this.player_list.length - 1) { ++this.player_page; }
+        },
         sumof : function(list) {
             var ans = 0;
             for (i of list) { ans += i; }
