@@ -7,6 +7,7 @@ const type_o = 1;
 
 var info = {};
 var status_dic = ['to solve', 'sovled', 'ignored'];
+var player_status_dict = ['正常', '禁赛', '无资格'];
 
 //api
 
@@ -471,7 +472,16 @@ info = new Vue({
         appeal_batch : true,
         show_upload_toknow : true,
         appeal_status_dict : ['已处理', '已搁置', '未处理'],
-        appeal_type_dict : ['资格', '成绩']
+        appeal_type_dict : ['资格', '成绩'],
+        //team management
+        player_batch : true,
+        player_page_capacity : 2,
+        p_status_dict : window.player_status_dict,
+        player_list : window.mock_pl,
+        player_page : 0,
+        player_p0 : 0,
+        player_p1 : 0,
+        selected_player : 0
     },
     computed : {
         page : function() {
@@ -495,6 +505,16 @@ info = new Vue({
         }
     },
     methods : {
+        select_player : function(page, idx) {
+            this.player_list[page][idx].selected = !this.player_list[page][idx].selected;
+            if (this.player_list[page][idx].selected) { ++this.selected_player; }
+            else { --this.selected_player; }
+        },
+        sumof : function(list) {
+            var ans = 0;
+            for (i of list) { ans += i; }
+            return ans;
+        },
         switch_basic_info : function() {
             this.show_basic_info = !this.show_basic_info;
         },

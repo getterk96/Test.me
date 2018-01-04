@@ -9,6 +9,7 @@
         <script src="../../js/uni.js"></script>
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+        <script src="mock_data.js"></script>
     </head>
     <body>
         <div id="header">
@@ -322,6 +323,25 @@
             </template>
             <template v-else-if="page == '选手管理'">
                 <div :class="['session']" v-if="player_batch">
+                    <span v-if="selected_player > 0">{{ '已选择 ' }}{{ selected_player }}{{ ' 支队伍' }}</span>
+                    <table :class="['searchresult']" cellspacing='0'>
+                        <thead>
+                            <th>团队</th>
+                            <th>{{ get_p_name(player_p0) }}成绩</th>
+                            <th>{{ get_p_name(player_p1) }}成绩</th>
+                            <th>总分</th>
+                            <th>资格状态</th>
+                            <th>&nbsp;</th>
+                        </thead>
+                        <tr v-for="item in player_list[appeal_page]" :class="[item.selected ? 'table-select' : '', player_list[appeal_page].indexOf(item) == player_page_capacity - 1 ? 'last-row' : '']">
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.name }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p0] }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p1] }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark) }}</td>
+                            <td @click="select_appeal(player_page, player_list[player_page].indexOf(item))" :class="[item.status == 0 ? 'green' : '', item.status == 1 ? 'red' : '']">{{ p_status_dict[item.status] }}</td>
+                            <td><!--<button :class="['blue']" @click="p_single_process(player_page, player_list[player_page].indexOf(item))">-->详情<!--</button>--></td>
+                        </tr>
+                    </table>
                 </div>
                 <div :class="['session']" v-else>
                 </div>
