@@ -53,7 +53,15 @@ var login = new Vue({
         login_fail : function(response) {
             this.username = '';
             this.password = '';
-            this.warning = response.msg;
+            switch (response.msg) {
+                case 'Wrong username or password' :
+                    this.warning = '用户名或密码错误!';
+                    break;
+                default :
+                    this.warning = '';
+                    break;
+            }
+            this.show_warning = true;
         }
     },
     computed : {
