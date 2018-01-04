@@ -195,6 +195,8 @@ var per_get_succ = function (response) {
         question_counter : 0,
         question : [],
         question_id : data['questionId'],
+        start_time : (response.data['startTime'] - 8 * 3600) * 1000,
+        end_time : (response.data['endTime'] - 8 * 3600) * 1000,
     }
     window.contest.period.push(period);
     window.contest.period_counter += 1;
@@ -429,6 +431,14 @@ var q_upload_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 }
 
+var r_upload_pass = function(response, param) {
+    //todo
+}
+
+var r_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
 var process_succ = function(response) {
     alert('批量处理完成！');
     window.location.assign('./index.html?cid=' + window.cid);
@@ -468,7 +478,20 @@ info = new Vue({
             return nav.choice;
         },
         last_period_name : function() {
-            //todo
+            var last_idx = this.contest.period.length + 1;
+            var ret = '';
+            var now = (new Date()).valueOf();
+            for (i of this.contest.period) {
+                if (now > i.start_time && last_idx > i.lid) {
+                    last_idx = i.lid;
+                    for (j of i.attr)
+                        if (j.name == 'name') {
+                            ret = j.content;
+                            break;
+                        }
+                }
+            }
+            return ret;
         }
     },
     methods : {
@@ -522,7 +545,15 @@ info = new Vue({
             $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
         },
         r_file_change : function(e) {
-            //todo
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'result_file');
+            $t(url, m, data, r_upload_pass, r_upload_fail, {'aim' : e.target.id});
         },
         remove_period : function(idx) {
             if ((idx >= this.contest.period.length) || (idx < 0)) {
