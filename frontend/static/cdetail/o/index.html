@@ -342,6 +342,9 @@
                             {{ player_p1_name }}成绩<span v-if="!player_mark1_reverse">升序</span>
                             <span v-else>降序</span>
                         </button>
+                        <button :class="['operator']" v-for="s in p_status_dict" @click="player_top_by_status(p_status_dict.indexOf(s))">
+                            {{ s }}置顶
+                        </button>
                     </div>
                     <div :class="['o-bar']">
                         <button :class="['operator']" @click="normalize_selected_players">允许参赛</button>

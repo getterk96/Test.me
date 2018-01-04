@@ -480,7 +480,7 @@ info = new Vue({
         player_mark0_reverse : false,
         player_mark1_reverse : false,
         p_status_dict : window.player_status_dict,
-        player_list : window.mock_pl,
+        player_list : window.mock_pl,//api
         player_page : 0,
         player_p0_name : '',
         player_p1_name : '',
@@ -518,6 +518,35 @@ info = new Vue({
         }
     },
     methods : {
+        player_top_by_status : function(topper) {
+            var buffer, sort_result, div_result;
+            if (!(this.player_list.length) > 0) { return; }
+            sort_result = [];
+            for (i of this.player_list) {
+                for (j of i) {
+                    sort_result.push(j);
+                    var k = sort_result.length - 2;
+                    var tmp = sort_result[k + 1];
+                    if (tmp.status != topper) { continue; }
+                    while (k >= 0) {
+                        if (sort_result[k].status == topper) { break; }
+                        sort_result[k + 1] = sort_result[k];
+                        --k;
+                    }
+                    sort_result[k + 1] = tmp;
+                }
+            }
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
         player_sort_mark1 : function() {
             this.player_mark1_reverse = !this.player_mark1_reverse;
             var buffer, sort_result, div_result;
