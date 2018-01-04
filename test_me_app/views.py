@@ -70,9 +70,9 @@ class ChangePassword(APIView):
         self.request.user.set_password(self.input['password'])
         self.request.user.save()
 
+
 class UserId(APIView):
 
     @login_required
     def get(self):
         return self.request.user.id
-    

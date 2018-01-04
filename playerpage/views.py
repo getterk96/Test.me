@@ -534,7 +534,6 @@ class PlayerTeamInvitation(APIView):
         invitation.save()
         
 
-
 class PlayerTeamSignUp(APIView):
 
     @player_required
@@ -561,13 +560,15 @@ class PlayerAppealCreate(APIView):
     @player_required
     def post(self):
         self.check_input('contestId', 'title', 'content', 'attachmentUrl', 'type')
-        appeal = Appeal.objects.create(initiator=self.request.user.player,
-                                       target_contest=Contest.safe_get(id=self.input['contestId']),
+        contest = Contest.safe_get(id=self.input['contestId'])
+        initiator_team = Team.safe_get(contest=contest, leader=self.request.user.player)
+        appeal = Appeal.objects.create(initiator=initiator_team,
+                                       target_contest=contest,
                                        title=self.input['title'],
                                        content=self.input['content'],
                                        attachment_url=self.input['attachmentUrl'],
                                        status=Appeal.TOSOLVE,
-                                       type = self.input['type'])
+                                       type=self.input['type'])
         return appeal.id
 
 
@@ -575,11 +576,12 @@ class PlayerAppealList(APIView):
 
     @player_required
     def get(self):
-        self.check_input('cid')
+        self.check_input('cid', 'tid')
         contest = Contest.safe_get(id=self.input['cid'])
+        team = Team.safe_get(id=self.input['tid'])
         appeals = []
         for appeal in Appeal.objects.exclude(status=Appeal.REMOVED).\
-                filter(target_contest=contest, initiator=self.request.user.player):
+                filter(target_contest=contest, initiator=team):
             appeals.append({
                 'id': appeal.id,
                 'title': appeal.title,
