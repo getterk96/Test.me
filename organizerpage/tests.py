@@ -76,7 +76,8 @@ class TestUserCenter(TestCase):
         request.body.decode = Mock(return_value='{"nickname":"1", "avatarUrl":"1",'
                                                 '"description": "a",'
                                                 '"contactPhone": "13051330768",'
-                                                '"email":"1@1.com"}')
+                                                '"email":"1@1.com",'
+                                                '"group":0}')
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
@@ -88,7 +89,8 @@ class TestUserCenter(TestCase):
         request.body.decode = Mock(return_value='{"nickname":"111111111111111111111", "avatarUrl":"1",'
                                                 '"description": "a",'
                                                 '"contactPhone": "13051330768",'
-                                                '"email":"1@1.com"}')
+                                                '"email":"1@1.com",'
+                                                '"group":0}')
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'The length of nickname is restricted to 20.')
@@ -100,7 +102,8 @@ class TestUserCenter(TestCase):
         request.body.decode = Mock(return_value='{"nickname":"1", "avatarUrl":"1",'
                                                 '"description": "a",'
                                                 '"contactPhone": "130513307681",'
-                                                '"email":"1@1.com"}')
+                                                '"email":"1@1.com",'
+                                                '"group":0}')
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Phone number invalid or not a cell phone number.')
@@ -112,7 +115,8 @@ class TestUserCenter(TestCase):
         request.body.decode = Mock(return_value='{"nickname":"1", "avatarUrl":"1",'
                                                 '"description": "a",'
                                                 '"contactPhone": "13051330768",'
-                                                '"email":"1@com"}')
+                                                '"email":"1@.com",'
+                                                '"group":0}')
         request.user = User.objects.get(username='1')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Email format error.')
