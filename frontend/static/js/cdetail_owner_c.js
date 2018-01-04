@@ -466,11 +466,17 @@ info = new Vue({
     computed : {
         page : function() {
             return nav.choice;
+        },
+        last_period_name : function() {
+            //todo
         }
     },
     methods : {
         switch_basic_info : function() {
             this.show_basic_info = !this.show_basic_info;
+        },
+        switch_upload_toknow : function() {
+            this.show_upload_toknow = !this.show_upload_toknow;
         },
         c_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -514,6 +520,9 @@ info = new Vue({
             data.append('file', files[0]);
             data.append('destination', 'period_attachment');
             $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
+        },
+        r_file_change : function(e) {
+            //todo
         },
         remove_period : function(idx) {
             if ((idx >= this.contest.period.length) || (idx < 0)) {
