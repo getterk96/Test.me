@@ -132,8 +132,8 @@ var ques_get_fail = function(response) {
 
 var per_get_succ = function (response) {
     var data = response.data;
-    var start_time = new Date(data['startTime'] * 1000);
-    var end_time = new Date(data['endTime'] * 1000);
+    var start_time = new Date((data['startTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((data['endTime'] - 8 * 3600) * 1000);
     var period = {
         lid : data['index'],
         attr : [
@@ -216,8 +216,8 @@ function period_bigger(a, b) {
 
 var org_get_succ = function(response) {
     var data = response.data;
-    var start_time = new Date(data['signUpStart'] * 1000);
-    var end_time = new Date(data['signUpEnd'] * 1000);
+    var start_time = new Date((data['signUpStart'] - 8 * 3600) * 1000);
+    var end_time = new Date((data['signUpEnd']- 8 * 3600) * 1000);
     for (i in window.contest.attr) {
         switch (window.contest.attr[i].name) {
             case 'name' :

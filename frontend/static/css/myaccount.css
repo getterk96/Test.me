@@ -281,6 +281,15 @@ div.waiting-bubble {
     display : block;
 }
 
+.query_list>li.contest>.card_cover,
+.query_list>li.contest>.card_content {
+    width : 46vw;
+}
+
+.query_list>li.contest>.card_cover>.card_title>h1 {
+    width : 40vw;
+}
+
 .query_list>li>.card_cover * {
     color : white;
 }
@@ -289,6 +298,7 @@ div.waiting-bubble {
     font-weight : 100;
     font-size : 3vw;
     font-family : 'h-en';
+    display : inline-block;
     width : 14vw;
     overflow : hidden;
     text-overflow : ellipsis;
