@@ -341,6 +341,7 @@ controller = new Vue({
             var m = 'POST';
             var data = {'password' : this.password};
             $t(url, m, data, this.save_password_succ, this.save_password_fail);
+            this.switch_modify_password();
         },
         save_password_succ : function(response) {
             alert("密码修改成功。");
