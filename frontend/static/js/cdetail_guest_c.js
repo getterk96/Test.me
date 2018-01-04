@@ -131,8 +131,8 @@ function ply_get_succ(response) {
         window.location.assign('../p/index.html?cid=' + window.cid);
         return;
     }
-    var start_time = new Date(data['signUpStartTime'] * 1000);
-    var end_time = new Date(data['signUpEndTime'] * 1000);
+    var start_time = new Date((data['signUpStartTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((data['signUpEndTime'] - 8 * 3600) * 1000);
     for (i in window.contest.attr) {
         switch (window.contest.attr[i].name) {
             case 'name' :
@@ -173,8 +173,8 @@ function ply_get_succ(response) {
     window.contest.period = [];
     for (i in data['periods']) {
         var pdata = data['periods'][i];
-        var start_time = new Date(pdata['periodStartTime'] * 1000);
-        var end_time = new Date(pdata['periodEndTime'] * 1000);
+        var start_time = new Date((pdata['periodStartTime'] - 8 * 3600) * 1000);
+        var end_time = new Date((pdata['periodEndTime'] - 8 * 3600) * 1000);
         var period = {
             show : true,
             attr : [

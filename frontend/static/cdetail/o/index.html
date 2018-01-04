@@ -13,7 +13,6 @@
     <body>
         <div id="header">
             <div id="header-content">
-                <div id="header-greeting">{{ greeting }}</div>
                 <div id="header-title">{{ title }}</div>
                 <nav><ul>
                     <li v-for='link in link_list'>
@@ -290,7 +289,7 @@
                 <div :class="['session']">
                     <button :class="['s-title', show_upload_toknow ? '' : 'collapse']" @click="switch_upload_toknow"><span>成绩录入须知</span></button>
                     <article :class="['s-body']" v-if="show_upload_toknow">
-                        You can only upload the result of the last turn. All your update will overwrite the latest result of the latest turn.
+                        你只能上传最后一轮的成绩，你所有的上传会覆盖当前最新一轮的结果.上传的文件应该满足下列格式:
                     </article>
                 </div>
                 <div :class="['session']">
@@ -307,6 +306,10 @@
                             </li>
                         </ul>
                     </article>
+                </div>
+            </template>
+            <template v-else-if="page == '选手管理'">
+                <div :class="['session']" v-if="player_batch">
                 </div>
             </template>
         </div>

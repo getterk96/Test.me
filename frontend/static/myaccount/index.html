@@ -13,7 +13,6 @@
     <body>
         <div id="header">
             <div id="header-content">
-                <div id="header-greeting">{{ greeting }}</div>
                 <div id="header-title">{{ title }}</div>
                 <nav><ul>
                     <li v-for='link in link_list'>
@@ -109,7 +108,7 @@
               </div>
               <div :class="['session']" v-else>
                   <ul :class="['query_list']">
-                      <li v-for="item in mycontest" :class="[mycontest.indexOf(item) % 2 == 0 ? 'left' : 'right']">
+                      <li v-for="item in mycontest" :class="['contest']">
                           <div :class="['card_cover']">
                               <img :src="item.logo" />
                               <div :class="['card_title']">

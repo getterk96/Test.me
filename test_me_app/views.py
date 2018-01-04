@@ -41,8 +41,8 @@ class Upload(APIView):
         self.check_input('file', 'destination')
         try:
             file = self.input.get('file')[0]
-            new_name = self.input.get('destination') + '\\' + time.strftime('%Y%m%d%H%M%S') + '.' + file.name.split('.')[-1]
-            save_path = settings.MEDIA_ROOT + '\\' + new_name
+            new_name = self.input.get('destination') + '/' + time.strftime('%Y%m%d%H%M%S') + '.' + file.name.split('.')[-1]
+            save_path = settings.MEDIA_ROOT + '/' + new_name
             save_file = open(save_path, 'w+b')
             if file.multiple_chunks():
                 for chunk in file.chunks():
@@ -61,7 +61,7 @@ class UserType(APIView):
     def get(self):
         return self.request.user.user_profile.user_type
 
-        
+
 class ChangePassword(APIView):
 
     @login_required

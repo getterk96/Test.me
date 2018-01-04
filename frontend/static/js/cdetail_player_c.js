@@ -11,8 +11,8 @@ const type_p = 0;
 const type_o = 1;
 
 function period_get_succ(response, param) {
-    var start_time = new Date(response.data['startTime']*1000);
-    var end_time = new Date(response.data['endTime']*1000);
+    var start_time = new Date((response.data['startTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((response.data['endTime'] - 8 * 3600 ) * 1000);
     var period =   {
         show : true,
         attr : [
@@ -63,8 +63,8 @@ function period_get_succ(response, param) {
                  }
             }
         ],
-        start_time : response.data['startTime']*1000,
-        end_time : response.data['endTime']*1000,
+        start_time : (response.data['startTime'] - 8 * 3600) * 1000,
+        end_time : (response.data['endTime'] - 8 * 3600) * 1000,
         id : param['id'],
         name : response.data['name']
     }
@@ -177,8 +177,8 @@ function team_list_fail(response) {
 }
 
 function contest_get_succ(response) {
-    var start_time = new Date(response.data['signUpStartTime']*1000);
-    var end_time = new Date(response.data['signUpEndTime']*1000);
+    var start_time = new Date((response.data['signUpStartTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((response.data['signUpEndTime'] - 8 * 3600) * 1000);
     window.contest = {
         getAttr : function(qname) {
             for (i of this.attr)

@@ -132,8 +132,8 @@ var ques_get_fail = function(response) {
 
 var per_get_succ = function (response) {
     var data = response.data;
-    var start_time = new Date(data['startTime'] * 1000);
-    var end_time = new Date(data['endTime'] * 1000);
+    var start_time = new Date((data['startTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((data['endTime'] - 8 * 3600) * 1000);
     var period = {
         lid : data['index'],
         attr : [
@@ -152,22 +152,29 @@ var per_get_succ = function (response) {
                 editable : true
             },
             {
-                name : 'time',
-                alias : '阶段时间',
+                name : 'pstime',
+                alias : '阶段开始时间',
                 type : 'datetime',
                 content : {
-                    sd : start_time.getFullYear().toString() +
+                    d : start_time.getFullYear().toString() +
                         '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                         '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString(),
-                    ed : end_time.getFullYear().toString() +
-                        '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
-                        '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
-                    sh : start_time.getHours(),
-                    sm : start_time.getMinutes(),
-                    eh : end_time.getHours(),
-                    em : end_time.getMinutes()
+                    h : start_time.getHours(),
+                    m : start_time.getMinutes()
                 },
                 editable : true
+            },
+            {
+                name : 'petime',
+                alias : '阶段结束时间',
+                type : 'datetime',
+                content : {
+                    d : end_time.getFullYear().toString() +
+                        '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
+                        '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
+                    h : end_time.getHours(),
+                    m : end_time.getMinutes()
+                }
             },
             {
                 name : 'slots',
@@ -209,8 +216,8 @@ function period_bigger(a, b) {
 
 var org_get_succ = function(response) {
     var data = response.data;
-    var start_time = new Date(data['signUpStart'] * 1000);
-    var end_time = new Date(data['signUpEnd'] * 1000);
+    var start_time = new Date((data['signUpStart'] - 8 * 3600) * 1000);
+    var end_time = new Date((data['signUpEnd']- 8 * 3600) * 1000);
     for (i in window.contest.attr) {
         switch (window.contest.attr[i].name) {
             case 'name' :
@@ -219,17 +226,19 @@ var org_get_succ = function(response) {
             case 'description' :
                 window.contest.attr[i].content = data['description'];
                 break;
-            case 'time' :
-                window.contest.attr[i].content['sd'] = start_time.getFullYear().toString() +
+            case 'signupstime' :
+                window.contest.attr[i].content['d'] = start_time.getFullYear().toString() +
                     '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                     '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString();
-                window.contest.attr[i].content['sh'] = start_time.getHours().toString();
-                window.contest.attr[i].content['sm'] = start_time.getMinutes().toString();
-                window.contest.attr[i].content['ed'] = end_time.getFullYear().toString() +
+                window.contest.attr[i].content['h'] = start_time.getHours().toString();
+                window.contest.attr[i].content['m'] = start_time.getMinutes().toString();
+                break;
+            case 'signupetime' :
+                window.contest.attr[i].content['d'] = end_time.getFullYear().toString() +
                     '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
                     '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString();
-                window.contest.attr[i].content['eh'] = end_time.getHours().toString();
-                window.contest.attr[i].content['em'] = end_time.getMinutes().toString();
+                window.contest.attr[i].content['h'] = end_time.getHours().toString();
+                window.contest.attr[i].content['m'] = end_time.getMinutes().toString();
                 break;
             case 'slots' :
                 window.contest.attr[i].content = data['availableSlots'].toString();
@@ -437,7 +446,7 @@ info = new Vue({
         show_period_info : true,
         show_appeal_reply : false,
         contest : window.contest,
-        result_file_name : 'hahahah',
+        result_file_name : '',
         upload_result_avail : true,
         appeal_reply : '',
         appeal_status_reverse : false,
@@ -457,11 +466,17 @@ info = new Vue({
     computed : {
         page : function() {
             return nav.choice;
+        },
+        last_period_name : function() {
+            //todo
         }
     },
     methods : {
         switch_basic_info : function() {
             this.show_basic_info = !this.show_basic_info;
+        },
+        switch_upload_toknow : function() {
+            this.show_upload_toknow = !this.show_upload_toknow;
         },
         c_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
@@ -506,6 +521,9 @@ info = new Vue({
             data.append('destination', 'period_attachment');
             $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
         },
+        r_file_change : function(e) {
+            //todo
+        },
         remove_period : function(idx) {
             if ((idx >= this.contest.period.length) || (idx < 0)) {
                 console.log('[err] No such element');
@@ -532,16 +550,24 @@ info = new Vue({
                         editable : true
                     },
                     {
-                        name : 'time',
-                        alias : '阶段时间',
+                        name : 'pstime',
+                        alias : '阶段开始时间',
                         type : 'datetime',
                         content : {
-                            sd : '',
-                            ed : '',
-                            sh : '',
-                            sm : '',
-                            eh : '',
-                            em : ''
+                            d : '',
+                            h : '',
+                            m : '',
+                        },
+                        editable : true
+                    },
+                    {
+                        name : 'petime',
+                        alias : '阶段结束时间',
+                        type : 'datetime',
+                        content : {
+                            d : '',
+                            h : '',
+                            m : '',
                         },
                         editable : true
                     },
@@ -628,6 +654,14 @@ info = new Vue({
                 --this.selected_appeal;
         },
         select_page_appeal : function() {
+            if (this.appeal_list.length < this.appeal_page + 1) {
+                console.log('[warning] No this page!');
+                return;
+            }
+            if (this.appeal_list[this.appeal_page].length <= 0) {
+                console.log('[warning] No item on this page!');
+                return;
+            }
             for (item of this.appeal_list[this.appeal_page]) {
                 if (!item.selected)
                     ++this.selected_appeal;
@@ -635,6 +669,14 @@ info = new Vue({
             }
         },
         unselect_page_appeal : function() {
+            if (this.appeal_list.length < this.appeal_page + 1) {
+                console.log('[warning] No this page!');
+                return;
+            }
+            if (this.appeal_list[this.appeal_page].length <= 0) {
+                console.log('[warning] No item on this page!');
+                return;
+            }
             for (item of this.appeal_list[this.appeal_page]) {
                 if (item.selected)
                     --this.selected_appeal;
@@ -990,528 +1032,3 @@ var upload_data = function(aim_status) {
     }
     $t(url, m, data, post_succ, post_fail);
 }
-
-// for develop without API
-/*
-init_header();
-var info = new Vue({
-    el : '#body',
-    data : {
-        show_basic_info : true,
-        show_period_info : true,
-        show_appeal_reply : false,
-        contest : window.contest,
-        result_file_name : 'hahahah',
-        upload_result_avail : true,
-        appeal_reply : '',
-        appeal_status_reverse : false,
-        appeal_type_reverse : false,
-        appeal_page_capacity : 2,
-        appeal_counter : 0,
-        appeal_list : [
-            [
-                {
-                    appealer : {
-                        name : '405',
-                        id : '1',
-                        member : [
-                            {
-                                name : 'ZYN',
-                                id : '1'
-                            },
-                            {
-                                name : 'GJH',
-                                id : '2'
-                            }
-                        ]
-                    },
-                    reply : 'fuck gjh',
-                    type : 1,
-                    status : 0,
-                    title : 'fuck zyn',
-                    content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#',
-                    selected : false
-                },
-                {
-                    appealer : {
-                        name : '4051',
-                        id : '1',
-                        member : [
-                            {
-                                name : 'ZYN',
-                                id : '1'
-                            },
-                            {
-                                name : 'GJH',
-                                id : '2'
-                            }
-                        ]
-                    },
-                    reply : '',
-                    type : 0,
-                    status : 2,
-                    title : 'fuck zyn',
-                    content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#',
-                    selected : false
-                }
-            ],
-            [
-                {
-                    appealer : {
-                        name : '4052',
-                        id : '1',
-                        member : [
-                            {
-                                name : 'ZYN',
-                                id : '1'
-                            },
-                            {
-                                name : 'GJH',
-                                id : '2'
-                            }
-                        ]
-                    },
-                    reply : '',
-                    type : 1,
-                    status : 1,
-                    title : 'fuck zyn too',
-                    content : 'fuckkkkkkkkkk zyn',
-                    a_url : '#',
-                    selected : false
-                }
-            ]
-        ],
-        // appeal_list : [],
-        a_single_page : 0,
-        a_single_idx : 0,
-        appeal_page : 0,
-        selected_appeal : 0,
-        appeal_batch : true,
-        show_upload_toknow : true,
-        appeal_status_dict : ['已处理', '已搁置', '未处理'],
-        appeal_type_dict : ['资格', '成绩']
-    },
-    computed : {
-        page : function() {
-            return nav.choice;
-        }
-    },
-    methods : {
-        switch_basic_info : function() {
-            this.show_basic_info = !this.show_basic_info;
-        },
-        c_file_change : function(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length)
-                return;
-            var url = '/api/c/upload';
-            var m = 'POST';
-            var data = new FormData();
-            data.append('file', files[0]);
-            data.append('destination', 'contest_attachment');
-            $t(url, m, data, c_upload_pass, c_upload_fail);
-        },
-        switch_period_info : function() {
-            this.show_period_info = !this.show_period_info;
-        },
-        p_file_change : function(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length)
-                return;
-            var url = '/api/c/upload';
-            var m = 'POST';
-            var data = new FormData();
-            data.append('file', files[0]);
-            data.append('destination', 'period_attachment');
-            $t(url, m, data, p_upload_pass, p_upload_fail, {'aim' : e.target.id});
-        },
-        q_file_change : function(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length)
-                return;
-            for (i of this.contest.period)
-                for (j of i.question)
-                    if ('q' + j.lid + '-' + (parseInt(i.lid) + 1).toString() == e.target.id)
-                        for (k of j.attr)
-                            if (k.name == 'q_file')
-                                k.content = files[0].name;
-                                //api
-            var url = '/api/c/upload';
-            var m = 'POST';
-            var data = new FormData();
-            data.append('file', files[0]);
-            data.append('destination', 'period_attachment');
-            $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
-        },
-        insert_new_period : function() {
-            var new_period = {
-                lid : this.contest.period_counter.toString(),
-                attr : [
-                    {
-                        name : 'name',
-                        alias : '阶段名称',
-                        type : 'text',
-                        content : '阶段 ' + this.contest.period_counter.toString(),
-                        editable : true
-                    },
-                    {
-                        name : 'description',
-                        alias : '阶段简介',
-                        type : 'ltext',
-                        content : '简介',
-                        editable : true
-                    },
-                    {
-                        name : 'pstime',
-                        alias : '阶段开始时间',
-                        type : 'datetime',
-                        content : {
-                            d : '',
-                            h : '',
-                            m : ''
-                        },
-                        editable : true
-                    },
-                    {
-                        name : 'petime',
-                        alias : '阶段结束时间',
-                        type : 'datetime',
-                        content : {
-                            d : '',
-                            h : '',
-                            m : ''
-                        },
-                        editable : true
-                    },
-                    {
-                        name : 'slots',
-                        alias : '可参与团队数',
-                        type : 'number',
-                        content : '',
-                        editable : true
-                    },
-                    {
-                        name : 'p_file',
-                        alias : '阶段附件',
-                        editable : true,
-                        type : 'file',
-                        content : ''
-                    }
-                ],
-                question_modifier_available : true,
-                question_counter : 0,
-                question_id : [],
-                question : [],
-            };
-            this.contest.period.push(new_period);
-            ++this.contest.period_counter;
-        },
-        get_p_name : function(idx) {
-            for (i of this.contest.period[idx].attr)
-                if (i.name == 'name')
-                    return(i.content);
-        },
-        remove_period : function(idx) {
-            if ((idx >= this.contest.period.length) || (idx < 0)) {
-                console.log('[err] No such element');
-                return;
-            }
-            this.contest.period.splice(idx, 1);
-        },
-        insert_new_question : function(pidx) {
-            var new_question = {
-                lid : this.contest.period[pidx].question_counter.toString(),
-                attr : [
-                    {
-                        name : 'description',
-                        alias : '题目描述',
-                        type : 'ltext',
-                        editable : true,
-                        content : ''
-                    },
-                    {
-                        name : 'slots',
-                        alias : '提交次数上限',
-                        type : 'number',
-                        editable : true,
-                        content : ''
-                    },
-                    {
-                        name : 'q_file',
-                        alias : '题目附件',
-                        type : 'file',
-                        editable : true,
-                        content : ''
-                    }
-                ],
-            };
-            ++this.contest.period[pidx].question_counter;
-            this.contest.period[pidx].question.push(new_question);
-        },
-        remove_question : function(pidx, qidx) {
-            if ((pidx >= this.contest.period.length || pidx < 0) || (qidx >= this.contest.period[pidx].question.length || qidx < 0)) {
-                console.log('[err] No such item');
-                return;
-            }
-            this.contest.period[pidx].question.splice(qidx, 1);
-        },
-        prev_a_page : function() {
-            --this.appeal_page;
-            if (this.appeal_page < 0)
-                this.appeal_page = 0;
-        },
-        next_a_page : function() {
-            ++this.appeal_page;
-            if (this.appeal_page == this.appeal_list.length)
-                this.appeal_page = this.appeal_list.length - 1;
-        },
-        select_appeal : function(page, idx) {
-            this.appeal_list[page][idx].selected = !this.appeal_list[page][idx].selected;
-            if (this.appeal_list[page][idx].selected)
-                ++this.selected_appeal;
-            else
-                --this.selected_appeal;
-        },
-        select_page_appeal : function() {
-            for (item of this.appeal_list[this.appeal_page]) {
-                if (!item.selected)
-                    ++this.selected_appeal;
-                item.selected = true;
-            }
-        },
-        unselect_page_appeal : function() {
-            for (item of this.appeal_list[this.appeal_page]) {
-                if (item.selected)
-                    --this.selected_appeal;
-                item.selected = false;
-            }
-        },
-        select_all_appeal : function() {
-            for (list of this.appeal_list) {
-                for (item of list) {
-                    if (!item.selected)
-                        ++this.selected_appeal;
-                    item.selected = true;
-                }
-            }
-        },
-        unselect_all_appeal : function() {
-            for (list of this.appeal_list)
-                for (item of list)
-                    item.selected = false;
-            this.selected_appeal = 0;
-        },
-        appeal_sort_status : function() {
-            //todo
-            // console.log(this.appeal_list);
-            this.appeal_status_reverse = !this.appeal_status_reverse;
-            if (this.appeal_list.length <= 0) { return; }
-            var tmp1, tmp2, tmp, new_list;
-            new_list = [];
-            tmp1 = this.appeal_list[0];
-            // console.log(tmp1);
-            // console.log(this.appeal_list);
-            for (i in tmp1) {
-                if (i > 0) {
-                    j = i - 1;
-                    tmp = tmp1[i];
-                    while (j >= 0) {
-                        if (this.appeal_status_cp(tmp.status, tmp1[j].status)) {
-                            tmp1[j + 1] = tmp1[j];
-                            --j;
-                        } else { break; }
-                    }
-                    ++j;
-                    tmp1[j] = tmp;
-                }
-            }
-            new_list = tmp1;
-            // console.log(new_list);
-            // console.log(this.appeal_list);
-            for (i in this.appeal_list) {
-                if (i > 0) {
-                    p = 0;
-                    q = 0;
-                    tmp1 = new_list;
-                    tmp2 = this.appeal_list[i];
-                    // console.log(tmp2);
-                    // console.log(tmp1);
-                    new_list = [];
-                    while (p < tmp1.length && q < tmp2.length) {
-                        if (this.appeal_status_cp(tmp2[q].status, tmp1[p].status)) {
-                            new_list.push(tmp2[q++]);
-                        } else { new_list.push(tmp1[p++]); }
-                    }
-                    while (p < tmp1.length) { new_list.push(tmp1[p++]); }
-                    while (q < tmp2.length) { new_list.push(tmp2[q++]); }
-                }
-            }
-            // console.log(new_list);
-            this.appeal_list = [];
-            tmp1 = [];
-            // console.log(this.appeal_page_capacity);
-            for (i in new_list) {
-                tmp1.push(new_list[i]);
-                if ((i % this.appeal_page_capacity == this.appeal_page_capacity - 1) || (i == new_list.length - 1)) {
-                    // console.log(i);
-                    this.appeal_list.push(tmp1);
-                    tmp1 = [];
-                }
-            }
-        },
-        appeal_sort_type : function() {
-            //todo
-            // console.log(this.appeal_list);
-            this.appeal_type_reverse = !this.appeal_type_reverse;
-            if (this.appeal_list.length <= 0) { return; }
-            var tmp1, tmp2, tmp, new_list;
-            new_list = [];
-            tmp1 = this.appeal_list[0];
-            // console.log(tmp1);
-            // console.log(this.appeal_list);
-            for (i in tmp1) {
-                if (i > 0) {
-                    j = i - 1;
-                    tmp = tmp1[i];
-                    while (j >= 0) {
-                        if (this.appeal_type_cp(tmp.type, tmp1[j].type)) {
-                            tmp1[j + 1] = tmp1[j];
-                            --j;
-                        } else { break; }
-                    }
-                    ++j;
-                    tmp1[j] = tmp;
-                }
-            }
-            new_list = tmp1;
-            // console.log(new_list);
-            // console.log(this.appeal_list);
-            for (i in this.appeal_list) {
-                if (i > 0) {
-                    p = 0;
-                    q = 0;
-                    tmp1 = new_list;
-                    tmp2 = this.appeal_list[i];
-                    // console.log(tmp2);
-                    // console.log(tmp1);
-                    new_list = [];
-                    while (p < tmp1.length && q < tmp2.length) {
-                        if (this.appeal_type_cp(tmp2[q].type, tmp1[p].type)) {
-                            new_list.push(tmp2[q++]);
-                        } else { new_list.push(tmp1[p++]); }
-                    }
-                    while (p < tmp1.length) { new_list.push(tmp1[p++]); }
-                    while (q < tmp2.length) { new_list.push(tmp2[q++]); }
-                }
-            }
-            // console.log(new_list);
-            this.appeal_list = [];
-            tmp1 = [];
-            // console.log(this.appeal_page_capacity);
-            for (i in new_list) {
-                tmp1.push(new_list[i]);
-                if ((i % this.appeal_page_capacity == this.appeal_page_capacity - 1) || (i == new_list.length - 1)) {
-                    // console.log(i);
-                    this.appeal_list.push(tmp1);
-                    tmp1 = [];
-                }
-            }
-        },
-        appeal_status_cp : function(a, b) {
-            if (a == b) { return false; }
-            if (a == 0) { return false; }
-            if (b == 0) { return true; }
-            if ((a == 1 && this.appeal_status_reverse) || (a == 2 && !this.appeal_status_reverse))
-                return true;
-            return false;
-        },
-        appeal_type_cp : function(a, b) {
-            if (a == b) { return false; }
-            if ((a == 0 && !this.appeal_type_reverse) || (a == 1 && this.appeal_type_reverse))
-                return true;
-            return false;
-        },
-        a_single_process : function(page, idx) {
-            this.a_single_page = page;
-            this.a_single_idx = idx;
-            this.appeal_batch = false;
-            this.show_appeal_reply = false;
-            this.appeal_reply = this.appeal_list[page][idx].reply;
-        },
-        a_batch_process : function() {
-            this.appeal_batch = true;
-        },
-        a_single_prev : function() {
-            var p = this.a_single_page;
-            var i = this.a_single_idx;
-            --i;
-            if (i < 0) {
-                --p;
-                i = this.appeal_page_capacity - 1;
-            }
-            if (p < 0) {
-                alert('No previous one');
-                return;
-            }
-            this.a_single_page = p;
-            this.a_single_idx = i;
-            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
-        },
-        a_single_next : function() {
-            var p = this.a_single_page;
-            var i = this.a_single_idx;
-            ++i;
-            if (i == this.appeal_page_capacity) {
-                i = 0;
-                ++p;
-            }
-            if (p == this.appeal_list.length) {
-                alert('No more appeal');
-                return;
-            }
-            if ((p == this.appeal_list.length - 1) && i == this.appeal_list[p].length) {
-                alert('No more appeal');
-                return;
-            }
-            this.a_single_page  = p;
-            this.a_single_idx = i;
-            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
-        },
-        process_selected_appeals : function() {
-            var ids = [];
-            for (i in this.appeal_list)
-                for (j in this.appeal_list[i]) {
-                    if (this.appeal_list[i][j].selected == true)
-                        ids.push(appeal_list[i][j].id);
-                }
-            var url = '/api/o/appeal/list';
-            var m = 'POST';
-            var data = {id : ids, status : 1};
-            $t(url, m, data, process_succ, process_fail);
-        },
-        ignore_selected_appeals : function() {
-            var ids = [];
-            for (i in this.appeal_list)
-                for (j in this.appeal_list[i]) {
-                    if (this.appeal_list[i][j].selected == true)
-                        ids.push(appeal_list[i][j].id);
-                }
-            var url = '/api/o/appeal/list';
-            var m = 'POST';
-            var data = {id : ids, status : 2};
-            $t(url, m, data, process_succ, process_fail);
-        },
-        switch_appeal_reply : function(mode) {
-            this.show_appeal_reply = !this.show_appeal_reply;
-            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
-        },
-        publish : function() {
-            upload_data(0);
-        },
-        save : function() {
-            upload_data(1);
-        }
-    }
-});*/

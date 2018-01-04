@@ -32,27 +32,57 @@ init_header();
 
 
 var upload_data = function(aim_status) {
-    for (i in info.contest.period_id) {
-        var url = '/api/o/period/remove';
-        var m = 'POST';
-        var data = {id : info.contest.period_id[i]};
-        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-    }
-    for (i in info.contest.period) {
-        for (j in info.contest.period[i].question_id) {
-            var url = '/api/o/question/remove';
-            var m = 'POST';
-            console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
-            var data = {id : info.contest.period[i].question_id[j]};
-            $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+    var url = '/api/o/contest/create';
+    var m = 'POST';
+    var data = {
+        'tags' : ''
+    };
+    for (k of info.contest.attr) {
+        switch (k.name) {
+            case 'name' :
+                data['name'] = k.content;
+                break;
+            case 'description' :
+                data['description'] = k.content;
+                break;
+            case 'slots' :
+                data['availableSlots'] = k.content;
+                break;
+            case 'c_file':
+                data['signUpAttachmentUrl'] = k.content;
+                break;
+            case 'signupstime':
+                data['signUpStart'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                break;
+            case 'signupetime':
+                data['signUpEnd'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                break;
+            case 'level':
+                data['level'] = k.choices.indexOf(k.choice);
+                break;
+            case 'maxteam':
+                data['maxTeamMembers'] = k.content;
+                break;
+            case 'c_logo':
+                data['logoUrl'] = k.content;
+                break;
+            case 'c_banner':
+                data['bannerUrl'] = k.content;
+                break;
         }
+    }
+    $t(url, m, data, create_pass, create_fail);
+}
 
-        info.contest.period[i].question_id = [];
-        var url = '/api/o/period/create';
-        var m = 'POST';
+var create_pass = function(response) {
+    this.id = response.data;
+    var url = 'api/o/period/create';
+    var m = 'POST';
+    for (i in info.contest.period) {
         var data = {
-            'id' : window.cid,
-            'index' : i
+            'id' : this.id,
+            'index' : i,
+            'questionId' : []
         };
         for (k of info.contest.period[i].attr) {
             switch (k.name) {
@@ -76,67 +106,16 @@ var upload_data = function(aim_status) {
                     break;
             }
         }
-        $t(url, m, data, function(response, param) {
-                var n = param.which;
-                var id = response.data;
-                info.contest.period_id[n] = id;
-                for (j in info.contest.period[n].question) {
-                    var url = '/api/o/question/create';
-                    var m = 'POST';
-                    var data = {'index' : j, 'periodId' : id};
-                    for (k of info.contest.period[n].question[j].attr) {
-                        switch (k.name) {
-                            case 'description':
-                                data['description'] = k.content;
-                                break;
-                            case 'slots':
-                                data['submissionLimit'] = k.content;
-                                break;
-                            case 'q_file':
-                                data['attachmentUrl'] = k.content;
-                                break;
-                        }
-                    }
-                    $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : n});
-                }
-            },
-            function(response) {
-                alert('[' + response.code.toString() + ']' + response.msg);
-            },
-            {which : i}
-        );
+        $t(url, m, data, p_create_pass, p_create_fail);
     }
-    //        self.check_input('id', , 'logoUrl', 'bannerUrl',
-    //                      'level', 'tags')
-    var url = '/api/o/contest/detail';
-    var m = 'POST';
-    var data = {'level' : 1, 'tags' : '', 'logoUrl' : '', 'bannerUrl' : '', 'id' : window.cid};
-    for (i of info.contest.attr) {
-        switch (i.name) {
-            case 'name' :
-                data['name'] = i.content;
-                break;
-            case 'description' :
-                data['description'] = i.content;
-                break;
-            case 'signupstime' :
-                data['signUpStart'] = i.content['d'] + ' ' + i.content['h'] + ':' + i.content['m'] + ':00';
-                break;
-            case 'signupetime' :
-                data['signUpEnd'] = i.content['d'] + ' ' + i.content['h'] + ':' + i.content['m'] + ':00';
-                break;
-            case 'maxteam' :
-                data['maxTeamMembers'] = i.content;
-                break;
-            case 'slots' :
-                data['availableSlots'] = i.content;
-                break;
-            case 'c_file' :
-                data['signUpAttachmentUrl'] = i.content;
-        }
-    }
-    $t(url, m, data, post_succ, post_fail);
+    window.location.assign('../myaccount/index.html');
 }
+
+var create_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
+
+var p_create_pass = function(response) {};
+
+var p_create_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); }
 
 window.contest = {
     getAttr : function(qname) {
@@ -154,24 +133,32 @@ window.contest = {
             name : 'name',
             alias : '比赛名称',
             type : 'text',
-            content : 'contest 1',
+            content : '',
             editable : true
         },
         {
             name : 'description',
             alias : '比赛简介',
             type : 'ltext',
-            content : 'description 1',
+            content : '',
             editable : true
+        },
+        {
+            name : 'level',
+            alias : '比赛级别',
+            type : 'radio',
+            choice : '[none]',
+            editable : true,
+            choices : ['国际级', '国家级', '省级', '市级', '区级', '校级', '院系级']
         },
         {
             name : 'signupstime',
             alias : '报名时间',
             type : 'datetime',
             content : {
-                d : '1977-03-11',
-                h : '19',
-                m : '00'
+                d : '',
+                h : '',
+                m : ''
             },
             editable : true
         },
@@ -180,9 +167,9 @@ window.contest = {
             alias : '报名时间',
             type : 'datetime',
             content : {
-                d : '1977-03-11',
-                h : '19',
-                m : '00'
+                d : '',
+                h : '',
+                m : ''
             },
             editable : true
         },
@@ -190,24 +177,14 @@ window.contest = {
             name : 'maxteam',
             alias : '团队人数上限',
             type : 'number',
-            content : '100',
+            content : '',
             editable : true
         },
         {
             name : 'slots',
             alias : '可报名团队数',
             type : 'number',
-            content : '100',
-            editable : true
-        },
-        {
-            name : 'processed',
-            alias : '已审核',
-            type : 'progress',
-            content : {
-                base : 'slots',
-                value : '100'
-            },
+            content : '',
             editable : true
         },
         {
@@ -232,30 +209,13 @@ window.contest = {
     period_modifier_available : true
 };
 
-
-var q_post_succ = function (response, param) {
-    var n = param.which;
-    info.contest.period[n].question_id.push(response.data);
-}
-
-var post_succ = function(response) {
-    alert('修改成功！');
-    window.location.assign('./index.html?cid=' + window.cid);
-}
-
-var post_fail = function(response) {
-    alert('[' + response.code.toString() + ']' + response.msg);
-}
-
 var c_upload_pass = function(response) {
     for (i of info.contest.attr)
         if (i.name == 'c_file')
             i.content = response.data;
-}
+};
 
-var c_upload_fail = function(response) {
-    alert('[' + response.code.toString() + ']' + response.msg);
-}
+var c_upload_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
 
 var p_upload_pass = function(response, param) {
     var aim = param['aim'];
@@ -264,25 +224,25 @@ var p_upload_pass = function(response, param) {
             for (j of i.attr)
                 if (j.name == 'p_file')
                      j.content = response.data;
-}
+};
 
-var p_upload_fail = function(response) {
-    alert('[' + response.code.toString() + ']' + response.msg);
-}
+var p_upload_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
 
-var q_upload_pass = function(response, param) {
-    var aim = param['aim'];
-    for (i of this.contest.period)
-        for (j of i.question)
-            if ('q' + j.lid + '-' + (parseInt(i.lid) + 1).toString() == aim)
-                for (k of j.attr)
-                    if (k.name == 'q_file')
-                        k.content = response.data;
-}
+var logo_upload_pass = function(response) {
+    for (i of info.contest.attr)
+        if (i.name == 'c_logo')
+            i.content = response.data;
+};
 
-var q_upload_fail = function(response) {
-    alert('[' + response.code.toString() + ']' + response.msg);
-}
+var logo_upload_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
+
+var banner_upload_pass = function(response) {
+    for (i of info.contest.attr)
+        if (i.name == 'c_banner')
+            i.content = response.data;
+};
+
+var banner_upload_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
 
 var info = new Vue({
     el : '#body',
@@ -293,9 +253,8 @@ var info = new Vue({
     },
     computed : {},
     methods : {
-        switch_basic_info : function() {
-            this.show_basic_info = !this.show_basic_info;
-        },
+        switch_basic_info : function() { this.show_basic_info = !this.show_basic_info; },
+        switch_period_info : function() { this.show_period_info = !this.show_period_info; },
         c_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
@@ -307,9 +266,6 @@ var info = new Vue({
             data.append('destination', 'contest_attachment');
             $t(url, m, data, c_upload_pass, c_upload_fail);
         },
-        switch_period_info : function() {
-            this.show_period_info = !this.show_period_info;
-        },
         p_file_change : function(e) {
             var files = e.target.files || e.dataTransfer.files;
             if (!files.length)
@@ -320,24 +276,6 @@ var info = new Vue({
             data.append('file', files[0]);
             data.append('destination', 'period_attachment');
             $t(url, m, data, p_upload_pass, p_upload_fail, {'aim' : e.target.id});
-        },
-        q_file_change : function(e) {
-            var files = e.target.files || e.dataTransfer.files;
-            if (!files.length)
-                return;
-            for (i of this.contest.period)
-                for (j of i.question)
-                    if ('q' + j.lid + '-' + (parseInt(i.lid) + 1).toString() == e.target.id)
-                        for (k of j.attr)
-                            if (k.name == 'q_file')
-                                k.content = files[0].name;
-                                //api
-            var url = '/api/c/upload';
-            var m = 'POST';
-            var data = new FormData();
-            data.append('file', files[0]);
-            data.append('destination', 'period_attachment');
-            $t(url, m, data, q_upload_pass, q_upload_fail, {'aim' : e.target.id});
         },
         remove_period : function(idx) {
             if ((idx >= this.contest.period.length) || (idx < 0)) {
@@ -400,11 +338,7 @@ var info = new Vue({
                         type : 'file',
                         content : ''
                     }
-                ],
-                question_modifier_available : true,
-                question_counter : 0,
-                question_id : [],
-                question : [],
+                ]
             };
             this.contest.period.push(new_period);
             ++this.contest.period_counter;
@@ -414,52 +348,57 @@ var info = new Vue({
                 if (i.name == 'name')
                     return(i.content);
         },
-        insert_new_question : function(pidx) {
-            var new_question = {
-                lid : this.contest.period[pidx].question_counter.toString(),
-                attr : [
-                    {
-                        name : 'description',
-                        alias : '题目描述',
-                        type : 'ltext',
-                        editable : true,
-                        content : ''
-                    },
-                    {
-                        name : 'slots',
-                        alias : '提交次数上限',
-                        type : 'number',
-                        editable : true,
-                        content : ''
-                    },
-                    {
-                        name : 'q_file',
-                        alias : '题目附件',
-                        type : 'file',
-                        editable : true,
-                        content : ''
-                    }
-                ],
-            };
-            ++this.contest.period[pidx].question_counter;
-            this.contest.period[pidx].question.push(new_question);
-        },
-        remove_question : function(pidx, qidx) {
-            if ((pidx >= this.contest.period.length || pidx < 0) || (qidx >= this.contest.period[pidx].question.length || qidx < 0)) {
-                console.log('[err] No such item');
-                return;
-            }
-            this.contest.period[pidx].question.splice(qidx, 1);
-        },
         publish : function() {
-            upload_data(0);
-        },
-        save : function() {
-            upload_data(1);
+            upload_data();
         },
         quit : function() {
             var c = confirm('放弃本次的修改?')
             if (c == true) { window.location.assign('../myaccount/index.html'); }
+        },
+        select : function(name, choice) {
+            var target = null;
+            for (i of this.contest.attr)
+                if (i.name == name)
+                    target = i;
+            if (target == null) {
+                console.log('[err] No such info item');
+                return;
+            }
+            var exists = false;
+            for (i of target.choices)
+                if (i ==  choice) {
+                    exists = true;
+                    break;
+                }
+            if (!exists) {
+                console.log('[err] No such choice');
+                return;
+            }
+            if (target.type == 'radio')
+                target.choice = choice;
+        },
+        c_logo_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'contest_logo');
+            $t(url, m, data, logo_upload_pass, logo_upload_fail);
+        },
+        c_banner_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'contest_banner');
+            $t(url, m, data, banner_upload_pass, banner_upload_fail);
         }
+        //
     }
 });

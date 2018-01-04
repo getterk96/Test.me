@@ -74,6 +74,7 @@ var controller = new Vue({
     methods : {
         searchcontest : function() {
             console.log("you're querying contest " + this.querytext);
+            this.querylist = [];
             this.no_viewport = true;
             var url = "/api/p/contest/search/simple";
             var m = "GET";
@@ -81,7 +82,6 @@ var controller = new Vue({
             $t(url, m, data, this.search_succ, this.search_fail);
         },
         search_succ : function(response) {
-            this.querylist = [];
             for (i in response.data) {
                 var st = new Date(response.data[i]["signUpStartTime"] * 1000);
                 var ed = new Date(response.data[i]["signUpEndTime"] * 1000);
