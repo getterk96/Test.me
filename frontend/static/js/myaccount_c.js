@@ -255,7 +255,8 @@ controller = new Vue({
         cpassword : '',
         doc_name : '',
         mycontest : [],
-        myteam : []
+        myteam : [],
+        modify_description : false,
     },
     computed : {
         page : function() {
@@ -371,6 +372,17 @@ controller = new Vue({
         create_contest : function() {
             //check whether this user has the authentication to create a contest
             window.location.assign('../create-contest/index.html');
+        },
+        start_modify_description : function() {
+            this.modify_description  = true;
+            tmp['description'] = this.user.description.content;
+        },
+        cancel_modify_description : function() {
+            this.modify_description = false;
+            this.user.description.content = tmp['description'];
+        },
+        save_description : function() {
+            //todo
         }
     }
 })

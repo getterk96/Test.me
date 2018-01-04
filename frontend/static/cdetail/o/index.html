@@ -110,6 +110,18 @@
                                     </label>
                                     {{ item.content }}
                                 </template>
+                                <template v-else-if="item.type == 'logo'">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" @change="c_logo_change" required/>
+                                    </label>
+                                    {{ item.content }}
+                                </template>
+                                <template v-else-if="item.type == 'banner'">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" @change="c_banner_change" required/>
+                                    </label>
+                                    {{ item.content }}
+                                </template>
                             </li>
                             <template v-for="q in p.question">
                                 <li>

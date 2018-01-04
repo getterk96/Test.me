@@ -71,6 +71,14 @@
                       </div>
                   </div>
                   <div id="additionalinfo">
+                      <button :class="['operator', 'settings']" @click="start_modify_description" v-if="!modify_description">修改简介</button>
+                      <template v-else>
+                          <button :class="['operator', 'settings', 'negative']" @click="cancel_modify_description">取消</button>
+                          <button :class="['operator', 'settings']" @click="save_description">确认</button>
+                      </template>
+                      <textarea :class="['user-description']" v-model="user.description.content" rows="10" v-if="user.description.editable && modify_description">
+                      </textarea>
+                      <textarea :class="['user-description']" v-else disabled v-model="user.description.content" rows="10"></textarea>
                       <button :class="['operator', 'settings']" @click="switch_modify_password" v-if="!modify_password && !reupload_doc">修改密码</button>
                       <button :class="['operator', 'settings', 'negative']" @click="switch_modify_password" v-else-if="modify_password">取消</button>
                       <button :class="['operator', 'settings']" v-if="user_type == 1 && user.status.content == '未通过' && !modify_password && !reupload_doc" @click="switch_reupload_doc">重新上传验证文档</button>

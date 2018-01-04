@@ -938,6 +938,28 @@ info = new Vue({
         },
         save : function() {
             upload_data(1);
+        },
+        c_logo_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'contest_logo');
+            $t(url, m, data, logo_upload_pass, logo_upload_fail);
+        },
+        c_banner_change : function(e) {
+            var files = e.target.files || e.dataTransfer.files;
+            if (!files.length)
+                return;
+            var url = '/api/c/upload';
+            var m = 'POST';
+            var data = new FormData();
+            data.append('file', files[0]);
+            data.append('destination', 'contest_banner');
+            $t(url, m, data, banner_upload_pass, banner_upload_fail);
         }
     }
 });
