@@ -76,6 +76,7 @@ function period_get_fail(response) {
 }
 
 function qlist_get_succ(response, param) {
+    console.log("into qlist")
     window.plist = {
         period : param['name'],
         problems : []
@@ -117,6 +118,7 @@ function user_id_succ(response) {
     }
     if (flag == 0) {
         problem_list_ready = false;
+        init_header();
     }
 }
 
@@ -535,7 +537,7 @@ window.team = {
 // window.usertype = 0;
 
 var init_header = function(){
-
+console.log("into_init");
 header.greeting = contest != null ? contest.getAttr('name') : 'Test.Me';
 header.title = '比赛详情';
 
