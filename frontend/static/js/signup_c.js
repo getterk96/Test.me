@@ -99,7 +99,7 @@ var signup = new Vue({
                 required : '比赛主办方',
                 name : 'val_file',
                 type : 'file'
-            },
+            }
         ]
     },
     computed : {
