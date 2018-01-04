@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import List from '@/components/forum/List'
 import Detail from '@/components/forum/Detail'
+import Personal from '@/components/forum/Personal'
 
 Vue.use(Router)
 
@@ -14,12 +15,17 @@ export default new Router({
    */
   routes: [
     {
-      path: '/forum/detail',
+      path: '/forum/detail/:fid',
       name: 'Detail',
       component: Detail
     },
     {
-      path: '/forum/list',
+      path: '/forum/personal/:id',
+      name: 'Personal',
+      component: Personal
+    },
+    {
+      path: '/forum/list/:id',
       name: 'List',
       component: List
     },

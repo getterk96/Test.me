@@ -2,13 +2,13 @@
   <div class="panel panel-default">
     <div class="panel-heading">
       <h3 class="panel-title">
-        <router-link :to="{name: 'Detail', params: { pid: post_id}}">{{ title }}</router-link>
+        {{ title }}
       </h3>
     </div>
     <div class="panel-body">
       {{ content }}
     </div>
-    <div class="panel-footer pull-right">
+    <div class="panel-footer right">
       {{ author }} {{ time }}
     </div>
   </div>
@@ -17,6 +17,6 @@
 <script>
   export default {
     name: 'abstract',
-    props: ['post_id', 'title', 'content', 'author', 'time']
+    props: ['title', 'content', 'author', 'time']
   }
 </script>

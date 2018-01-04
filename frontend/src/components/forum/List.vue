@@ -19,7 +19,7 @@
     name: 'list',
     data: function () {
       return {
-        default_column: 0,
+        default_column: 0
       }
     },
     components: {

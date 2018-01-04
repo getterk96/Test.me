@@ -8,15 +8,35 @@
         <a rel="nofollow" href="#"> <span id="tutorial-number" class="badge pull-right">{{ tn }}</span> 比赛教程</a>
       </li>
     </ul>
-    <div id="abstracts"></div>
+    <div id="posts">
+      <post v-for="item in posts"
+            :key="item.id"
+            :post_id="item.id"
+            :title="item.title"
+            :contest="item.content"
+            :time="item.time"
+            :author="item.author"></post>
+    </div>
     <div class="center">
       <ul id="pagination-list" class="pagination">
         <pagination v-for="item in pagination"
                     :key="item.tag"
                     :tag="item.tag"
-                    @pagination-click="change_page"></pagination>
+                    @pagination-click="get_page"></pagination>
       </ul>
     </div>
+    <form role="form">
+      <div class="form-group">
+        <label for="post-form-title">帖子标题</label><input type="email" class="form-control"
+                                                        id="post-form-title"/>
+      </div>
+      <div class="form-group">
+        <label for="post-form-content">帖子内容</label><textarea class="form-control" id="post-form-content"/>
+      </div>
+      <div class="form-group right">
+        <button type="submit" class="btn btn-default">Submit</button>
+      </div>
+    </form>
   </div>
 </template>
 
@@ -34,10 +54,13 @@
     name: 'list-main',
     data() {
       return {
-        get_url: "/api/p/forum/list",
+        get_url: "/api/c/forum/list",
         current_page: 1,
         max_pages: 1,
-        pagination: []
+        user_id: this.$route.params.id,
+        loaded: false,
+        pagination: [],
+        posts: []
       }
     },
     props: ['selected', 'portion', 'tn', 'pn'],
@@ -46,47 +69,63 @@
       'pagination': PaginationC
     },
     mounted() {
-      this.on();
-      this.change_page({'tag': '1'});
+      this.get_page('1');
     },
     methods: {
-      on: (function () {
-        $t(this.get_url, 'GET', {},
-          function (response) {
-            this.max_pages = response.data['maxPages'];
-          },
-          function () {
-            this.max_pages = 1;
-            alert('[' + response.code.toString() + ']' + response.msg);
-          });
-        this.current_page = 1;
-        this.pagination.push({
-          tag: "prev"
-        });
-        for (let i = 0; i < this.max_pages; ++i) {
-          this.pagination.push({
-            tag: '' + (i + 1)
-          })
+      get_page(page) {
+        if (page === 'prev') {
+          if(this.current_page === 1) {
+            return;
+          }
+          else {
+            page = this.current_page - 1;
+          }
         }
-        this.pagination.push({
-          tag: "next"
-        });
-      }),
-      change_page (tag) {
-        let url = '';
-        if (tag === 'prev') {
-          url = this.get_url + '?page=' + (this.current_page === 1 ? 1 : --this.current_page);
-        }
-        else if (tag === 'next') {
-          url = this.get_url + '?page=' + (this.current_page === this.max_pages ? this.max_pages : ++this.current_page)
+        else if(page === 'next') {
+          if(this.current_page === this.max_pages) {
+            return;
+          }
+          else {
+            page = this.current_page + 1;
+          }
         }
         else {
-          url = this.get_url + '?page=' + tag;
+          page = parseInt(page);
         }
+        let url = this.get_url;
         let m = 'GET';
-        let data = {};
-        let success = function () {
-
+        let data = {
+          "user_id": this.user_id,
+          "page": page
+        };
+        let success = function (response) {
+          if (!this.loaded) {
+            this.max_pages = response.data['maxPages'];
+            this.pagination.push({
+              tag: "prev"
+            });
+            for (let i = 0; i < this.max_pages; ++i) {
+              this.pagination.push({
+                tag: '' + (i + 1)
+              })
+            }
+            this.pagination.push({
+              tag: "next"
+            });
+            this.loaded = true;
+          }
+          this.posts = [];
+          data = this.response.data
+          for (let i = 0; i < response.data['posts'].length; ++i) {
+            this.posts.push({
+              'id': data.id,
+              'title': data.title,
+              'content': data.content,
+              'time': data.createTime,
+              'author': data.authorName
+            })
+          }
+          this.current_page = page;
         };
         let failed = function (response) {
           alert('[' + response.code.toString() + ']' + response.msg);
@@ -96,13 +135,10 @@
     }
   }
   /*
-  /api/p/forum/list api definitions:
+  提供参数：id：用户id page: 请求的页面号
+  /api/p/forum/list  api definitions:
   {
     maxPages: after having paginated the posts, the max page num,
-  }
-  /api/p/forum/list?page=xxx api definitions:
-  {
-    len: the post array length no more than 10,
     posts: [the sorted post array:{id, title, content, createTime, authorName}]
   }
   */

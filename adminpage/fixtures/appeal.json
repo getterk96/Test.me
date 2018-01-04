@@ -6,6 +6,7 @@
     "title": "title1",
     "content": "content1",
     "attachment_url": "attachment_url1",
+    "type": 0,
     "status": 0
   }
 },{"model": "test_me_app.appeal",
@@ -16,6 +17,7 @@
     "title": "title2",
     "content": "content2",
     "attachment_url": "attachment_url2",
+    "type": 0,
     "status": -1
   }
 }]

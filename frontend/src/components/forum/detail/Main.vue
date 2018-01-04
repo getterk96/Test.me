@@ -1,18 +1,25 @@
 <template>
   <div :class="'column col-md-'+portion">
     <h3>
-      {{title}}
+      {{this.title}}
     </h3>
     <p>
-      {{content}}
+      {{this.content}}
     </p>
-    <div id="replys"></div>
+    <div id="replys">
+      <reply v-for="item in replies"
+            :key="item.id"
+            :title="item.title"
+            :content="item.content"
+            :time="item.time"
+            :author="item.author"></reply>
+    </div>
     <div class="center">
       <ul id="pagination-list" class="pagination">
         <pagination v-for="item in pagination"
                     :key="item.tag"
                     :tag="item.tag"
-                    @pagination-click="change_page"></pagination>
+                    @pagination-click="get_page"></pagination>
       </ul>
     </div>
     <form role="form">
@@ -45,10 +52,15 @@
     name: 'detail-main',
     data() {
       return {
-        get_url: "/api/p/forum/detail",
+        get_url: '/api/c/forum/detail',
+        title: '',
+        content: '',
         current_page: 1,
         max_pages: 1,
-        pagination: []
+        loaded: false,
+        post_id: this.$route.params.pid,
+        pagination: [],
+        replies: []
       }
     },
     props: ['selected', 'portion', 'tn', 'pn'],
@@ -57,47 +69,63 @@
       'pagination': PaginationC
     },
     mounted() {
-      this.on();
-      this.change_page({'tag': '1'});
+      this.get_page('1');
     },
     methods: {
-      on: (function () {
-        $t(this.get_url, 'GET', {},
-          function (response) {
-            this.max_pages = response.data['maxPages'];
-          },
-          function () {
-            this.max_pages = 1;
-            alert('[' + response.code.toString() + ']' + response.msg);
-          });
-        this.current_page = 1;
-        this.pagination.push({
-          tag: "prev"
-        });
-        for (let i = 0; i < this.max_pages; ++i) {
-          this.pagination.push({
-            tag: '' + (i + 1)
-          })
+      get_page(page) {
+        if (page === 'prev') {
+          if(this.current_page === 1) {
+            return;
+          }
+          else {
+            page = this.current_page - 1;
+          }
         }
-        this.pagination.push({
-          tag: "next"
-        });
-      }),
-      change_page (tag) {
-        let url = '';
-        if (tag === 'prev') {
-          url = this.get_url + '?page=' + (this.current_page === 1 ? 1 : --this.current_page);
-        }
-        else if (tag === 'next') {
-          url = this.get_url + '?page=' + (this.current_page === this.max_pages ? this.max_pages : ++this.current_page)
+        else if(page === 'next') {
+          if(this.current_page === this.max_pages) {
+            return;
+          }
+          else {
+            page = this.current_page + 1;
+          }
         }
         else {
-          url = this.get_url + '?page=' + tag;
+          page = parseInt(page);
         }
+        let url = this.get_url;
         let m = 'GET';
-        let data = {};
-        let success = function () {
-
+        let data = {
+          "post_id": this.post_id,
+          "page": page
+        };
+        let success = function (response) {
+          if (!this.loaded) {
+            this.max_pages = response.data['maxPages'];
+            this.pagination.push({
+              tag: "prev"
+            });
+            for (let i = 0; i < this.max_pages; ++i) {
+              this.pagination.push({
+                tag: '' + (i + 1)
+              })
+            }
+            this.pagination.push({
+              tag: "next"
+            });
+            this.loaded = true;
+          }
+          this.replies = [];
+          data = this.response.data;
+          for (let i = 0; i < response.data['replies'].length; ++i) {
+            this.replies.push({
+              'id': data.id,
+              'title': data.title,
+              'content': data.content,
+              'time': data.createTime,
+              'author': data.authorName
+            })
+          }
+          this.current_page = page;
         };
         let failed = function (response) {
           alert('[' + response.code.toString() + ']' + response.msg);
@@ -110,10 +138,6 @@
   /api/p/forum/detail api definitions:
   {
     maxPages: after having paginated the replies, the max page num,
-  }
-  /api/p/forum/detail?page=xxx api definitions:
-  {
-    len: the reply array length no more than 10,
     replies: [the sorted reply array:{id, title, content, createTime, authorName}]
   }
   */
