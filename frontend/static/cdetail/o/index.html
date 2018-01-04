@@ -333,11 +333,15 @@
                         <button :class="['operator']" @click="player_sort_tmark">
                             总分<span v-if="!player_tmark_reverse">升序</span>
                             <span v-else>降序</span>
-                        </button><!--
-                        <button :class="['operator']" @click="appeal_sort_type">
-                            <span v-if="appeal_type_reverse">资格申诉优先</span>
-                            <span v-else>成绩申诉优先</span>
-                        </button>-->
+                        </button>
+                        <button :class="['operator']" @click="player_sort_mark0" v-if="player_p0_name != ''">
+                            {{ player_p0_name }}成绩<span v-if="!player_mark0_reverse">升序</span>
+                            <span v-else>降序</span>
+                        </button>
+                        <button :class="['operator']" @click="player_sort_mark1" v-if="player_p1_name != ''">
+                            {{ player_p1_name }}成绩<span v-if="!player_mark1_reverse">升序</span>
+                            <span v-else>降序</span>
+                        </button>
                     </div>
                     <div :class="['o-bar']">
                         <button :class="['operator']" @click="normalize_selected_players">允许参赛</button>

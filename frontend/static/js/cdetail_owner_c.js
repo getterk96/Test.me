@@ -477,6 +477,8 @@ info = new Vue({
         player_batch : true,
         player_page_capacity : 2,
         player_tmark_reverse : false,
+        player_mark0_reverse : false,
+        player_mark1_reverse : false,
         p_status_dict : window.player_status_dict,
         player_list : window.mock_pl,
         player_page : 0,
@@ -516,6 +518,62 @@ info = new Vue({
         }
     },
     methods : {
+        player_sort_mark1 : function() {
+            this.player_mark1_reverse = !this.player_mark1_reverse;
+            var buffer, sort_result, div_result;
+            if (this.player_p1_name == '') { return; }
+            if (!(this.player_list.length > 0)) { return; }
+            buffer = this.player_list[0];
+            for (var i = 1; i < buffer.length; ++i) {
+                var j = i - 1;
+                var tmp = buffer[i];
+                while (j >= 0) {
+                    if (buffer[j + 1].mark[this.player_p1] == buffer[j].mark[this.player_p1]) { break; }
+                    if ((buffer[j + 1].mark[this.player_p1] < buffer[j].mark[this.player_p1] && !this.player_mark1_reverse) || (buffer[j + 1].mark[this.player_p1] > buffer[j].mark[this.player_p1] && this.player_mark1_reverse)) { break; }
+                    buffer[j + 1] = buffer[j];
+                    --j;
+                }
+                buffer[j + 1] = tmp;
+            }
+            sort_result = [];
+            for (var i = 1; i < this.player_list.length; ++i) {
+                var p = 0;
+                var q = 0;
+                while (p < buffer.length && q < this.player_list[i].length) {
+                    if (buffer[p].mark[this.player_p1] == this.player_list[i][q].mark[this.player_p1]) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else if ((buffer[p].mark[this.player_p1] < this.player_list[i][q].mark[this.player_p1] && this.player_mark1_reverse) || (buffer[p].mark[this.player_p1] > this.player_list[i][q].mark[this.player_p1] && !this.player_mark1_reverse)) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else {
+                        sort_result.push(this.player_list[i][q]);
+                        ++q;
+                    }
+                }
+                while (p < buffer.length) {
+                    sort_result.push(buffer[p]);
+                    ++p;
+                }
+                while (q < this.player_list[i].length) {
+                    sort_result.push(this.player_list[i][q]);
+                    ++q;
+                }
+                buffer = sort_result;
+                sort_result = [];
+            }
+            sort_result = buffer;
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
         player_sort_tmark : function() {
             this.player_tmark_reverse = !this.player_tmark_reverse;
             var buffer, sort_result, div_result;
@@ -541,6 +599,62 @@ info = new Vue({
                         sort_result.push(buffer[p]);
                         ++p;
                     } else if ((this.sumof(buffer[p].mark) < this.sumof(this.player_list[i][q].mark) && this.player_tmark_reverse) || (this.sumof(buffer[p].mark) > this.sumof(this.player_list[i][q].mark) && !this.player_tmark_reverse)) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else {
+                        sort_result.push(this.player_list[i][q]);
+                        ++q;
+                    }
+                }
+                while (p < buffer.length) {
+                    sort_result.push(buffer[p]);
+                    ++p;
+                }
+                while (q < this.player_list[i].length) {
+                    sort_result.push(this.player_list[i][q]);
+                    ++q;
+                }
+                buffer = sort_result;
+                sort_result = [];
+            }
+            sort_result = buffer;
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
+        player_sort_mark0 : function() {
+            this.player_mark0_reverse = !this.player_mark0_reverse;
+            var buffer, sort_result, div_result;
+            if (this.player_p0_name == '') { return; }
+            if (!(this.player_list.length > 0)) { return; }
+            buffer = this.player_list[0];
+            for (var i = 1; i < buffer.length; ++i) {
+                var j = i - 1;
+                var tmp = buffer[i];
+                while (j >= 0) {
+                    if (buffer[j + 1].mark[this.player_p0] == buffer[j].mark[this.player_p0]) { break; }
+                    if ((buffer[j + 1].mark[this.player_p0] < buffer[j].mark[this.player_p0] && !this.player_mark0_reverse) || (buffer[j + 1].mark[this.player_p0] > buffer[j].mark[this.player_p0] && this.player_mark0_reverse)) { break; }
+                    buffer[j + 1] = buffer[j];
+                    --j;
+                }
+                buffer[j + 1] = tmp;
+            }
+            sort_result = [];
+            for (var i = 1; i < this.player_list.length; ++i) {
+                var p = 0;
+                var q = 0;
+                while (p < buffer.length && q < this.player_list[i].length) {
+                    if (buffer[p].mark[this.player_p0] == this.player_list[i][q].mark[this.player_p0]) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else if ((buffer[p].mark[this.player_p0] < this.player_list[i][q].mark[this.player_p0] && this.player_mark0_reverse) || (buffer[p].mark[this.player_p0] > this.player_list[i][q].mark[this.player_p0] && !this.player_mark0_reverse)) {
                         sort_result.push(buffer[p]);
                         ++p;
                     } else {
