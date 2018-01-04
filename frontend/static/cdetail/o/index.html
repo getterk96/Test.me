@@ -309,6 +309,10 @@
                     </article>
                 </div>
             </template>
+            <template v-else-if="page == '选手管理'">
+                <div :class="['session']" v-if="player_batch">
+                </div>
+            </template>
         </div>
     </body>
     <script src="../../js/uni_c.js"></script>
