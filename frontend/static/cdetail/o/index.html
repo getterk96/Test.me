@@ -330,10 +330,10 @@
                         <button :class="['operator']" @click="unselect_page_player">此页全不选</button>
                         <button :class="['operator']" @click="select_all_player">全选</button>
                         <button :class="['operator']" @click="unselect_all_player">全不选</button>
-                        <!--<button :class="['operator']" @click="appeal_sort_status">
-                            <span v-if="appeal_status_reverse">未处理优先</span>
-                            <span v-else>已搁置优先</span>
-                        </button>
+                        <button :class="['operator']" @click="player_sort_tmark">
+                            总分<span v-if="!player_tmark_reverse">升序</span>
+                            <span v-else>降序</span>
+                        </button><!--
                         <button :class="['operator']" @click="appeal_sort_type">
                             <span v-if="appeal_type_reverse">资格申诉优先</span>
                             <span v-else>成绩申诉优先</span>
