@@ -344,7 +344,8 @@ controller = new Vue({
             this.switch_modify_password();
         },
         save_password_succ : function(response) {
-            alert("密码修改成功。");
+            alert("密码修改成功。请重新登录。");
+            window.location.assign('../index.html');
         },
         save_password_fail : function(response) {
             alert('[' + response.code.toString() + ']' + response.msg);
