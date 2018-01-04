@@ -113,6 +113,9 @@ var controller = new Vue({
         },
         directto : function(path) {
             window.location.assign(path);
+        },
+        checkenter : function(e) {
+            if (e.keyCode == 13) { this.searchcontest(); }
         }
     }
 });
