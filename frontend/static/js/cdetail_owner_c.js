@@ -152,22 +152,29 @@ var per_get_succ = function (response) {
                 editable : true
             },
             {
-                name : 'time',
-                alias : '阶段时间',
+                name : 'pstime',
+                alias : '阶段开始时间',
                 type : 'datetime',
                 content : {
-                    sd : start_time.getFullYear().toString() +
+                    d : start_time.getFullYear().toString() +
                         '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                         '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString(),
-                    ed : end_time.getFullYear().toString() +
-                        '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
-                        '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
-                    sh : start_time.getHours(),
-                    sm : start_time.getMinutes(),
-                    eh : end_time.getHours(),
-                    em : end_time.getMinutes()
+                    h : start_time.getHours(),
+                    m : start_time.getMinutes()
                 },
                 editable : true
+            },
+            {
+                name : 'petime',
+                alias : '阶段结束时间',
+                type : 'datetime',
+                content : {
+                    d : end_time.getFullYear().toString() +
+                        '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
+                        '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
+                    h : end_time.getHours(),
+                    m : end_time.getMinutes()
+                }
             },
             {
                 name : 'slots',
@@ -219,17 +226,19 @@ var org_get_succ = function(response) {
             case 'description' :
                 window.contest.attr[i].content = data['description'];
                 break;
-            case 'time' :
-                window.contest.attr[i].content['sd'] = start_time.getFullYear().toString() +
+            case 'signupstime' :
+                window.contest.attr[i].content['d'] = start_time.getFullYear().toString() +
                     '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                     '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString();
-                window.contest.attr[i].content['sh'] = start_time.getHours().toString();
-                window.contest.attr[i].content['sm'] = start_time.getMinutes().toString();
-                window.contest.attr[i].content['ed'] = end_time.getFullYear().toString() +
+                window.contest.attr[i].content['h'] = start_time.getHours().toString();
+                window.contest.attr[i].content['m'] = start_time.getMinutes().toString();
+                break;
+            case 'signupetime' :
+                window.contest.attr[i].content['d'] = end_time.getFullYear().toString() +
                     '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
                     '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString();
-                window.contest.attr[i].content['eh'] = end_time.getHours().toString();
-                window.contest.attr[i].content['em'] = end_time.getMinutes().toString();
+                window.contest.attr[i].content['h'] = end_time.getHours().toString();
+                window.contest.attr[i].content['m'] = end_time.getMinutes().toString();
                 break;
             case 'slots' :
                 window.contest.attr[i].content = data['availableSlots'].toString();
@@ -437,7 +446,7 @@ info = new Vue({
         show_period_info : true,
         show_appeal_reply : false,
         contest : window.contest,
-        result_file_name : 'hahahah',
+        result_file_name : '',
         upload_result_avail : true,
         appeal_reply : '',
         appeal_status_reverse : false,
@@ -532,16 +541,24 @@ info = new Vue({
                         editable : true
                     },
                     {
-                        name : 'time',
-                        alias : '阶段时间',
+                        name : 'pstime',
+                        alias : '阶段开始时间',
                         type : 'datetime',
                         content : {
-                            sd : '',
-                            ed : '',
-                            sh : '',
-                            sm : '',
-                            eh : '',
-                            em : ''
+                            d : '',
+                            h : '',
+                            m : '',
+                        },
+                        editable : true
+                    },
+                    {
+                        name : 'petime',
+                        alias : '阶段结束时间',
+                        type : 'datetime',
+                        content : {
+                            d : '',
+                            h : '',
+                            m : '',
                         },
                         editable : true
                     },
@@ -628,6 +645,14 @@ info = new Vue({
                 --this.selected_appeal;
         },
         select_page_appeal : function() {
+            if (this.appeal_list.length < this.appeal_page + 1) {
+                console.log('[warning] No this page!');
+                return;
+            }
+            if (this.appeal_list[this.appeal_page].length <= 0) {
+                console.log('[warning] No item on this page!');
+                return;
+            }
             for (item of this.appeal_list[this.appeal_page]) {
                 if (!item.selected)
                     ++this.selected_appeal;
@@ -635,6 +660,14 @@ info = new Vue({
             }
         },
         unselect_page_appeal : function() {
+            if (this.appeal_list.length < this.appeal_page + 1) {
+                console.log('[warning] No this page!');
+                return;
+            }
+            if (this.appeal_list[this.appeal_page].length <= 0) {
+                console.log('[warning] No item on this page!');
+                return;
+            }
             for (item of this.appeal_list[this.appeal_page]) {
                 if (item.selected)
                     --this.selected_appeal;
