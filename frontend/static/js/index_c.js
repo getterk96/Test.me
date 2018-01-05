@@ -8,6 +8,7 @@ var level_dic = ["国际级", "国家级", "省级", "市级", "区级", "校级
 var init_header = function() {
     header.greeting = 'Test.Me';
     header.title = '比赛大厅';
+    header.link_list.pop();
 
     if (usertype in [0, 1]) {
         header.link_list.push({
@@ -113,6 +114,9 @@ var controller = new Vue({
         },
         directto : function(path) {
             window.location.assign(path);
+        },
+        checkenter : function(e) {
+            if (e.keyCode == 13) { this.searchcontest(); }
         }
     }
 });

@@ -7,6 +7,7 @@ const type_o = 1;
 
 var info = {};
 var status_dic = ['to solve', 'sovled', 'ignored'];
+var player_status_dict = ['正常', '禁赛', '无资格'];
 
 //api
 
@@ -500,9 +501,36 @@ info = new Vue({
         appeal_batch : true,
         show_upload_toknow : true,
         appeal_status_dict : ['已处理', '已搁置', '未处理'],
-        appeal_type_dict : ['资格', '成绩']
+        appeal_type_dict : ['资格', '成绩'],
+        //team management
+        player_batch : true,
+        p_single_page : 0,
+        p_single_idx : 0,
+        player_page_capacity : 2,
+        player_tmark_reverse : false,
+        player_mark0_reverse : false,
+        player_mark1_reverse : false,
+        p_status_dict : window.player_status_dict,
+        player_list : window.mock_pl,//api
+        player_page : 0,
+        player_p0_name : '',
+        player_p1_name : '',
+        player_mark : [],
+        selected_player : 0
     },
     computed : {
+        player_p0 : function() {
+            if (this.player_p0_name == '') { this.player_p0_name = this.get_p_name(0); }
+            for (var i = 0; i < this.contest.period.length; ++i) {
+                if (this.get_p_name(i) == this.player_p0_name) { return i; }
+            }
+        },
+        player_p1 : function() {
+            if (this.player_p1_name == '') { this.player_p1_name = this.get_p_name(0); }
+            for (var i = 0; i < this.contest.period.length; ++i) {
+                if (this.get_p_name(i) == this.player_p1_name) { return i; }
+            }
+        },
         page : function() {
             return nav.choice;
         },
@@ -524,6 +552,316 @@ info = new Vue({
         }
     },
     methods : {
+        p_single_prev : function() {
+            var p = this.p_single_page;
+            var i = this.p_single_idx;
+            --i;
+            if (i < 0) {
+                --p;
+                i = this.player_page_capacity - 1;
+            }
+            if (p < 0) {
+                alert('No previous one');
+                return;
+            }
+            this.p_single_page = p;
+            this.p_single_idx = i;
+            this.player_mark = [];
+            for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
+                this.player_mark.push(r);
+            }
+        },
+        p_single_next : function() {
+            var p = this.p_single_page;
+            var i = this.p_single_idx;
+            ++i;
+            if (i == this.player_page_capacity) {
+                i = 0;
+                ++p;
+            }
+            if (p == this.player_list.length) {
+                alert('No more appeal');
+                return;
+            }
+            if ((p == this.player_list.length - 1) && i == this.player_list[p].length) {
+                alert('No more appeal');
+                return;
+            }
+            this.p_single_page  = p;
+            this.p_single_idx = i;
+            this.player_mark =
+            this.player_mark = [];
+            for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
+                this.player_mark.push(r);
+            }
+        },
+        p_single_process : function(page, idx) {
+            this.player_batch = false;
+            this.p_single_page = page;
+            this.p_single_idx = idx;
+            this.player_mark =
+            this.player_mark = [];
+            for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
+                this.player_mark.push(r);
+            }
+        },
+        p_batch_process : function() { this.player_batch = true; },
+        player_top_by_status : function(topper) {
+            var buffer, sort_result, div_result;
+            if (!(this.player_list.length) > 0) { return; }
+            sort_result = [];
+            for (i of this.player_list) {
+                for (j of i) {
+                    sort_result.push(j);
+                    var k = sort_result.length - 2;
+                    var tmp = sort_result[k + 1];
+                    if (tmp.status != topper) { continue; }
+                    while (k >= 0) {
+                        if (sort_result[k].status == topper) { break; }
+                        sort_result[k + 1] = sort_result[k];
+                        --k;
+                    }
+                    sort_result[k + 1] = tmp;
+                }
+            }
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
+        player_sort_mark1 : function() {
+            this.player_mark1_reverse = !this.player_mark1_reverse;
+            var buffer, sort_result, div_result;
+            if (this.player_p1_name == '') { return; }
+            if (!(this.player_list.length > 0)) { return; }
+            buffer = this.player_list[0];
+            for (var i = 1; i < buffer.length; ++i) {
+                var j = i - 1;
+                var tmp = buffer[i];
+                while (j >= 0) {
+                    if (this.sumof(buffer[j + 1].mark[this.player_p1]) == this.sumof(buffer[j].mark[this.player_p1])) { break; }
+                    if ((this.sumof(buffer[j + 1].mark[this.player_p1]) < this.sumof(buffer[j].mark[this.player_p1]) && !this.player_mark1_reverse) || (this.sumof(buffer[j + 1].mark[this.player_p1]) > this.sumof(buffer[j].mark[this.player_p1]) && this.player_mark1_reverse)) { break; }
+                    buffer[j + 1] = buffer[j];
+                    --j;
+                }
+                buffer[j + 1] = tmp;
+            }
+            sort_result = [];
+            for (var i = 1; i < this.player_list.length; ++i) {
+                var p = 0;
+                var q = 0;
+                while (p < buffer.length && q < this.player_list[i].length) {
+                    if (this.sumof(buffer[p].mark[this.player_p1]) == this.sumof(this.player_list[i][q].mark[this.player_p1])) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else if ((this.sumof(buffer[p].mark[this.player_p1]) < this.sumof(this.player_list[i][q].mark[this.player_p1]) && this.player_mark1_reverse) || (this.sumof(buffer[p].mark[this.player_p1]) > this.sumof(this.player_list[i][q].mark[this.player_p1]) && !this.player_mark1_reverse)) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else {
+                        sort_result.push(this.player_list[i][q]);
+                        ++q;
+                    }
+                }
+                while (p < buffer.length) {
+                    sort_result.push(buffer[p]);
+                    ++p;
+                }
+                while (q < this.player_list[i].length) {
+                    sort_result.push(this.player_list[i][q]);
+                    ++q;
+                }
+                buffer = sort_result;
+                sort_result = [];
+            }
+            sort_result = buffer;
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
+        player_sort_tmark : function() {
+            this.player_tmark_reverse = !this.player_tmark_reverse;
+            var buffer, sort_result, div_result;
+            if (!(this.player_list.length > 0)) { return; }
+            buffer = this.player_list[0];
+            for (var i = 1; i < buffer.length; ++i) {
+                var j = i - 1;
+                var tmp = buffer[i];
+                while (j >= 0) {
+                    if (this.totalsum(buffer[j + 1].mark) == this.totalsum(buffer[j].mark)) { break; }
+                    if ((this.totalsum(buffer[j + 1].mark) < this.totalsumf(buffer[j].mark) && !this.player_tmark_reverse) || ((this.totalsum(buffer[j + 1].mark) > this.totalsum()(buffer[j].mark)) && this.player_tmark_reverse)) { break; }
+                    buffer[j + 1] = buffer[j];
+                    --j;
+                }
+                buffer[j + 1] = tmp;
+            }
+            sort_result = [];
+            for (var i = 1; i < this.player_list.length; ++i) {
+                var p = 0;
+                var q = 0;
+                while (p < buffer.length && q < this.player_list[i].length) {
+                    if (this.totalsum(buffer[p].mark) == this.totalsum (this.player_list[i][q].mark)) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else if ((this.totalsum(buffer[p].mark) < this.totalsum(this.player_list[i][q].mark) && this.player_tmark_reverse) || (this.totalsum(buffer[p].mark) > this.totalsum(this.player_list[i][q].mark) && !this.player_tmark_reverse)) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else {
+                        sort_result.push(this.player_list[i][q]);
+                        ++q;
+                    }
+                }
+                while (p < buffer.length) {
+                    sort_result.push(buffer[p]);
+                    ++p;
+                }
+                while (q < this.player_list[i].length) {
+                    sort_result.push(this.player_list[i][q]);
+                    ++q;
+                }
+                buffer = sort_result;
+                sort_result = [];
+            }
+            sort_result = buffer;
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
+        player_sort_mark0 : function() {
+            this.player_mark0_reverse = !this.player_mark0_reverse;
+            var buffer, sort_result, div_result;
+            if (this.player_p0_name == '') { return; }
+            if (!(this.player_list.length > 0)) { return; }
+            buffer = this.player_list[0];
+            for (var i = 1; i < buffer.length; ++i) {
+                var j = i - 1;
+                var tmp = buffer[i];
+                while (j >= 0) {
+                    if (this.sumof(buffer[j + 1].mark[this.player_p0]) == this.sumof(buffer[j].mark[this.player_p0])) { break; }
+                    if ((this.sumof(buffer[j + 1].mark[this.player_p0]) < this.sumof(buffer[j].mark[this.player_p0]) && !this.player_mark0_reverse) || (this.sumof(buffer[j + 1].mark[this.player_p0]) > this.sumof(buffer[j].mark[this.player_p0]) && this.player_mark0_reverse)) { break; }
+                    buffer[j + 1] = buffer[j];
+                    --j;
+                }
+                buffer[j + 1] = tmp;
+            }
+            sort_result = [];
+            for (var i = 1; i < this.player_list.length; ++i) {
+                var p = 0;
+                var q = 0;
+                while (p < buffer.length && q < this.player_list[i].length) {
+                    if (this.sumof(buffer[p].mark[this.player_p0]) == this.sumof(this.player_list[i][q].mark[this.player_p0])) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else if ((this.sumof(buffer[p].mark[this.player_p0]) < this.sumof(this.player_list[i][q].mark[this.player_p0]) && this.player_mark0_reverse) || (this.sumof(buffer[p].mark[this.player_p0]) > this.sumof(this.player_list[i][q].mark[this.player_p0]) && !this.player_mark0_reverse)) {
+                        sort_result.push(buffer[p]);
+                        ++p;
+                    } else {
+                        sort_result.push(this.player_list[i][q]);
+                        ++q;
+                    }
+                }
+                while (p < buffer.length) {
+                    sort_result.push(buffer[p]);
+                    ++p;
+                }
+                while (q < this.player_list[i].length) {
+                    sort_result.push(this.player_list[i][q]);
+                    ++q;
+                }
+                buffer = sort_result;
+                sort_result = [];
+            }
+            sort_result = buffer;
+            div_result = [];
+            buffer = [];
+            for (var i = 0; i < sort_result.length; ++i) {
+                buffer.push(sort_result[i]);
+                if ((buffer.length == this.player_page_capacity) || (i == sort_result.length - 1)) {
+                    div_result.push(buffer);
+                    buffer = [];
+                }
+            }
+            this.player_list = div_result;
+        },
+        normalize_selected_players : function() {},
+        promote_selected_players : function() {},
+        ban_selected_players : function() {},
+        unselect_all_player : function() {
+            for (i of this.player_list) {
+                for (j of i) {
+                    if (j.selected) {
+                        --this.selected_player;
+                        j.selected = false;
+                    }
+                }
+            }
+        },
+        select_all_player : function() {
+            for (i of this.player_list) {
+                for (j of i) {
+                    if (!j.selected) {
+                        ++this.selected_player;
+                        j.selected = true;
+                    }
+                }
+            }
+        },
+        unselect_page_player : function() {
+            for (i of this.player_list[this.player_page]) {
+                if (i.selected) {
+                    --this.selected_player;
+                    i.selected = false;
+                }
+            }
+        },
+        select_page_player : function() {
+            for (i of this.player_list[this.player_page]) {
+                if (!i.selected) {
+                    ++this.selected_player;
+                    i.selected = true;
+                }
+            }
+        },
+        select_player : function(page, idx) {
+            this.player_list[page][idx].selected = !this.player_list[page][idx].selected;
+            if (this.player_list[page][idx].selected) { ++this.selected_player; }
+            else { --this.selected_player; }
+        },
+        prev_p_page : function() {
+            if (this.player_page > 0) { --this.player_page; }
+        },
+        next_p_page : function() {
+            if (this.player_page < this.player_list.length - 1) { ++this.player_page; }
+        },
+        sumof : function(list) {
+            var ans = 0;
+            for (i of list) { ans += i; }
+            return ans;
+        },
+        totalsum : function(list) {
+            var ans = 0;
+            for (i of list) { ans += this.sumof(i); }
+            return ans;
+        },
         switch_basic_info : function() {
             this.show_basic_info = !this.show_basic_info;
         },

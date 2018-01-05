@@ -9,6 +9,8 @@
         <script src="../../js/uni.js"></script>
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail_o.css" />
+        <script src="mock_data.js"></script>
     </head>
     <body>
         <div id="header">
@@ -130,7 +132,7 @@
                             </li>
                             <template v-for="q in p.question">
                                 <li>
-                                    <div :class="['label', 'bold']">{{ '题目' + (parseInt(q.lid) + 1).toString() }}</div>
+                                    <div :class="['label', 'bold']">{{ '题目' + (p.question.indexOf(q) + 1).toString() }}</div>
                                 </li>
                                 <li v-for="item in q.attr">
                                     <div :class="['label']">{{ item.alias }}</div>
@@ -327,6 +329,118 @@
             </template>
             <template v-else-if="page == '选手管理'">
                 <div :class="['session']" v-if="player_batch">
+                    <span v-if="selected_player > 0">{{ '已选择 ' }}{{ selected_player }}{{ ' 支队伍' }}</span>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="select_page_player">此页全选</button>
+                        <button :class="['operator']" @click="unselect_page_player">此页全不选</button>
+                        <button :class="['operator']" @click="select_all_player">全选</button>
+                        <button :class="['operator']" @click="unselect_all_player">全不选</button>
+                        <button :class="['operator']" @click="player_sort_tmark">
+                            总分<span v-if="!player_tmark_reverse">升序</span>
+                            <span v-else>降序</span>
+                        </button>
+                        <button :class="['operator']" @click="player_sort_mark0" v-if="player_p0_name != ''">
+                            {{ player_p0_name }}成绩<span v-if="!player_mark0_reverse">升序</span>
+                            <span v-else>降序</span>
+                        </button>
+                        <button :class="['operator']" @click="player_sort_mark1" v-if="player_p1_name != ''">
+                            {{ player_p1_name }}成绩<span v-if="!player_mark1_reverse">升序</span>
+                            <span v-else>降序</span>
+                        </button>
+                        <button :class="['operator']" v-for="s in p_status_dict" @click="player_top_by_status(p_status_dict.indexOf(s))">
+                            {{ s }}置顶
+                        </button>
+                    </div>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="normalize_selected_players">允许参赛</button>
+                        <button :class="['operator']" @click="promote_selected_players">使晋级</button>
+                        <button :class="['operator', 'negative']"   @click="ban_selected_players">禁赛</button>
+                    </div>
+                    <table :class="['searchresult']" cellspacing='0'>
+                        <thead>
+                            <th>团队</th>
+                            <th>
+                                <select v-model="player_p0_name">
+                                    <option v-for="p in contest.period">{{ get_p_name(contest.period.indexOf(p)) }}</option>
+                                </select>
+                                成绩
+                            </th>
+                            <th>
+                                <select v-model="player_p1_name">
+                                    <option v-for="p in contest.period">{{ get_p_name(contest.period.indexOf(p)) }}</option>
+                                </select>
+                                成绩
+                            </th>
+                            <th>总分</th>
+                            <th>资格状态</th>
+                            <th>&nbsp;</th>
+                        </thead>
+                        <tr v-for="item in player_list[player_page]" :class="[item.selected ? 'table-select' : '', player_list[appeal_page].indexOf(item) == player_page_capacity - 1 ? 'last-row' : '']">
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.name +'[id=' + item.id + ']' }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark[player_p0]) }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark[player_p1]) }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark) }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))" :class="[item.status == 0 ? 'green' : '', item.status == 1 ? 'red' : '']">{{ p_status_dict[item.status] }}</td>
+                            <td><button :class="['blue']" @click="p_single_process(player_page, player_list[player_page].indexOf(item))">详情</button></td>
+                        </tr>
+                    </table>
+                    <div :class="['page-nav']">
+                        <button v-if="player_page > 0" @click="prev_p_page">上一页</button>
+                        <button v-else disabled>上一页</button>
+                        {{ player_page + 1 }}{{ '/' + player_list.length }}
+                        <button v-if="player_page < player_list.length - 1" @click="next_p_page">下一页</button>
+                        <button v-else disabled>下一页</button>
+                    </div>
+                </div>
+                <div :class="['session']" v-else>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="p_batch_process">返回列表</button>
+                        <button :class="['operator']" @click="p_single_prev">上一个</button>
+                        <button :class="['operator']" @click="p_single_next">下一个</button>
+                    </div>
+                    <div :class="['o-bar']">
+                        <template v-if="player_list[p_single_page][p_single_idx].status == 0">
+                            <button :class="['operator', 'negative']">禁赛</button>
+                            <button :class="['operator']">晋级</button>
+                        </template>
+                        <button :class="['operator']" v-else>允许比赛</button>
+                    </div>
+                    <button :class="['s-title', 'collapse']"><span :class="['title']">{{ player_list[p_single_page][p_single_idx].name + '的基本信息' }}</span></button>
+                    <article :class="['s-body']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">团队成员</div>
+                                <ul :class="['inline-form']">
+                                    <li v-for="p in player_list[p_single_page][p_single_idx].member">
+                                        <a :class="['blue']">{{ p.name }}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div :class="['label']">团队状态</div>
+                                <input :class="[player_list[p_single_page][p_single_idx] == 0 ? 'green' : '', player_list[p_single_page][p_single_idx].status == 1 ? 'red' : '']" disabled v-model="p_status_dict[player_list[p_single_page][p_single_idx].status]" />
+                            </li>
+                            <li>
+                                <div :class="['label']">报名附件</div>
+                                <a :href="player_list[p_single_page][p_single_idx].a_url" :class="['underline']">点此下载</a>
+                            </li>
+                        </ul>
+                    </article>
+                    <template v-for="p in contest.period">
+                        <button :class="['s-title', 'collapse']"><span :class="['title']">{{ get_p_name(contest.period.indexOf(p)) }}</span></button>
+                        <article>
+                            <ul :class="['form']">
+                                <li v-for="q in p.question">
+                                    <div :class="['label']">{{ '题目' + (p.question.indexOf(q) + 1).toString() }}</div>
+                                    <input :class="['input']" type="number" v-model="player_mark[contest.period.indexOf(p)][p.question.indexOf(q)]"/>
+                                    <a :url="player_list[p_single_page][p_single_idx].ans[contest.period.indexOf(p)][p.question.indexOf(q)]" :class="['underline']">点击下载答案</a>
+                                </li>
+                            </ul>
+                        </article>
+                    </template>
+                    <div :class="['s-u-resp']">
+                        <button :class="['response-button']">确认修改</button>
+                    </div>
                 </div>
             </template>
         </div>

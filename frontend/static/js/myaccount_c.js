@@ -146,11 +146,6 @@ var init_header = function() {
 
     if (usertype in [0, 1]) {
         header.link_list.push({
-            alias : '比赛大厅',
-            link : '../index/index.html',
-            action : empty_f
-        });
-        header.link_list.push({
             alias : '登出',
             link : '#',
             action : function() {

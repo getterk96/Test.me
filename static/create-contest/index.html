@@ -45,9 +45,10 @@
                             <template v-else-if="item.type == 'number'">
                                 <input v-if="item.editable" v-model="item.content" :class="['input', 'mid']" type="number" />
                             </template>
-                            <template v-else-if="item.type == 'progress'">
-                                <progress :max="contest.getAttr(item.content.base)" :value="item.content.value" :class="['progressbar']"></progress>
-                                <span>{{ item.content.value + "/" + contest.getAttr(item.content.base) }}</span>
+                            <template v-else-if="item.type == 'radio'">
+                                <template v-for='choice in item.choices'>
+                                    <label :class="['choice', item.choice == choice ? 'chosen' : 'unchosen']" @click='select(item.name, choice)'>{{ choice }}</label>
+                                </template>
                             </template>
                             <template v-else-if="item.type == 'file'">
                                 <label :class="['fileuploader']">
@@ -95,38 +96,10 @@
                             </template>
                             <template v-else-if="item.type == 'file'">
                                 <label :class="['fileuploader']">
-                                    <input type="file" @change="p_file_change" required/>
+                                    <input type="file" @change="p_file_change" required :id="'p' + p.lid"/>
                                 </label>
                                 {{ item.content }}
                             </template>
-                        </li>
-                        <template v-for="q in p.question">
-                            <li>
-                                <div :class="['label', 'bold']">{{ '题目' + (parseInt(q.lid) + 1).toString() }}</div>
-                            </li>
-                            <li v-for="item in q.attr">
-                                <div :class="['label']">{{ item.alias }}</div>
-                                <template v-if="item.type == 'ltext'">
-                                    <textarea v-if="item.editable" v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
-                                    <textarea v-else disabled v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
-                                </template>
-                                <template v-else-if="item.type == 'number'">
-                                    <input v-if="item.editable" v-model="item.content" :class="['input']" type="number" />
-                                    <input v-else disabled v-model="item.content" :class="['input']" type="number" />
-                                </template>
-                                <template v-else-if="item.type == 'file'">
-                                    <label :class="['fileuploader']">
-                                        <input type="file" :id="'q' + q.lid + '-' + (parseInt(p.lid) + 1).toString()" @change="q_file_change" required/>
-                                    </label>
-                                    {{ item.content }}
-                                </template>
-                            </li>
-                            <li>
-                                <button v-if="p.question_modifier_available" :class="['operator', 'negative', 'indent-3']" @click="remove_question(contest.period.indexOf(p), p.question.indexOf(q))"><span>{{ '删除题目' + (parseInt(q.lid) + 1).toString() }}</span></button>
-                            </li>
-                        </template>
-                        <li>
-                            <button v-if="p.question_modifier_available" :class="['operator', 'indent-3']" @click="insert_new_question(contest.period.indexOf(p))"><span>添加题目</span></button>
                         </li>
                         <li>
                             <button v-if='contest.period_modifier_available' :class="['operator', 'negative', 'indent-3']" @click='remove_period(contest.period.indexOf(p))'><span>{{ '删除阶段 ' + get_p_name(contest.period.indexOf(p)) }}</span></button>
@@ -141,9 +114,6 @@
             </div>
             <button id="quit" @click="quit" >
                 <img src="../img/cancel.png" />放弃
-            </button>
-            <button id="save" @click="save">
-                <img src="../img/save.png" />暂存修改
             </button>
         </div>
     </body>
