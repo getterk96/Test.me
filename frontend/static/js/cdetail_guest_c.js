@@ -89,7 +89,7 @@ window.contest = {
             type : 'ltext',
             content : "",
             editable : true
-        }
+        },
         {
             name : 'time',
             alias : '报名时间',
