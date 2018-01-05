@@ -10,7 +10,6 @@
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail_o.css" />
-        <script src="mock_data.js"></script>
     </head>
     <body>
         <div id="header">
@@ -256,50 +255,25 @@
                         </ul>
                     </article>
                     <article :class=['s-body'] v-if="appeal_list[a_single_page][a_single_idx].status == 2">
-                        <ul :class="['form']" v-if="show_appeal_reply">
-                            <li>
-                                <div :class="['label']">回复</div>
-                                <textarea v-model="appeal_reply" rows="5"></textarea>
-                            </li>
-                        </ul>
                         <div :class=['o-bar'] >
-                            <button :class="['operator', 'negative']">搁置</button>
-                            <template v-if="show_appeal_reply">
-                                <button :class="['operator', 'negative']" @click="switch_appeal_reply">取消</button>
-                                <button :class="['operator']">回复</button>
-                            </template>
-                            <button :class="['operator']" v-else @click="switch_appeal_reply">处理</button>
+                            <button :class="['operator']" @click='single_appeal_process(a_single_page, a_single_idx, 1)'>设为已处理</button>
+                            <button :class="['operator', 'negative']" @click='single_appeal_process(a_single_page, a_single_idx, 2)'>设为已搁置</button>
                         </div>
                     </article>
                     <article :class="['s-body']" v-else-if="appeal_list[a_single_page][a_single_idx].status == 1">
-                        <ul :class="['form']" v-if="show_appeal_reply">
-                            <li>
-                                <div :class="['label']">回复</div>
-                                <textarea v-model="appeal_reply" rows="5"></textarea>
-                            </li>
-                        </ul>
                         <div :class=['o-bar'] >
                             <template v-if="show_appeal_reply">
                             <button :class="['operator', 'negative']" @click="switch_appeal_reply">取消</button>
-                            <button :class="['operator']">回复</button>
                             </template>
-                            <button :class="['operator']" v-else @click="switch_appeal_reply">处理</button>
+                            <button :class="['operator']" @click='single_appeal_process(a_single_page, a_single_idx, 1)'>设为已处理</button>
                         </div>
                     </article>
                     <article :class="['s-body']" v-else-if="appeal_list[a_single_page][a_single_idx].status == 0">
-                        <ul :class="['form']">
-                            <li>
-                                <div :class="['label']">回复</div>
-                                <textarea v-model="appeal_reply" rows="5"  v-if="!show_appeal_reply" disabled></textarea>
-                                <textarea v-model="appeal_reply" rows="5" v-else></textarea>
-                            </li>
-                        </ul>
                         <div :class=['o-bar']>
                             <template v-if="show_appeal_reply">
                                 <button :class="['operator', 'negative']" @click="switch_appeal_reply">取消</button>
-                                <button :class="['operator']">回复</button>
                             </template>
-                            <button :class="['operator']" v-else @click="switch_appeal_reply">重新处理</button>
+                            <button :class="['operator', 'negative']" @click='single_appeal_process(a_single_page, a_single_idx, 2)'>设为已搁置</button>
                         </div>
                     </article>
                 </div>

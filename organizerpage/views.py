@@ -549,7 +549,7 @@ class AppealList(APIView):
     def post(self):
         self.check_input('id', 'status')
         for i in self.input['id']:
-            appeal = Appeal.objects.safe_get(id=i)
+            appeal = Appeal.safe_get(id=i)
             appeal.status = self.input['status']
             appeal.save()
 
@@ -561,8 +561,8 @@ class AppealDetail(APIView):
         self.check_input('id')
         # query
         appeal = Appeal.safe_get(id=self.input['id'])
-        members = []
-        for i in appeal.initiator.members:
+        members = [appeal.initiator.leader.nickname]
+        for i in appeal.initiator.members.all():
             members.append(i.nickname)
         return {
             'title': appeal.title,

@@ -603,6 +603,7 @@ class PlayerAppealDetail(APIView):
             'content': appeal.content,
             'attachmentUrl': appeal.attachment_url,
             'status': appeal.status,
+            'type' : appeal.type
         }
 
     @player_required
