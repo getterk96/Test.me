@@ -13,7 +13,6 @@
     <body>
         <div id="header">
             <div id="header-content">
-                <div id="header-greeting">{{ greeting }}</div>
                 <div id="header-title">{{ title }}</div>
                 <nav><ul>
                     <li v-for='link in link_list'>
@@ -45,6 +44,11 @@
                                     <textarea v-if="item.editable" v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
                                     <textarea v-else disabled v-model="item.content" :class="['input', 'long']" rows='5'></textarea>
                                 </template>
+                                <template v-else-if="item.type == 'radio'">
+                                    <template v-for='choice in item.choices'>
+                                        <label :class="['choice', item.choice == choice ? 'chosen' : 'unchosen']" @click='select(item.name, choice)'>{{ choice }}</label>
+                                    </template>
+                                </template>
                                 <template v-else-if="item.type == 'datetime'">
                                     <div v-if="item.editable">
                                         <input :class="['input', 'mid']" type="date" v-model="item.content.d" />
@@ -68,6 +72,18 @@
                                 <template v-else-if="item.type == 'file'">
                                     <label :class="['fileuploader']">
                                         <input type="file" @change="c_file_change" required/>
+                                    </label>
+                                    {{ item.content }}
+                                </template>
+                                <template v-else-if="item.type == 'logo'">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" @change="c_logo_change" required/>
+                                    </label>
+                                    {{ item.content }}
+                                </template>
+                                <template v-else-if="item.type == 'banner'">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" @change="c_banner_change" required/>
                                     </label>
                                     {{ item.content }}
                                 </template>
@@ -290,7 +306,7 @@
                 <div :class="['session']">
                     <button :class="['s-title', show_upload_toknow ? '' : 'collapse']" @click="switch_upload_toknow"><span>成绩录入须知</span></button>
                     <article :class="['s-body']" v-if="show_upload_toknow">
-                        You can only upload the result of the last turn. All your update will overwrite the latest result of the latest turn.
+                        你只能上传最后一轮的成绩，你所有的上传会覆盖当前最新一轮的结果.上传的文件应该满足下列格式:
                     </article>
                 </div>
                 <div :class="['session']">
@@ -307,6 +323,10 @@
                             </li>
                         </ul>
                     </article>
+                </div>
+            </template>
+            <template v-else-if="page == '选手管理'">
+                <div :class="['session']" v-if="player_batch">
                 </div>
             </template>
         </div>

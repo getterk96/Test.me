@@ -10,9 +10,13 @@ var info = {};
 const type_p = 0;
 const type_o = 1;
 
+function period_bigger(a, b) {
+    return a.index > b.index;
+}
+
 function period_get_succ(response, param) {
-    var start_time = new Date(response.data['startTime']*1000);
-    var end_time = new Date(response.data['endTime']*1000);
+    var start_time = new Date((response.data['startTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((response.data['endTime'] - 8 * 3600 ) * 1000);
     var period =   {
         show : true,
         attr : [
@@ -63,12 +67,16 @@ function period_get_succ(response, param) {
                  }
             }
         ],
-        start_time : response.data['startTime']*1000,
-        end_time : response.data['endTime']*1000,
+        start_time : (response.data['startTime'] - 8 * 3600) * 1000,
+        end_time : (response.data['endTime'] - 8 * 3600) * 1000,
         id : param['id'],
-        name : response.data['name']
+        name : response.data['name'],
+        index : response.data['index']
     }
     window.contest.period.push(period);
+    if (window.contest.period.length == window.periods) {
+        window.contest.period.sort(period_bigger);
+    }
 }
 
 function period_get_fail(response) {
@@ -91,7 +99,7 @@ function qlist_get_succ(response, param) {
             },
             answer : i['workUrl'],
             id : i['id']
-        }
+        };
         window.plist.problems.push(question);
     }
     init_header();
@@ -117,6 +125,7 @@ function user_id_succ(response) {
     }
     if (flag == 0) {
         problem_list_ready = false;
+        init_header();
     }
 }
 
@@ -177,8 +186,8 @@ function team_list_fail(response) {
 }
 
 function contest_get_succ(response) {
-    var start_time = new Date(response.data['signUpStartTime']*1000);
-    var end_time = new Date(response.data['signUpEndTime']*1000);
+    var start_time = new Date((response.data['signUpStartTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((response.data['signUpEndTime'] - 8 * 3600) * 1000);
     window.contest = {
         getAttr : function(qname) {
             for (i of this.attr)
@@ -198,7 +207,7 @@ function contest_get_succ(response) {
             },
             {
                 name : 'level',
-                alias : 'level',
+                alias : '比赛等级',
                 type : 'text',
                 content : level_dic[response.data['level']],
                 editable : true

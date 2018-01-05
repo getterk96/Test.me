@@ -271,6 +271,9 @@ class TestPlayerQuestionSubmit(PlayerPageTestCase):
         period.start_time = datetime.datetime.now() + datetime.timedelta(days=-2)
         period.end_time = datetime.datetime.now() + datetime.timedelta(days=2)
         period.save()
+        team_invitation = TeamInvitation.objects.get(id=1)
+        team_invitation.status = TeamInvitation.CONFIRMED
+        team_invitation.save()
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 2)
         self.assertEqual(response['msg'], 'Only team leader can submit work')
@@ -592,7 +595,8 @@ class TestPlayerAppealCreate(PlayerPageTestCase):
         request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
         request.body = Mock()
         request.body.decode = Mock(return_value='{"contestId": 233, "title":"title1",'
-                                                '"content":"content1", "attachmentUrl":"attachmentUrl1"}')
+                                                '"content":"content1", "attachmentUrl":"attachmentUrl1",'
+                                                '"type":0}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 2)
         self.assertEqual(response['msg'], 'No Such Contest')
@@ -602,7 +606,8 @@ class TestPlayerAppealCreate(PlayerPageTestCase):
         request = Mock(wraps=HttpRequest(), method='POST', user=User.objects.get(id=1))
         request.body = Mock()
         request.body.decode = Mock(return_value='{"contestId": 1, "title":"title1",'
-                                                '"content":"content1", "attachmentUrl":"attachmentUrl1"}')
+                                                '"content":"content1", "attachmentUrl":"attachmentUrl1",'
+                                                '"type":0}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
 
@@ -613,7 +618,7 @@ class TestPlayerAppealList(PlayerPageTestCase):
         found = resolve('/appeal/list', urlconf=playerpage.urls)
         request = Mock(wraps=HttpRequest(), method='GET', user=User.objects.get(id=1))
         request.body = Mock()
-        request.body.decode = Mock(return_value='{"cid":1}')
+        request.body.decode = Mock(return_value='{"cid":1, "tid":1}')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
         self.assertEqual(len(response['data']), 1)

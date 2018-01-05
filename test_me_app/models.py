@@ -229,6 +229,7 @@ class Period(models.Model):
 
         contest = 0
         periods = 0
+        index = int(index)
         if contest_id:
             contest = Contest.objects.get(id=contest_id)
             periods = contest.period_set.exclude(status=Period.REMOVED).all()
@@ -240,10 +241,9 @@ class Period(models.Model):
         if index in index_list:
             raise InputError('The index has been taken by another period.')
 
-        if periods.count() >= contest.available_slots:
-            raise LogicError('This contest cannot hold more periods.')
-
         index_list.append(index)
+        print(index_list);
+        print(index);
         index_list = sorted(index_list)
         p = index_list.index(index)
         if p < len(index_list) - 1:
