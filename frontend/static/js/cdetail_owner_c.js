@@ -38,6 +38,14 @@ window.contest = {
             editable : true
         },
         {
+            name : 'level',
+            alias : '比赛级别',
+            type : 'radio',
+            choice : '[none]',
+            editable : true,
+            choices : ['国际级', '国家级', '省级', '市级', '区级', '校级', '院系级']
+        },
+        {
             name : 'signupstime',
             alias : '报名开始时间',
             type : 'datetime',
@@ -87,6 +95,18 @@ window.contest = {
             name : 'c_file',
             alias : '比赛附件',
             type : 'file',
+            content : ''
+        },
+        {
+            name : 'c_logo',
+            alias : '比赛logo',
+            type : 'logo',
+            content : ''
+        },
+        {
+            name : 'c_banner',
+            alias : '比赛横幅',
+            type : 'banner',
             content : ''
         }
     ],
@@ -175,7 +195,8 @@ var per_get_succ = function (response) {
                         '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
                     h : end_time.getHours(),
                     m : end_time.getMinutes()
-                }
+                },
+                editable : true
             },
             {
                 name : 'slots',
@@ -201,11 +222,15 @@ var per_get_succ = function (response) {
     }
     window.contest.period.push(period);
     window.contest.period_counter += 1;
-    for (i in data['questionId']) {
-        var url = '/api/o/question/detail';
-        var m = 'GET';
-        var tmp_data = {'id' : data['questionId'][i]};
-        $t(url, m, tmp_data, ques_get_succ, ques_get_fail, {which : window.contest.period_counter - 1});
+    if(window.contest.period_counter == window.contest.period_id.length){
+        window.contest.period.sort(period_bigger);
+        for (i in window.contest.period)
+            for (j of window.contest.period[i].question_id) {
+                var url = '/api/o/question/detail';
+                var m = 'GET';
+                var tmp_data = {'id' : j};
+                $t(url, m, tmp_data, ques_get_succ, ques_get_fail, {which : i});
+            }
     }
 }
 
@@ -252,6 +277,15 @@ var org_get_succ = function(response) {
             case 'c_file' :
                 window.contest.attr[i].content = data['signUpAttachmentUrl'];
                 break;
+            case 'c_logo':
+                window.contest.attr[i].content = data['logoUrl'];
+                break;
+            case 'c_banner':
+                window.contest.attr[i].content = data['bannerUrl'];
+                break;
+            case 'level':
+                window.contest.attr[i].choice = window.contest.attr[i].choices[data['level']];
+                break;
         }
     }
     window.contest.period_counter = 0;
@@ -263,11 +297,6 @@ var org_get_succ = function(response) {
         var data = {'id' : i};
         $t(url, m, data, per_get_succ, per_get_fail);
     }
-    window.contest['period'].sort(period_bigger);
-    for (i in window.contest['period']) {
-        window.contest['period'].lid = i.toString();
-    }
-    //logoUrl bannerUrl level currentTime tags
     init_header();
     init_contest();
     url = '/api/o/appeal/list';
@@ -1310,86 +1339,120 @@ var post_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 }
 
+var logo_upload_pass = function(response) {
+    for (i of info.contest.attr)
+        if (i.name == 'c_logo')
+            i.content = response.data;
+};
+
+var logo_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
+var banner_upload_pass = function(response) {
+    for (i of info.contest.attr)
+        if (i.name == 'c_banner')
+            i.content = response.data;
+};
+
+var banner_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
+
+function recreate_contest() {
+            if (window.removed == info.contest.period_id.length){
+                for (i in info.contest.period) {
+                    for (j in info.contest.period[i].question_id) {
+                        var url = '/api/o/question/remove';
+                        var m = 'POST';
+                        console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
+                        var data = {id : info.contest.period[i].question_id[j]};
+                        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+                    }
+
+                    info.contest.period[i].question_id = [];
+                    var url = '/api/o/period/create';
+                    var m = 'POST';
+                    var data = {
+                        'id' : window.cid,
+                        'index' : i
+                    };
+                    for (k of info.contest.period[i].attr) {
+                        switch (k.name) {
+                            case 'name' :
+                                data['name'] = k.content;
+                                break;
+                            case 'description' :
+                                data['description'] = k.content;
+                                break;
+                            case 'slots' :
+                                data['availableSlots'] = k.content;
+                                break;
+                            case 'p_file':
+                                data['attachmentUrl'] = k.content;
+                                break;
+                            case 'pstime':
+                                data['startTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                                break;
+                            case 'petime':
+                                data['endTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                                break;
+                        }
+                    }
+                    $t(url, m, data, function(response, param) {
+                            var n = param.which;
+                            var id = response.data;
+                            info.contest.period_id[n] = id;
+                            for (j in info.contest.period[n].question) {
+                                var url = '/api/o/question/create';
+                                var m = 'POST';
+                                var data = {'index' : j, 'periodId' : id};
+                                for (k of info.contest.period[n].question[j].attr) {
+                                    switch (k.name) {
+                                        case 'description':
+                                            data['description'] = k.content;
+                                            break;
+                                        case 'slots':
+                                            data['submissionLimit'] = k.content;
+                                            break;
+                                        case 'q_file':
+                                            data['attachmentUrl'] = k.content;
+                                            break;
+                                    }
+                                }
+                                $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : n});
+                            }
+                        },
+                        function(response) {
+                            alert('[' + response.code.toString() + ']' + response.msg);
+                        },
+                        {which : i}
+                    );
+                }
+            }
+        }
+
 var upload_data = function(aim_status) {
+    window.removed = 0;
+    recreate_contest();
     for (i in info.contest.period_id) {
         var url = '/api/o/period/remove';
         var m = 'POST';
         var data = {id : info.contest.period_id[i]};
-        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-    }
-    for (i in info.contest.period) {
-        for (j in info.contest.period[i].question_id) {
-            var url = '/api/o/question/remove';
-            var m = 'POST';
-            console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
-            var data = {id : info.contest.period[i].question_id[j]};
-            $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-        }
-
-        info.contest.period[i].question_id = [];
-        var url = '/api/o/period/create';
-        var m = 'POST';
-        var data = {
-            'id' : window.cid,
-            'index' : i
-        };
-        for (k of info.contest.period[i].attr) {
-            switch (k.name) {
-                case 'name' :
-                    data['name'] = k.content;
-                    break;
-                case 'description' :
-                    data['description'] = k.content;
-                    break;
-                case 'slots' :
-                    data['availableSlots'] = k.content;
-                    break;
-                case 'p_file':
-                    data['attachmentUrl'] = k.content;
-                    break;
-                case 'pstime':
-                    data['startTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
-                    break;
-                case 'petime':
-                    data['endTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
-                    break;
-            }
-        }
-        $t(url, m, data, function(response, param) {
-                var n = param.which;
-                var id = response.data;
-                info.contest.period_id[n] = id;
-                for (j in info.contest.period[n].question) {
-                    var url = '/api/o/question/create';
-                    var m = 'POST';
-                    var data = {'index' : j, 'periodId' : id};
-                    for (k of info.contest.period[n].question[j].attr) {
-                        switch (k.name) {
-                            case 'description':
-                                data['description'] = k.content;
-                                break;
-                            case 'slots':
-                                data['submissionLimit'] = k.content;
-                                break;
-                            case 'q_file':
-                                data['attachmentUrl'] = k.content;
-                                break;
-                        }
-                    }
-                    $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : n});
-                }
+        $t(url, m, data, function (response) {
+                ++window.removed;
+                recreate_contest();
             },
             function(response) {
                 alert('[' + response.code.toString() + ']' + response.msg);
-            },
-            {which : i}
+            }
         );
     }
     //        self.check_input('id', , 'logoUrl', 'bannerUrl',
     //                      'level', 'tags')
     var url = '/api/o/contest/detail';
     var m = 'POST';
-    var data = {'level' : 1, 'tags' : '', 'logoUrl' : '', 'bannerUrl' : '', 'id' : window.cid};
+    var data = {'tags' : '', 'id' : window.cid};
     for (i of info.contest.attr) {
         switch (i.name) {
             case 'name' :
@@ -1412,6 +1475,16 @@ var upload_data = function(aim_status) {
                 break;
             case 'c_file' :
                 data['signUpAttachmentUrl'] = i.content;
+                break;
+            case 'c_logo':
+                data['logoUrl'] = i.content;
+                break;
+            case 'c_banner':
+                data['bannerUrl'] = i.content;
+                break;
+            case 'level':
+                data['level'] = i.choices.indexOf(i.choice);
+                break;
         }
     }
     $t(url, m, data, post_succ, post_fail);
