@@ -422,7 +422,7 @@
                             <li v-for="p in contest.period">
                                 <div :class="['label']">{{ get_p_name(contest.period.indexOf(p)) }}
                                 成绩</div>
-                                <input :class="['input']" type="number" v-model="player_list[p_single_page][p_single_idx].mark[contest.period.indexOf(p)]" />
+                                <input :class="['input']" type="number" v-model="player_mark[contest.period.indexOf(p)]" />
                             </li>
                         </ul>
                     </article>

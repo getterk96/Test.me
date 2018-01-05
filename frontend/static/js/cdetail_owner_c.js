@@ -486,6 +486,7 @@ info = new Vue({
         player_page : 0,
         player_p0_name : '',
         player_p1_name : '',
+        player_mark : [],
         selected_player : 0
     },
     computed : {
@@ -534,6 +535,10 @@ info = new Vue({
             }
             this.p_single_page = p;
             this.p_single_idx = i;
+            this.player_mark = [];
+            for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
+                this.player_mark.push(r);
+            }
         },
         p_single_next : function() {
             var p = this.p_single_page;
@@ -553,11 +558,21 @@ info = new Vue({
             }
             this.p_single_page  = p;
             this.p_single_idx = i;
+            this.player_mark =
+            this.player_mark = [];
+            for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
+                this.player_mark.push(r);
+            }
         },
         p_single_process : function(page, idx) {
             this.player_batch = false;
             this.p_single_page = page;
             this.p_single_idx = idx;
+            this.player_mark =
+            this.player_mark = [];
+            for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
+                this.player_mark.push(r);
+            }
         },
         p_batch_process : function() { this.player_batch = true; },
         player_top_by_status : function(topper) {
