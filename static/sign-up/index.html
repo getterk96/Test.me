@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <title>加入Test.Me!</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <script src="../js/uni.js"></script>
+        <link type="text/css" rel="stylesheet" href="../css/uni.css" />
+        <link type="text/css" rel="stylesheet" href="../css/signup.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="header-content">
+                <div id="header-greeting">{{ greeting }}</div>
+                <div id="header-title">{{ title }}</div>
+                <nav><ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link'>{{ link.alias }}</a>
+                    </li>
+                </ul></nav>
+            </div>
+        </div>
+        <div id="body">
+            <div :class="['session']" v-if="!read">
+                <button disabled :class="['s-title']"><span :class="['title']">注册须知</span></button>
+                <article :class="['s-body']">
+                    <p v-for="item in read_before_signup">{{ item }}</p>
+                </article>
+                <div :class="['s-u-resp']">
+                    <button @click="read_this" :class="['response-button']">我知道了</button>
+                </div>
+            </div>
+            <div :class="['session']" v-else>
+                <button disabled :class="['s-title']"><span :class="['title']">填写注册信息</span></button>
+                <article :class="['s-body']">
+                    <ul :class="['form']">
+                        <li v-for='item in userinfo'>
+                            <template v-if="item.required == ''">
+                                <div :class="['label']">{{ item.label }}</div>
+                                <template v-if="item.type == 'input'">
+                                    <input v-if="item.name != 'password' && item.name != 'cpassword'" v-model="item.content" :class="['input']" />
+                                    <input v-else v-model="item.content" :class="['input']" type="password" />
+                                    <div :class="['input-warning']">{{ item.warning }}</div>
+                                </template>
+                                <template v-else-if="item.type == 'radio'">
+                                    <template v-for='choice in item.choices'>
+                                        <label :class="['choice', item.choice == choice ? 'chosen' : 'unchosen']" @click='select(item.name, choice)'>{{ choice }}</label>
+                                    </template>
+                                </template>
+                            </template>
+                            <template v-else-if="item.required == '学生' && usertype == '学生'">
+                                <div :class="['label']">{{ item.label }}</div>
+                                <template v-if="item.type == 'input'">
+                                    <input v-model="item.content" :class="['input']" />
+                                    <div :class="['input-warning']">{{ item.warning }}</div>
+                                </template>
+                                <template v-else-if="item.type == 'radio'">
+                                    <template v-for='choice in item.choices'>
+                                        <label :class="['choice', item.choice == choice ? 'chosen' : 'unchosen']" @click='select(item.name, choice)'>{{ choice }}</label>
+                                    </template>
+                                </template>
+                                <template v-else-if="item.type == 'date'">
+                                    <input type="date" v-model="item.content" :class="['input']"/>
+                                </template>
+                            </template>
+                            <template v-else-if="item.required == '比赛主办方' && usertype == '比赛主办方'">
+                                <div :class="['label']">{{ item.label }}</div>
+                                <template v-if="item.type == 'input'">
+                                    <input v-model="item.content" :class="['input']" />
+                                    <div :class="['input-warning']">{{ item.warning }}</div>
+                                </template>
+                                <template v-else-if="item.type == 'file'">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" @change="val_file_change" required/>
+                                    </label>
+                                    {{ val_filename }}
+                                </template>
+                            </template>
+                        </li>
+                    </ul>
+                    <div :class="['s-u-resp']">
+                        <button @click="signup" :class="['response-button']">现在加入</button>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </body>
+    <script src="../js/uni_c.js"></script>
+    <script src="../js/header_c.js"></script>
+    <script src="../js/signup_c.js"></script>
+    <script></script>
+</html>
+<!-- template -->

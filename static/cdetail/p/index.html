@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>比赛详情</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <script src="../../js/uni.js"></script>
+        <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail_p.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="header-content">
+                <div id="header-greeting">{{ greeting }}</div>
+                <div id="header-title">{{ title }}</div>
+                <nav><ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link' @click='link.action'>{{ link.alias }}</a>
+                    </li>
+                </ul></nav>
+            </div>
+        </div>
+        <nav id="side-nav">
+            <ul>
+                <li v-for="item in list">
+                    <label :class="['choice', item == choice ? 'chosen' : 'unchosen']" @click='select(item)'>{{ item }}</label>
+                </li>
+            </ul>
+        </nav>
+        <div id="body">
+            <template v-if="page == '比赛信息'">
+                <div :class="['session']">
+                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">基本信息</span></button>
+                    <article :class="['s-body']" v-if="show_basic_info">
+                        <ul :class="['form']">
+                            <template v-for="item in contest.attr">
+                                <li v-if="item.name != 'name'">
+                                    <div :class="['label']">{{ item.alias }}</div>
+                                    <template v-if="item.type == 'ltext'">
+                                        <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
+                                    </template>
+                                    <template v-else-if="item.type == 'text'">
+                                        <input :class="['display']" v-model="item.content" disabled />
+                                    </template>
+                                    <template v-else-if="item.type == 'datetime'">
+                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.d" />
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.h" />时
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.m" />分
+                                    </template>
+                                    <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
+                                        <input type="number" disabled :class="['display', 'mid']" v-model="item.content.max" />
+                                    </template>
+                                    <template v-else-if="item.type == 'number' && item.name == 'slots'">
+                                        <input type="number" disabled :class="['display', 'mid']" v-model="item.content" />
+                                    </template>
+                                    <template v-else-if="item.type == 'file'">
+                                        <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
+                                    </template>
+                                </li>
+                            </template>
+                        </ul>
+                    </article>
+                </div>
+                <div :class="['session']">
+                    <template v-for="p in contest.period">
+                        <button :class="['s-title', p.show ? '' : 'collapse']" @click="switch_period_info(contest.period.indexOf(p))">
+                            <span :class="['title']">{{ get_p_name(contest.period.indexOf(p)) }}</span>
+                        </button>
+                        <article :class="['s-body']" v-if="p.show">
+                            <ul :class="['form']">
+                                <template v-for="item in p.attr">
+                                    <li v-if="item.name != 'name'">
+                                        <div :class="['label']">{{ item.alias }}</div>
+                                        <template v-if="item.type == 'ltext'">
+                                            <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
+                                        </template>
+                                        <template v-else-if="item.type == 'text'">
+                                            <input :class="['display']" v-model="item.content" disabled />
+                                        </template>
+                                        <template v-else-if="item.type == 'datetime'">
+                                            <input type="date" :class="['display', 'mid']" disabled v-model="item.content.d" />
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.h" />时
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.m" />分
+                                        </template>
+                                        <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content.min" />-
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content.max" />
+                                        </template>
+                                        <template v-else-if="item.type == 'number' && item.name == 'slots'">
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content" />
+                                        </template>
+                                        <template v-else-if="item.type == 'file'">
+                                            <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
+                                        </template>
+                                    </li>
+                                </template>
+                            </ul>
+                        </article>
+                    </template>
+                </div>
+            </template>
+            <template v-else-if="page == '队伍信息'">
+                <div :class="['session']">
+                    <button :class="['s-title', show_member ? '' : 'collapse']" @click="switch_member"><span :class="['title']">{{ team.name }}</span></button>
+                    <article :class="['s-body']" v-if="show_member">
+                        <ul>
+                            <template v-for="user in team.member">
+                                <li v-if="user.id == team.leader_id" :class="['userbox', 'leader']" @click="visit_user(user.id)">
+                                    <img :src="user.avatar_url" />
+                                    <div :class="['info']">
+                                        <ul>
+                                            <li :class="['name']">{{ user.nickname + '(队长)'}}<span v-if="is_self(user.id)">(你)</span></li>
+                                            <li>{{ 'ID : ' + user.id }}</li>
+                                            <li>{{ user.school }}</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </template>
+                            <template v-for="user in team.member">
+                                <li v-if="user.id != team.leader_id" :class="['userbox', user.accept ? '' : 'unaccepted']" @click="visit_user(user.id)">
+                                    <img :src="user.avatar_url" />
+                                    <div :class="['info']">
+                                        <ul>
+                                            <li :class="['name']">{{ user.nickname }}<span v-if="is_self(user.id)">(你)</span><span v-if="!user.accept">(未通过邀请)</span></li>
+                                            <li>{{ 'ID : ' + user.id }}</li>
+                                            <li>{{ user.school }}</li>
+                                        </ul>
+                                    </div>
+                                </li>
+                            </template>
+                        </ul>
+                        <div v-if="is_self(team.leader_id)" :class="['team-select']">
+                            <div :class="['label']">移交队长至</div>
+                            <select :class="['input']" v-model="team.new_leader">
+                                <template v-for="user in team.member">
+                                    <option v-if="user.id != team.leader_id && user.accept">{{ user.nickname + '(ID:' + user.id + ')' }}</option>
+                                </template>
+                            </select>
+                            <button :class="['operator', 'indent-3']" @click="switch_team_ownership"><span>确认</span></button>
+                        </div>
+                    </article>
+                </div>
+                <div :class="['session']">
+                    <button :class="['s-title', 'collapse']"><span :class="['title']">报名</span></button>
+                    <article :class="['s-body']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">报名状态</div>
+                                <input :class="['display', 'mid', team.status == '审核通过' ? 'green' : 'red']" disabled v-model="team.status"/>
+                            </li>
+                            <li>
+                                <div :class="['label']">报名附件</div>
+                                <template v-if="is_self(team.leader_id)">
+                                    <label :class="['fileuploader']">
+                                        <input type="file" v-if="team.status == '未报名'" @change="t_file_change" />
+                                        <input type="file" v-else disabled />
+                                    </label>
+                                    {{ signup_material.attachment }}
+                                    <div v-if="team.status != '未报名'" :class="['urgent-info']">
+                                        现在无法修改报名附件
+                                    </div>
+                                </template>
+                                <input v-else disabled :class="['display']" v-model="signup_material.attachment"/>
+                            </li>
+                        </ul>
+                    </article>
+                </div>
+                <div :class="['s-u-resp']" v-if="is_self(team.leader_id)">
+                    <button @click="save" :class="['response-button']">暂存修改</button>
+                    <button @click="post" :class="['response-button']">提交报名</button>
+                </div>
+            </template>
+            <template v-else-if="page == '比赛题目'">
+                <h1 :class="['pl-title']">{{ problem_list.period }}</h1>
+                <div :class="['session']" v-for="item in problem_list.problems">
+                    <button :class="['s-title', item.show ? '' : 'collapse']" @click="switch_problem_status(problem_list.problems.indexOf(item))"><span :class="['title']">{{ problem_list.problems.indexOf(item) + 1}}</span></button>
+                    <article :class="['s-body']" v-if="item.show">
+                        <div :class="['q-description']">{{ item.description }}</div>
+                        <div>
+                            <span :class="['bold']">题目附件 : </span>
+                            <a :href="item.attachment.url" :class="['underlined']">{{ item.attachment.filename }}</a>
+                        </div>
+                        <div v-if="is_self(team.leader_id)">
+                            <span :class="['bold']">提交答案 : </span>
+                            <label :class="['fileuploader']">
+                                <input type="file" :id="'p-' + problem_list.problems.indexOf(item).toString()" @change="upload_answer" />
+                            </label>
+                            {{ item.answer }}
+                        </div>
+                     </article>
+                </div>
+            </template>
+            <template v-else-if="page === '我的申诉'">
+                <template v-if="!in_compose && !in_check">
+                    <div :class="['o-bar']" v-if="is_self(team.leader_id)">
+                        <button :class="['operator']" @click="switch_compose">创建申诉</button>
+                    </div>
+                    <div :class="['session']">
+                        <table :class="['searchresult']" cellspacing='0'>
+                            <thead>
+                                <th>申诉标题</th>
+                                <th>申诉类型</th>
+                                <th>申诉状态</th>
+                                <th>&nbsp;</th>
+                            </thead>
+                            <tr v-for="item in appeal_list" :class="[appeal_list.indexOf(item) == appeal_list.length - 1 ? 'last-row' : '']">
+                                <td>{{ item.title }}</td>
+                                <td>{{ appeal_type_dict[item.type] }}</td>
+                                <td :class="[item.processed == 1 ? 'green' : '', item.processed == 0 ? 'red' : '']">{{ appeal_status_dict[item.processed] }}</td>
+                                <td><button :class="['blue']" @click="check_appeal(appeal_list.indexOf(item))">详情</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </template>
+                <template v-else-if="in_compose && is_self(team.leader_id)">
+                    <div :class="['o-bar']">
+                        <button :class="['operator', 'negative']" @click="switch_compose">取消</button>
+                    </div>
+                    <div :class="['session', 'a-composer']">
+                        <input v-model="appeal_title" placeholder="在此输入标题" :class="['a-title']" />
+                        <div :class="['a-type']">
+                            选择申诉类型
+                            <ul>
+                                <li>
+                                    <label :class="['choice', 0 == appeal_type ? 'chosen' : 'unchosen']" @click='select_appeal_type(0)'>{{ appeal_type_dict[0] }}</label>
+                                </li>
+                                <li>
+                                    <label :class="['choice', 1 == appeal_type ? 'chosen' : 'unchosen']" @click='select_appeal_type(1)'>{{ appeal_type_dict[1] }}</label>
+                                </li>
+                            </ul>
+                        </div>
+                        <textarea v-model="appeal_content" rows="10" placeholder="在此处填写内容" :class="['a-content']"></textarea>
+                        <div :class="['a-att']">
+                            <span :class="['bold']">上传附件</span>
+                            <label :class="['fileuploader']">
+                                <input type="file" @change="appeal_a_upload"/>
+                            </label>
+                            {{ appeal_file }}
+                        </div>
+                    </div>
+                    <div :class="['s-u-resp']">
+                        <button @click="send_appeal" :class="['response-button']">提交</button>
+                    </div>
+                </template>
+                <template v-else-if="in_check">
+                    <div :class="['o-bar']">
+                        <button :class="['operator', 'negative']" @click="close_a_check">返回</button>
+                    </div>
+                    <div :class="['session']">
+                        <input v-model="appeal_list[appeal_oncheck].title" :class="['a-title']" disabled />
+                        <div :class="['a-type']">
+                            {{ '类型:' + appeal_type_dict[appeal_list[appeal_oncheck].type] + ',状态:' + appeal_status_dict[appeal_list[appeal_oncheck].processed] }}
+                        </div>
+                        <textarea v-model="appeal_list[appeal_oncheck].content" rows="10" :class="['a-content']" disabled></textarea>
+                        <textarea v-model="'组织方回复:' + appeal_list[appeal_oncheck].reply" rows="10" :class="['a-content']" disabled></textarea>
+                        <div :class="['a-att']">
+                            <span :class="['bold']">附件</span>
+                            <a :href="appeal_list[appeal_oncheck].a_url">点此下载</a>
+                        </div>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </body>
+    <script src="../../js/uni_c.js"></script>
+    <script src="../../js/header_c.js"></script>
+    <script src="../../js/cdetail_player_c.js"></script>
+</html>
+<!-- template -->
