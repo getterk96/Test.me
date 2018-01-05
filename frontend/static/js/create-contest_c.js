@@ -153,7 +153,7 @@ window.contest = {
         },
         {
             name : 'signupstime',
-            alias : '报名时间',
+            alias : '报名开始时间',
             type : 'datetime',
             content : {
                 d : '',
@@ -164,7 +164,7 @@ window.contest = {
         },
         {
             name : 'signupetime',
-            alias : '报名时间',
+            alias : '报名结束时间',
             type : 'datetime',
             content : {
                 d : '',
