@@ -132,6 +132,7 @@ class ForumList(APIView):
 
 class ForumPostCreate(APIView):
 
+    #@login_required
     def post(self):
         # check existence
         self.check_input('title', 'content', 'user_id', 'contest_id')
@@ -205,6 +206,7 @@ class ForumDetail(APIView):
 
 class ForumReplyCreate(APIView):
 
+    #@login_required
     def post(self):
         # check existence
         self.check_input('title', 'content', 'user_id', 'post_id')
