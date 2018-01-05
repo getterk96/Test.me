@@ -1028,79 +1028,93 @@ var banner_upload_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 };
 
+function recreate_contest() {
+            if (window.removed == info.contest.period_id.length){
+                for (i in info.contest.period) {
+                    for (j in info.contest.period[i].question_id) {
+                        var url = '/api/o/question/remove';
+                        var m = 'POST';
+                        console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
+                        var data = {id : info.contest.period[i].question_id[j]};
+                        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
+                    }
+
+                    info.contest.period[i].question_id = [];
+                    var url = '/api/o/period/create';
+                    var m = 'POST';
+                    var data = {
+                        'id' : window.cid,
+                        'index' : i
+                    };
+                    for (k of info.contest.period[i].attr) {
+                        switch (k.name) {
+                            case 'name' :
+                                data['name'] = k.content;
+                                break;
+                            case 'description' :
+                                data['description'] = k.content;
+                                break;
+                            case 'slots' :
+                                data['availableSlots'] = k.content;
+                                break;
+                            case 'p_file':
+                                data['attachmentUrl'] = k.content;
+                                break;
+                            case 'pstime':
+                                data['startTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                                break;
+                            case 'petime':
+                                data['endTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
+                                break;
+                        }
+                    }
+                    $t(url, m, data, function(response, param) {
+                            var n = param.which;
+                            var id = response.data;
+                            info.contest.period_id[n] = id;
+                            for (j in info.contest.period[n].question) {
+                                var url = '/api/o/question/create';
+                                var m = 'POST';
+                                var data = {'index' : j, 'periodId' : id};
+                                for (k of info.contest.period[n].question[j].attr) {
+                                    switch (k.name) {
+                                        case 'description':
+                                            data['description'] = k.content;
+                                            break;
+                                        case 'slots':
+                                            data['submissionLimit'] = k.content;
+                                            break;
+                                        case 'q_file':
+                                            data['attachmentUrl'] = k.content;
+                                            break;
+                                    }
+                                }
+                                $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : n});
+                            }
+                        },
+                        function(response) {
+                            alert('[' + response.code.toString() + ']' + response.msg);
+                        },
+                        {which : i}
+                    );
+                }
+            }
+        }
+
 var upload_data = function(aim_status) {
+    window.removed = 0;
+    recreate_contest();
     for (i in info.contest.period_id) {
         var url = '/api/o/period/remove';
         var m = 'POST';
         var data = {id : info.contest.period_id[i]};
-        $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-    }
-    for (i in info.contest.period) {
-        for (j in info.contest.period[i].question_id) {
-            var url = '/api/o/question/remove';
-            var m = 'POST';
-            console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
-            var data = {id : info.contest.period[i].question_id[j]};
-            $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
-        }
-
-        info.contest.period[i].question_id = [];
-        var url = '/api/o/period/create';
-        var m = 'POST';
-        var data = {
-            'id' : window.cid,
-            'index' : i
-        };
-        for (k of info.contest.period[i].attr) {
-            switch (k.name) {
-                case 'name' :
-                    data['name'] = k.content;
-                    break;
-                case 'description' :
-                    data['description'] = k.content;
-                    break;
-                case 'slots' :
-                    data['availableSlots'] = k.content;
-                    break;
-                case 'p_file':
-                    data['attachmentUrl'] = k.content;
-                    break;
-                case 'pstime':
-                    data['startTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
-                    break;
-                case 'petime':
-                    data['endTime'] = k.content['d'] + ' ' + k.content['h'] + ':' + k.content['m'] + ':00';
-                    break;
-            }
-        }
-        $t(url, m, data, function(response, param) {
-                var n = param.which;
-                var id = response.data;
-                info.contest.period_id[n] = id;
-                for (j in info.contest.period[n].question) {
-                    var url = '/api/o/question/create';
-                    var m = 'POST';
-                    var data = {'index' : j, 'periodId' : id};
-                    for (k of info.contest.period[n].question[j].attr) {
-                        switch (k.name) {
-                            case 'description':
-                                data['description'] = k.content;
-                                break;
-                            case 'slots':
-                                data['submissionLimit'] = k.content;
-                                break;
-                            case 'q_file':
-                                data['attachmentUrl'] = k.content;
-                                break;
-                        }
-                    }
-                    $t(url, m, data, q_post_succ, function(response) {alert('[' + response.code.toString() + ']' + response.msg);}, {which : n});
-                }
+        $t(url, m, data, function (response) {
+                ++window.removed;
+                recreate_contest();
             },
             function(response) {
                 alert('[' + response.code.toString() + ']' + response.msg);
-            },
-            {which : i}
+            }
         );
     }
     //        self.check_input('id', , 'logoUrl', 'bannerUrl',
