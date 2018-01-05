@@ -322,23 +322,24 @@ var appeal_detail_get_succ = function(response, param) {
     for (i of data['members'])
         members.push({'name' : i});
     var appeal = {
-        appler : {
+        appealer : {
             name : data['appealer'],
             member : members,
         },
-        type : (data['type'] == 0 ? 'score' : 'qualification'),
+        type : (data['type'] == 0 ? 1 : 0),
         a_url : data['attachmentUrl'],
         selected : false,
         content : data['content'],
         title : data['title'],
-        status : status_dic[data['status']],
+        status : (data['status'] + 2) % 3,
         id : param['id']
     };
     if (info.appeal_counter % info.appeal_page_capacity == 0) {
         info.appeal_list.push([]);
     }
-    info.appeal_list[info.appeal_counter / info.appeal_page_capacity].push(appeal);
-    ++info.appeal_counter;
+    console.log(info.appeal_counter / info.appeal_page_capacity);
+    info.appeal_list[parseInt(info.appeal_counter / info.appeal_page_capacity)].push(appeal);
+    info.appeal_counter = info.appeal_counter + 1;
 };
 
 var appeal_detail_get_fail = function(response) {
@@ -469,9 +470,12 @@ var r_upload_fail = function(response) {
     alert('[' + response.code.toString() + ']' + response.msg);
 }
 
-var process_succ = function(response) {
-    alert('批量处理完成！');
-    window.location.assign('./index.html?cid=' + window.cid);
+var process_succ = function(response, param) {
+    if (param.single == false)
+        alert('批量处理完成！');
+    else
+        alert('申诉处理完成！');
+    window.location.reload();
 }
 
 var process_fail = function(response) {
@@ -501,7 +505,7 @@ info = new Vue({
         appeal_batch : true,
         show_upload_toknow : true,
         appeal_status_dict : ['已处理', '已搁置', '未处理'],
-        appeal_type_dict : ['资格', '成绩'],
+        appeal_type_dict : ['成绩', '资格'],
         //team management
         player_batch : true,
         p_single_page : 0,
@@ -1277,28 +1281,35 @@ info = new Vue({
             for (i in this.appeal_list)
                 for (j in this.appeal_list[i]) {
                     if (this.appeal_list[i][j].selected == true)
-                        ids.push(appeal_list[i][j].id);
+                        ids.push(this.appeal_list[i][j].id);
                 }
             var url = '/api/o/appeal/list';
             var m = 'POST';
             var data = {id : ids, status : 1};
-            $t(url, m, data, process_succ, process_fail);
+            $t(url, m, data, process_succ, process_fail, {single : false});
         },
         ignore_selected_appeals : function() {
             var ids = [];
             for (i in this.appeal_list)
                 for (j in this.appeal_list[i]) {
                     if (this.appeal_list[i][j].selected == true)
-                        ids.push(appeal_list[i][j].id);
+                        ids.push(this.appeal_list[i][j].id);
                 }
             var url = '/api/o/appeal/list';
             var m = 'POST';
             var data = {id : ids, status : 2};
-            $t(url, m, data, process_succ, process_fail);
+            $t(url, m, data, process_succ, process_fail, {single : false});
+        },
+        single_appeal_process : function(i, j, status) {
+            var ids = [];
+            ids.push(this.appeal_list[i][j].id);
+            var url = '/api/o/appeal/list';
+            var m = 'POST';
+            var data = {id : ids, status : status};
+            $t(url, m, data, process_succ, process_fail,  {single : true});
         },
         switch_appeal_reply : function(mode) {
-            this.show_appeal_reply = !this.show_appeal_reply;
-            this.appeal_reply = this.appeal_list[this.a_single_page][this.a_single_idx].reply;
+            show_appeal_reply = false;
         },
         publish : function() {
             upload_data(0);
