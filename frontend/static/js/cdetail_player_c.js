@@ -99,7 +99,7 @@ function qlist_get_succ(response, param) {
             },
             answer : i['workUrl'],
             id : i['id']
-        }
+        };
         window.plist.problems.push(question);
     }
     init_header();
@@ -125,6 +125,7 @@ function user_id_succ(response) {
     }
     if (flag == 0) {
         problem_list_ready = false;
+        init_header();
     }
 }
 
