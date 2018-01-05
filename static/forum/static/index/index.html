@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>比赛大厅</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <script src="../js/uni.js"></script>
+        <link type="text/css" rel="stylesheet" href="../css/uni.css" />
+        <link type="text/css" rel="stylesheet" href="../css/index.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="header-content">
+                <div id="header-greeting">{{ greeting }}</div>
+                <div id="header-title">{{ title }}</div>
+                <nav><ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link' @click='link.action'>{{ link.alias }}</a>
+                    </li>
+                </ul></nav>
+            </div>
+        </div>
+        <div id="body">
+            <div :class="['session', no_viewport ? 'nodisplay' : '']" id="viewport_box">
+                <div id="viewport">
+                    <ul>
+                        <template v-for="item in rec">
+                            <li>
+                                <img :src="item.url" :class="[item.show ? '' : 'hidden']"/>
+                            </li>
+                        </template>
+                    </ul>
+                </div>
+            </div>
+            <div :class="['session']">
+                    <div :class="['searchbox']">
+                        <input v-model="querytext" required autofocus/>
+                    </div>
+                <div :class="['searchbutton']">
+                    <div>
+                        <button id="gosearch" @click="searchcontest">搜索</button>
+                    </div>
+                </div>
+            </div>
+            <div :class="['session']" v-if="no_viewport" id="no-vp">
+                <ul :class="['waiting']" v-if="querylist.length == 0">
+                    <li><div :class="['load1', 'waiting-bubble']"></div></li>
+                    <li><div :class="['load2', 'waiting-bubble']"></div></li>
+                    <li><div :class="['load3', 'waiting-bubble']"></div></li>
+                    <li><div :class="['load4', 'waiting-bubble']"></div></li>
+                </ul>
+                <ul :class="['query_list']" v-else>
+                    <li v-for="item in querylist">
+                        <img :class="['list_logo']" :src="item.logo" />
+                        <div :class="['list_info']">
+                            <div :class="['list_namecard']">
+                                <h1>{{ item.name }}</h1>
+                                <h2>{{ '【组织者】' + item.organizer }}</h2>
+                            </div>
+                            <div :class="['list_infocard']">
+                                <ul>
+                                    <li>{{ '报名时间 : ' + item.signuptimefrom + '~' + item.signuptimeto }}</li>
+                                    <li>{{ '比赛等级 : ' + item.level }}</li>
+                                    <li><button @click="directto(item.url)">detail</button></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </body>
+    <script src="../js/uni_c.js"></script>
+    <script src="../js/header_c.js"></script>
+    <script src="../js/index_c.js"></script>
+</html>
+<!-- template -->

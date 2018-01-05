@@ -5,6 +5,8 @@
 </template>
 
 <script>
+  import axios from 'axios'
+
   export default {
     name: 'app'
   };
@@ -35,7 +37,7 @@
             return undefined;
           }
           try {
-            data_str = JSON.stringify(data);
+            let data_str = JSON.stringify(data);
           } catch (e) {
             console.log('[err] invalid json syntax');
             return undefined
@@ -82,8 +84,4 @@
 </script>
 
 <style>
-  .main-box {
-    max-width: 1000px;
-    margin: auto;
-  }
 </style>

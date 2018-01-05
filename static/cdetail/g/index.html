@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Test.Me</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <script src="../../js/uni.js"></script>
+        <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
+        <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
+    </head>
+    <body>
+        <div id="header">
+            <div id="header-content">
+                <div id="header-greeting">{{ greeting }}</div>
+                <div id="header-title">{{ title }}</div>
+                <nav><ul>
+                    <li v-for='link in link_list'>
+                        <a :href='link.link' @click='link.action'>{{ link.alias }}</a>
+                    </li>
+                </ul></nav>
+            </div>
+        </div>
+        <nav id="side-nav">
+            <ul>
+                <li v-for="item in list">
+                    <label :class="['choice', item == choice ? 'chosen' : 'unchosen']" @click='select(item)'>{{ item }}</label>
+                </li>
+            </ul>
+        </nav>
+        <div id="body">
+            <template v-if="page == '[null]' || page == '比赛信息'">
+                <div v-if="page == 'contest info' && invitation.length > 0" :class="['urgent-info']">
+                    {{ '你收到了' + invitation.length.toString() + '条组队邀请，点击左侧“组队信息”查看' }}
+                </div>
+                <div :class="['session']">
+                    <button :class="['s-title', show_basic_info ? '' : 'collapse']" @click="switch_basic_info"><span :class="['title']">比赛基本信息</span></button>
+                    <article :class="['s-body']" v-if="show_basic_info">
+                        <ul :class="['form']">
+                            <template v-for="item in contest.attr">
+                                <li v-if="item.name != 'name'">
+                                    <div :class="['label']">{{ item.alias }}</div>
+                                    <template v-if="item.type == 'ltext'">
+                                        <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
+                                    </template>
+                                    <template v-else-if="item.type == 'datetime'">
+                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.sd" />
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.sh" />h
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.sm" />m-
+                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.ed" />
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.eh" />h
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.em" />m
+                                    </template>
+                                    <template v-else-if="item.type == 'number'">
+                                        <input type="number" disabled :class="['display', 'short']" v-model="item.content" />
+                                    </template>
+                                    <template v-else-if="item.type == 'file'">
+                                        <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
+                                    </template>
+                                </li>
+                            </template>
+                        </ul>
+                    </article>
+                </div>
+                <div :class="['session']">
+                    <template v-for="p in contest.period">
+                        <button :class="['s-title', p.show ? '' : 'collapse']" @click="switch_period_info(contest.period.indexOf(p))">
+                            <span :class="['title']">{{ get_p_name(contest.period.indexOf(p)) }}</span>
+                        </button>
+                        <article :class="['s-body']" v-if="p.show">
+                            <ul :class="['form']">
+                                <template v-for="item in p.attr">
+                                    <li v-if="item.name != 'name'">
+                                        <div :class="['label']">{{ item.alias }}</div>
+                                        <template v-if="item.type == 'ltext'">
+                                            <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
+                                        </template>
+                                        <template v-else-if="item.type == 'datetime'">
+                                            <input type="date" :class="['display', 'mid']" disabled v-model="item.content.sd" />
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.sh" />h
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.sm" />m-
+                                            <input type="date" :class="['display', 'mid']" disabled v-model="item.content.ed" />
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.eh" />h
+                                            <input type="number" :class="['display', 'short']" disabled v-model="item.content.em" />m
+                                        </template>
+                                        <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content.min" />-
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content.max" /> peoples
+                                        </template>
+                                        <template v-else-if="item.type == 'number' && item.name == 'slots'">
+                                            <input type="number" disabled :class="['display', 'mid']" v-model="item.content" /> teams
+                                        </template>
+                                        <template v-else-if="item.type == 'file'">
+                                            <a :href="item.content.url" :class="['underlined']">{{ item.content.filename }}</a>
+                                        </template>
+                                    </li>
+                                </template>
+                            </ul>
+                        </article>
+                    </template>
+                    <div :class="['s-u-resp']">
+                        <button :class="['response-button']" @click="setpage('team info')" v-if="page == 'contest info'">参加比赛</button>
+                    </div>
+                </div>
+            </template>
+            <template v-else-if="page == '组队信息'">
+                <div :class="['session']">
+                    <button :class="['s-title', show_invitations ? '' : 'collapse']" @click="switch_invitation"><span :class="['title']">收到的邀请</span></button>
+                    <article :class="['s-title']" v-if="show_invitations">
+                        <ul>
+                            <li v-for="i in invitation" :class="['userbox']">
+                                <img :src="i.leader_avatar_url" />
+                                <div :class="['info']">
+                                    <ul>
+                                        <li :class="['name']">{{ '来自 ' + i.teamname }}</li>
+                                        <li>{{ '队长 : ' + i.leadername }}</li>
+                                        <li>{{ '队伍ID : ' + i.tid }}</li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                        <div :class="['team-select']">
+                            <div :class="['label']">加入 </div>
+                            <select :class="['input']" v-model="accept_team">
+                                <template v-for="team in invitation">
+                                    <option>{{ team.teamname + '(id : ' + team.tid + ')' }}</option>
+                                </template>
+                            </select>
+                            <button :class="['operator', 'indent-3']" @click="confirm_join"><span>确认</span></button>
+                        </div>
+                    </article>
+                </div>
+                <div :class="['session']">
+                    <button :class="['s-title', 'collapse']"><span :class="['title']">自己组队</span></button>
+                    <article :class="['s-title']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">团队人数上限</div>
+                                <input type="number" disabled :class="['display', 'mid']" v-model="contest.getAttr('team_lim')" />
+                            </li>
+                            <li>
+                                <div :class="['label']">队伍名称</div>
+                                <input :class="['input']" v-model="new_team.name" />
+                                <div :class="['input-warning']">在队伍组建后不可修改队伍名字</div>
+                            </li>
+                            <li v-for="m in new_team.member">
+                                <div :class="['label']">
+                                    <span v-if="new_team.member.indexOf(m) == 0">队员</span>
+                                </div>
+                                <input :class="['input']" placeholder="队员的用户名" v-model="m.username" />
+                                <button :class="['operator', 'indent-3', 'negative']" @click="remove_member(new_team.member.indexOf(m))"><span>取消邀请</span></button>
+                            </li>
+                            <li>
+                                <div :class="['label']"></div>
+                                <button :class="['operator']" @click="insert_new_member"><span>邀请新队员</span></button>
+                            </li>
+                        </ul>
+                    </article>
+                    <div :class="['s-u-resp']">
+                        <button :class="['response-button']" @click='create_team'>创建队伍</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </body>
+    <script src="../../js/uni_c.js"></script>
+    <script src="../../js/header_c.js"></script>
+    <script src="../../js/cdetail_guest_c.js"></script>
+</html>
+<!-- template -->

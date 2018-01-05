@@ -150,7 +150,7 @@ def get_url(path, params=None):
 
 STATIC_URL = '/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'frontend/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Media files
 

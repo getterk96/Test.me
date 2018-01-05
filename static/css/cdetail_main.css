@@ -1,0 +1,40 @@
+.fileuploader {
+    width : 1.2em;
+    height : 1.2em;
+    vertical-align : bottom;
+}
+
+#rankupload {
+    display : block;
+    margin : auto;
+    width : 4em;
+    height : 4em;
+}
+
+#rank_filename {
+    display :block;
+    margin : auto;
+    text-align : center;
+}
+
+.avatar {
+    display : inline-block;
+    width : 20%;
+    margin : 2em 1em;
+    height : auto;
+}
+
+.avatar>img {
+    width : 100%;
+    height : auto;
+}
+
+.playerinfo {
+    display : inline-block;
+    vertical-align : top;
+    margin : 2em 1em;
+}
+
+span.info-head {
+    margin-right : 1em;
+}
