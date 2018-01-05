@@ -390,6 +390,8 @@
                 <div :class="['session']" v-else>
                     <div :class="['o-bar']">
                         <button :class="['operator']" @click="p_batch_process">返回列表</button>
+                        <button :class="['operator']" @click="p_single_prev">上一个</button>
+                        <button :class="['operator']" @click="p_single_next">下一个</button>
                     </div>
                     <div :class="['o-bar']">
                         <template v-if="player_list[p_single_page][p_single_idx].status == 0">
@@ -424,6 +426,9 @@
                             </li>
                         </ul>
                     </article>
+                    <div :class="['s-u-resp']">
+                        <button :class="['response-button']">确认修改</button>
+                    </div>
                 </div>
             </template>
         </div>

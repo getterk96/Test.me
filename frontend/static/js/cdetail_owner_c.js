@@ -520,6 +520,40 @@ info = new Vue({
         }
     },
     methods : {
+        p_single_prev : function() {
+            var p = this.p_single_page;
+            var i = this.p_single_idx;
+            --i;
+            if (i < 0) {
+                --p;
+                i = this.player_page_capacity - 1;
+            }
+            if (p < 0) {
+                alert('No previous one');
+                return;
+            }
+            this.p_single_page = p;
+            this.p_single_idx = i;
+        },
+        p_single_next : function() {
+            var p = this.p_single_page;
+            var i = this.p_single_idx;
+            ++i;
+            if (i == this.player_page_capacity) {
+                i = 0;
+                ++p;
+            }
+            if (p == this.player_list.length) {
+                alert('No more appeal');
+                return;
+            }
+            if ((p == this.player_list.length - 1) && i == this.player_list[p].length) {
+                alert('No more appeal');
+                return;
+            }
+            this.p_single_page  = p;
+            this.p_single_idx = i;
+        },
         p_single_process : function(page, idx) {
             this.player_batch = false;
             this.p_single_page = page;
