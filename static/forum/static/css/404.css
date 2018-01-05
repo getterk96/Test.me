@@ -1,0 +1,35 @@
+#info-container {
+    display : block;
+    margin : 5em auto;
+    width : auto;
+}
+
+#info-container>img,
+#info-container>div {
+    display : block;
+    width : auto;
+    text-align : center;
+}
+
+#info-container>img {
+    margin : 2em auto;
+}
+
+#info-container>div {
+    margin : 0.4em auto;
+}
+
+#info-header {
+    font-weight : bold;
+    font-size : 2em;
+}
+
+#chn,
+#chn a {
+    font-weight : bold;
+    font-size : 1em;
+}
+
+a {
+    color : blue;
+}

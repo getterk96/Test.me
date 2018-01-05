@@ -418,3 +418,41 @@ class Appeal(models.Model):
         if int_status > 2 or int_status < -1:
             raise InputError('Status exceeds supposed range.')
 
+class ForumPost(models.Model):
+    user = models.ForeignKey(User)
+    contest = models.ForeignKey(Contest)
+    title = models.CharField(max_length=256)
+    content = models.TextField()
+    create = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return ForumPost.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError("No Such Post")
+
+    @staticmethod
+    def check_title(title):
+        if len(title) > 256:
+            raise InputError('The length of title is restricted to 256.')
+
+
+class ForumReply(models.Model):
+    user = models.ForeignKey(User)
+    post = models.ForeignKey(ForumPost)
+    title = models.CharField(max_length=256)
+    content = models.TextField()
+    create = models.DateTimeField(auto_now_add=True)
+
+    @staticmethod
+    def safe_get(**kwargs):
+        try:
+            return ForumReply.objects.get(**kwargs)
+        except ObjectDoesNotExist:
+            raise LogicError("No Such Reply")
+
+    @staticmethod
+    def check_title(title):
+        if len(title) > 256:
+            raise InputError('The length of title is restricted to 256.')

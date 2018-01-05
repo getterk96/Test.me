@@ -1,0 +1,25 @@
+<!-- Created by Ica Riluci-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8' />
+        <title>啊！迷路了...</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <link type="text/css" rel="stylesheet" href="css/common.css" />
+        <link type="text/css" rel="stylesheet" href="css/404.css" />
+        <script src="js/common.js"></script>
+    </head>
+    <body>
+        <div id="header" :class="[color]" v-show="showheader"></div>
+        <div id='info-container'>
+            <img src="img/404.jpeg"/>
+            <div id='info-header'>Http 404</div>
+            <div id='chn'>啊！迷路了！快<a :href="redirectto">回去</a>！</div>
+            <div>It seems that you are missing. Go back to where <a :href="redirectto">you are from</a>.</div>
+        </div>
+        <div id="dev-info">{{ info }}</div>
+    </body>
+    <script src="js/common_control.js"></script>
+    <script src="js/404_control.js"></script>
+</html>

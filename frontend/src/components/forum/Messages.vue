@@ -15,7 +15,6 @@
 
 <script>
   import Vue from 'vue'
-
   let messageC = Vue.extend({
     name: 'messageC',
     template: '<li><a :href="url">{{title}}</a></li>',

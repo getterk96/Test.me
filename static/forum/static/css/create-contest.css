@@ -1,0 +1,73 @@
+.label,
+.input {
+    vertical-align : top;
+}
+
+.input[type='date'] {
+    padding : 0;
+}
+
+.input.long {
+    width : 20em;
+}
+
+.input.mid {
+    width : 12em;
+}
+
+.input.short {
+    width : 4em;
+}
+
+.fileuploader {
+    width : 2em;
+    height : 2em;
+}
+
+#quit,
+#save {
+    position : fixed;
+    height : 8vh;
+    width : 20vh;
+    font-size : 2vh;
+    line-height : 8vh;
+    transform : translateX(-12vh);
+    -webkit-transform : translateX(-12vh);
+    -moz-transform : translateX(-12vh);
+    left : 0;
+    transition : transform 0.3s;
+    text-align : right;
+    color : white;
+    border-radius : 1vh;
+}
+
+#quit>img {
+    height : 6vh;
+    float : right;
+    margin-right : 1.5vh;
+    margin-top : 1vh;
+    margin-left : 0.5vh;
+}
+
+#save>img {
+    height : 7vh;
+    float : right;
+    margin-right : 1vh;
+    margin-top : 1vh;
+}
+
+#quit:hover,
+#save:hover {
+    transform : translateX(-2vh);
+    -webkit-transform : translateX(-2vh);
+    -moz-transform : translateX(-2vh);
+}
+
+#quit {
+    top : 40vh;
+    background-color : rgb(254, 64, 66);
+}
+#save {
+    top : 50vh;
+    background-color : rgb(54, 151, 220);
+}
