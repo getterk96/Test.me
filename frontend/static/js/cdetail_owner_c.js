@@ -475,6 +475,8 @@ info = new Vue({
         appeal_type_dict : ['资格', '成绩'],
         //team management
         player_batch : true,
+        p_single_page : 0,
+        p_single_idx : 0,
         player_page_capacity : 2,
         player_tmark_reverse : false,
         player_mark0_reverse : false,
@@ -518,6 +520,12 @@ info = new Vue({
         }
     },
     methods : {
+        p_single_process : function(page, idx) {
+            this.player_batch = false;
+            this.p_single_page = page;
+            this.p_single_idx = idx;
+        },
+        p_batch_process : function() { this.player_batch = true; },
         player_top_by_status : function(topper) {
             var buffer, sort_result, div_result;
             if (!(this.player_list.length) > 0) { return; }

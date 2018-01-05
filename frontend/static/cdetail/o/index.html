@@ -376,7 +376,7 @@
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p1] }}</td>
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark) }}</td>
                             <td @click="select_appeal(player_page, player_list[player_page].indexOf(item))" :class="[item.status == 0 ? 'green' : '', item.status == 1 ? 'red' : '']">{{ p_status_dict[item.status] }}</td>
-                            <td><!--<button :class="['blue']" @click="p_single_process(player_page, player_list[player_page].indexOf(item))">-->详情<!--</button>--></td>
+                            <td><button :class="['blue']" @click="p_single_process(player_page, player_list[player_page].indexOf(item))">详情</button></td>
                         </tr>
                     </table>
                     <div :class="['page-nav']">
@@ -388,6 +388,42 @@
                     </div>
                 </div>
                 <div :class="['session']" v-else>
+                    <div :class="['o-bar']">
+                        <button :class="['operator']" @click="p_batch_process">返回列表</button>
+                    </div>
+                    <div :class="['o-bar']">
+                        <template v-if="player_list[p_single_page][p_single_idx].status == 0">
+                            <button :class="['operator', 'negative']">禁赛</button>
+                            <button :class="['operator']">晋级</button>
+                        </template>
+                        <button :class="['operator']" v-else>允许比赛</button>
+                    </div>
+                    <button :class="['s-title', 'collapse']"><span :class="['title']">{{ player_list[p_single_page][p_single_idx].name }}</span></button>
+                    <article :class="['s-body']">
+                        <ul :class="['form']">
+                            <li>
+                                <div :class="['label']">团队成员</div>
+                                <ul :class="['inline-form']">
+                                    <li v-for="p in player_list[p_single_page][p_single_idx].member">
+                                        <a :class="['blue']">{{ p.name }}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                <div :class="['label']">团队状态</div>
+                                <input :class="[player_list[p_single_page][p_single_idx] == 0 ? 'green' : '', player_list[p_single_page][p_single_idx].status == 1 ? 'red' : '']" disabled v-model="p_status_dict[player_list[p_single_page][p_single_idx].status]" />
+                            </li>
+                            <li>
+                                <div :class="['label']">报名附件</div>
+                                <a :href="player_list[p_single_page][p_single_idx].a_url" :class="['underline']">点此下载</a>
+                            </li>
+                            <li v-for="p in contest.period">
+                                <div :class="['label']">{{ get_p_name(contest.period.indexOf(p)) }}
+                                成绩</div>
+                                <input :class="['input']" type="number" v-model="player_list[p_single_page][p_single_idx].mark[contest.period.indexOf(p)]" />
+                            </li>
+                        </ul>
+                    </article>
                 </div>
             </template>
         </div>
