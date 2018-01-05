@@ -234,7 +234,9 @@ var logo_upload_pass = function(response) {
             i.content = response.data;
 };
 
-var logo_upload_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
+var logo_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
 
 var banner_upload_pass = function(response) {
     for (i of info.contest.attr)
@@ -242,7 +244,9 @@ var banner_upload_pass = function(response) {
             i.content = response.data;
 };
 
-var banner_upload_fail = function(response) { alert('[' + response.code.toString() + ']' + response.msg); };
+var banner_upload_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+};
 
 var info = new Vue({
     el : '#body',
