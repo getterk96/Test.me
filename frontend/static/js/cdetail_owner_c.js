@@ -520,11 +520,13 @@ info = new Vue({
     },
     computed : {
         player_p0 : function() {
+            if (this.player_p0_name == '') { this.player_p0_name = this.get_p_name(0); }
             for (var i = 0; i < this.contest.period.length; ++i) {
                 if (this.get_p_name(i) == this.player_p0_name) { return i; }
             }
         },
         player_p1 : function() {
+            if (this.player_p1_name == '') { this.player_p1_name = this.get_p_name(0); }
             for (var i = 0; i < this.contest.period.length; ++i) {
                 if (this.get_p_name(i) == this.player_p1_name) { return i; }
             }
@@ -643,8 +645,8 @@ info = new Vue({
                 var j = i - 1;
                 var tmp = buffer[i];
                 while (j >= 0) {
-                    if (buffer[j + 1].mark[this.player_p1] == buffer[j].mark[this.player_p1]) { break; }
-                    if ((buffer[j + 1].mark[this.player_p1] < buffer[j].mark[this.player_p1] && !this.player_mark1_reverse) || (buffer[j + 1].mark[this.player_p1] > buffer[j].mark[this.player_p1] && this.player_mark1_reverse)) { break; }
+                    if (this.sumof(buffer[j + 1].mark[this.player_p1]) == this.sumof(buffer[j].mark[this.player_p1])) { break; }
+                    if ((this.sumof(buffer[j + 1].mark[this.player_p1]) < this.sumof(buffer[j].mark[this.player_p1]) && !this.player_mark1_reverse) || (this.sumof(buffer[j + 1].mark[this.player_p1]) > this.sumof(buffer[j].mark[this.player_p1]) && this.player_mark1_reverse)) { break; }
                     buffer[j + 1] = buffer[j];
                     --j;
                 }
@@ -655,10 +657,10 @@ info = new Vue({
                 var p = 0;
                 var q = 0;
                 while (p < buffer.length && q < this.player_list[i].length) {
-                    if (buffer[p].mark[this.player_p1] == this.player_list[i][q].mark[this.player_p1]) {
+                    if (this.sumof(buffer[p].mark[this.player_p1]) == this.sumof(this.player_list[i][q].mark[this.player_p1])) {
                         sort_result.push(buffer[p]);
                         ++p;
-                    } else if ((buffer[p].mark[this.player_p1] < this.player_list[i][q].mark[this.player_p1] && this.player_mark1_reverse) || (buffer[p].mark[this.player_p1] > this.player_list[i][q].mark[this.player_p1] && !this.player_mark1_reverse)) {
+                    } else if ((this.sumof(buffer[p].mark[this.player_p1]) < this.sumof(this.player_list[i][q].mark[this.player_p1]) && this.player_mark1_reverse) || (this.sumof(buffer[p].mark[this.player_p1]) > this.sumof(this.player_list[i][q].mark[this.player_p1]) && !this.player_mark1_reverse)) {
                         sort_result.push(buffer[p]);
                         ++p;
                     } else {
@@ -698,8 +700,8 @@ info = new Vue({
                 var j = i - 1;
                 var tmp = buffer[i];
                 while (j >= 0) {
-                    if (this.sumof(buffer[j + 1].mark) == this.sumof(buffer[j].mark)) { break; }
-                    if ((this.sumof(buffer[j + 1].mark) < this.sumof(buffer[j].mark) && !this.player_tmark_reverse) || ((this.sumof(buffer[j + 1].mark) > this.sumof(buffer[j].mark)) && this.player_tmark_reverse)) { break; }
+                    if (this.totalsum(buffer[j + 1].mark) == this.totalsum(buffer[j].mark)) { break; }
+                    if ((this.totalsum(buffer[j + 1].mark) < this.totalsumf(buffer[j].mark) && !this.player_tmark_reverse) || ((this.totalsum(buffer[j + 1].mark) > this.totalsum()(buffer[j].mark)) && this.player_tmark_reverse)) { break; }
                     buffer[j + 1] = buffer[j];
                     --j;
                 }
@@ -710,10 +712,10 @@ info = new Vue({
                 var p = 0;
                 var q = 0;
                 while (p < buffer.length && q < this.player_list[i].length) {
-                    if (this.sumof(buffer[p].mark) == this.sumof(this.player_list[i][q].mark)) {
+                    if (this.totalsum(buffer[p].mark) == this.totalsum (this.player_list[i][q].mark)) {
                         sort_result.push(buffer[p]);
                         ++p;
-                    } else if ((this.sumof(buffer[p].mark) < this.sumof(this.player_list[i][q].mark) && this.player_tmark_reverse) || (this.sumof(buffer[p].mark) > this.sumof(this.player_list[i][q].mark) && !this.player_tmark_reverse)) {
+                    } else if ((this.totalsum(buffer[p].mark) < this.totalsum(this.player_list[i][q].mark) && this.player_tmark_reverse) || (this.totalsum(buffer[p].mark) > this.totalsum(this.player_list[i][q].mark) && !this.player_tmark_reverse)) {
                         sort_result.push(buffer[p]);
                         ++p;
                     } else {
@@ -754,8 +756,8 @@ info = new Vue({
                 var j = i - 1;
                 var tmp = buffer[i];
                 while (j >= 0) {
-                    if (buffer[j + 1].mark[this.player_p0] == buffer[j].mark[this.player_p0]) { break; }
-                    if ((buffer[j + 1].mark[this.player_p0] < buffer[j].mark[this.player_p0] && !this.player_mark0_reverse) || (buffer[j + 1].mark[this.player_p0] > buffer[j].mark[this.player_p0] && this.player_mark0_reverse)) { break; }
+                    if (this.sumof(buffer[j + 1].mark[this.player_p0]) == this.sumof(buffer[j].mark[this.player_p0])) { break; }
+                    if ((this.sumof(buffer[j + 1].mark[this.player_p0]) < this.sumof(buffer[j].mark[this.player_p0]) && !this.player_mark0_reverse) || (this.sumof(buffer[j + 1].mark[this.player_p0]) > this.sumof(buffer[j].mark[this.player_p0]) && this.player_mark0_reverse)) { break; }
                     buffer[j + 1] = buffer[j];
                     --j;
                 }
@@ -766,10 +768,10 @@ info = new Vue({
                 var p = 0;
                 var q = 0;
                 while (p < buffer.length && q < this.player_list[i].length) {
-                    if (buffer[p].mark[this.player_p0] == this.player_list[i][q].mark[this.player_p0]) {
+                    if (this.sumof(buffer[p].mark[this.player_p0]) == this.sumof(this.player_list[i][q].mark[this.player_p0])) {
                         sort_result.push(buffer[p]);
                         ++p;
-                    } else if ((buffer[p].mark[this.player_p0] < this.player_list[i][q].mark[this.player_p0] && this.player_mark0_reverse) || (buffer[p].mark[this.player_p0] > this.player_list[i][q].mark[this.player_p0] && !this.player_mark0_reverse)) {
+                    } else if ((this.sumof(buffer[p].mark[this.player_p0]) < this.sumof(this.player_list[i][q].mark[this.player_p0]) && this.player_mark0_reverse) || (this.sumof(buffer[p].mark[this.player_p0]) > this.sumof(this.player_list[i][q].mark[this.player_p0]) && !this.player_mark0_reverse)) {
                         sort_result.push(buffer[p]);
                         ++p;
                     } else {
@@ -853,6 +855,11 @@ info = new Vue({
         sumof : function(list) {
             var ans = 0;
             for (i of list) { ans += i; }
+            return ans;
+        },
+        totalsum : function(list) {
+            var ans = 0;
+            for (i of list) { ans += this.sumof(i); }
             return ans;
         },
         switch_basic_info : function() {

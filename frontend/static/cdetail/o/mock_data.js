@@ -12,8 +12,10 @@ var team1 = {
         }
     ],
     leader : '100',
-    mark : [12, 23, 34, 45],
+    mark : [[12], [23], [34], [45]],
+    ans : [['#'], ['#'], ['#'], ['#']],
     status : 1,
+    a_url : '#',
     selected : false
 };
 
@@ -31,8 +33,10 @@ var team2 = {
         }
     ],
     leader : '101',
-    mark : [28, 11, 30, 56],
+    mark : [[28], [11], [30], [56]],
+    ans : [['#'], ['#'], ['#'], ['#']],
     status : 0,
+    a_url : '#',
     selected : false
 };
 
@@ -51,8 +55,10 @@ var team3 = {
         }
     ],
     leader : '103',
-    mark : [0, 0, 0, 0],
+    mark : [[0], [0], [0], [0]],
+    ans : [['#'], ['#'], ['#'], ['#']],
     status : 2,
+    a_url : '#',
     selected : false
 };
 

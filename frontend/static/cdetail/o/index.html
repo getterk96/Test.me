@@ -132,7 +132,7 @@
                             </li>
                             <template v-for="q in p.question">
                                 <li>
-                                    <div :class="['label', 'bold']">{{ '题目' + (parseInt(q.lid) + 1).toString() }}</div>
+                                    <div :class="['label', 'bold']">{{ '题目' + (p.question.indexOf(q) + 1).toString() }}</div>
                                 </li>
                                 <li v-for="item in q.attr">
                                     <div :class="['label']">{{ item.alias }}</div>
@@ -377,10 +377,10 @@
                         </thead>
                         <tr v-for="item in player_list[player_page]" :class="[item.selected ? 'table-select' : '', player_list[appeal_page].indexOf(item) == player_page_capacity - 1 ? 'last-row' : '']">
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.name +'[id=' + item.id + ']' }}</td>
-                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p0] }}</td>
-                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ item.mark[player_p1] }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark[player_p0]) }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark[player_p1]) }}</td>
                             <td @click="select_player(player_page, player_list[player_page].indexOf(item))">{{ sumof(item.mark) }}</td>
-                            <td @click="select_appeal(player_page, player_list[player_page].indexOf(item))" :class="[item.status == 0 ? 'green' : '', item.status == 1 ? 'red' : '']">{{ p_status_dict[item.status] }}</td>
+                            <td @click="select_player(player_page, player_list[player_page].indexOf(item))" :class="[item.status == 0 ? 'green' : '', item.status == 1 ? 'red' : '']">{{ p_status_dict[item.status] }}</td>
                             <td><button :class="['blue']" @click="p_single_process(player_page, player_list[player_page].indexOf(item))">详情</button></td>
                         </tr>
                     </table>
@@ -405,7 +405,7 @@
                         </template>
                         <button :class="['operator']" v-else>允许比赛</button>
                     </div>
-                    <button :class="['s-title', 'collapse']"><span :class="['title']">{{ player_list[p_single_page][p_single_idx].name }}</span></button>
+                    <button :class="['s-title', 'collapse']"><span :class="['title']">{{ player_list[p_single_page][p_single_idx].name + '的基本信息' }}</span></button>
                     <article :class="['s-body']">
                         <ul :class="['form']">
                             <li>
@@ -424,13 +424,20 @@
                                 <div :class="['label']">报名附件</div>
                                 <a :href="player_list[p_single_page][p_single_idx].a_url" :class="['underline']">点此下载</a>
                             </li>
-                            <li v-for="p in contest.period">
-                                <div :class="['label']">{{ get_p_name(contest.period.indexOf(p)) }}
-                                成绩</div>
-                                <input :class="['input']" type="number" v-model="player_mark[contest.period.indexOf(p)]" />
-                            </li>
                         </ul>
                     </article>
+                    <template v-for="p in contest.period">
+                        <button :class="['s-title', 'collapse']"><span :class="['title']">{{ get_p_name(contest.period.indexOf(p)) }}</span></button>
+                        <article>
+                            <ul :class="['form']">
+                                <li v-for="q in p.question">
+                                    <div :class="['label']">{{ '题目' + (p.question.indexOf(q) + 1).toString() }}</div>
+                                    <input :class="['input']" type="number" v-model="player_mark[contest.period.indexOf(p)][p.question.indexOf(q)]"/>
+                                    <a :url="player_list[p_single_page][p_single_idx].ans[contest.period.indexOf(p)][p.question.indexOf(q)]" :class="['underline']">点击下载答案</a>
+                                </li>
+                            </ul>
+                        </article>
+                    </template>
                     <div :class="['s-u-resp']">
                         <button :class="['response-button']">确认修改</button>
                     </div>
