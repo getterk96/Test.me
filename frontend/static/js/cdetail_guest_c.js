@@ -5,6 +5,7 @@ window.invitation_counter = 0;
 
 const type_p = 0;
 const type_o = 1;
+var level_dic = ['国际级', '国家级', '省级', '市级', '区级', '校级', '院系级'];
 var info = {};
 
 window.contest = {
@@ -82,6 +83,13 @@ window.contest = {
             content : "",
             editable : true
         },
+        {
+            name : 'level',
+            alias : '比赛等级',
+            type : 'ltext',
+            content : "",
+            editable : true
+        }
         {
             name : 'time',
             alias : '报名时间',
@@ -163,6 +171,8 @@ function ply_get_succ(response) {
                 window.contest.attr[i].content.url = data['signUpAttachmentUrl'];
                 window.contest.attr[i].content.file_name = data['signUpAttachmentUrl'];
                 break;
+            case 'level' :
+                window.contest.attr[i].content = level_dic[data['level']];
         }
     }
     window.contest.period_counter = 0;

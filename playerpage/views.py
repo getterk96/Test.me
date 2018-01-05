@@ -201,6 +201,7 @@ class PlayerPeriodDetail(APIView):
             'endTime': time.mktime(period.end_time.timetuple()),
             'description': period.description,
             'attachmentUrl': period.attachment_url,
+            'index' : period.index,
             'score': score,
             'rank': rank
         }

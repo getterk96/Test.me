@@ -194,7 +194,8 @@ var per_get_succ = function (response) {
                         '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
                     h : end_time.getHours(),
                     m : end_time.getMinutes()
-                }
+                },
+                editable : true
             },
             {
                 name : 'slots',
