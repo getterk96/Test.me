@@ -383,6 +383,8 @@ controller = new Vue({
         },
         save_description : function() {
             //todo
+            this.save_modify_basic_info();
+            this.modify_description = false;
         }
     }
 })
