@@ -240,9 +240,6 @@ class Period(models.Model):
         if index in index_list:
             raise InputError('The index has been taken by another period.')
 
-        if periods.count() >= contest.available_slots:
-            raise LogicError('This contest cannot hold more periods.')
-
         index_list.append(index)
         index_list = sorted(index_list)
         p = index_list.index(index)

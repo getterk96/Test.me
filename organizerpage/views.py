@@ -239,7 +239,7 @@ class ContestTeamBatchManage(APIView):
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('contest_id')
+        self.check_input('teamId', 'status')
         # remove all contests
         for id in self.input['teamId']:
             team = Team.safe_get(id=id)
@@ -255,7 +255,7 @@ class ContestTeamDetail(APIView):
 
         # members
         members = []
-        for member in team.members:
+        for member in team.members.all():
             members.append({
                 'id': member.id,
                 'name': member.user.username
@@ -324,8 +324,8 @@ class ContestTeamDetail(APIView):
     @organizer_required
     def post(self):
         self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl',
-                         'periodId''status', 'periods')
-        team = Team.safe_get(id=self.input['id'])
+                         'periodId', 'status', 'periods')
+        team = Team.safe_get(id=self.input['tid'])
 
         # basic info
         team.name = self.input['name']
@@ -335,20 +335,20 @@ class ContestTeamDetail(APIView):
         try:
             # leader
             leader = User.objects.get(id=self.input['leaderId'])
-            if leader.user_type != User_profile.PLAYER:
+            if leader.user_profile.user_type != User_profile.PLAYER:
                 raise InputError('Player Required')
-            team.leader = leader
+            team.leader = leader.player
             # members
             team.members.clear()
             for memberId in self.input['memberIds']:
                 member = User.objects.get(id=memberId)
-                if member.user_type != User_profile.PLAYER:
+                if member.user_profile.user_type != User_profile.PLAYER:
                     raise InputError('Player Required')
-                team.members.add(member)
+                team.members.add(member.player)
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
         # current period
-        period = Period.safe_get(id=input['periodId'])
+        period = Period.safe_get(id=self.input['periodId'])
         team.period = period
         team.save()
 
@@ -505,7 +505,6 @@ class QuestionDetail(APIView):
         }
 
     @organizer_required
-    @organizer_required
     def post(self):
         # check existence
         self.check_input('id', 'periodId', 'description', 'attachmentUrl', 'submissionLimit', 'index')
@@ -549,7 +548,7 @@ class AppealList(APIView):
     def post(self):
         self.check_input('id', 'status')
         for i in self.input['id']:
-            appeal = Appeal.objects.safe_get(id=i)
+            appeal = Appeal.safe_get(id=i)
             appeal.status = self.input['status']
             appeal.save()
 
@@ -562,7 +561,7 @@ class AppealDetail(APIView):
         # query
         appeal = Appeal.safe_get(id=self.input['id'])
         members = []
-        for i in appeal.initiator.members:
+        for i in appeal.initiator.members.all():
             members.append(i.nickname)
         return {
             'title': appeal.title,
