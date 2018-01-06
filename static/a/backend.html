@@ -8,10 +8,11 @@
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
         <link type="text/css" rel="stylesheet" href="backend.css" />
-        <script src="../../js/uni.js"></script>
+        <script src="../js/uni.js"></script>
     </head>
     <body>
         <div id="backend">
+            <button @click="logout">登出</button>
             <button v-if="user_process" @click="switch_plat">前往比赛审核</button>
             <button v-else @click="switch_plat">前往用户审核</button>
             <template v-if="user_process">
