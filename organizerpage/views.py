@@ -227,7 +227,8 @@ class ContestTeamBatchManage(APIView):
         self.check_input('cid')
         contest = Contest.safe_get(id=self.input['cid'])
         teams = []
-        for team in contest.team_set.exclude(status=Team.DISMISSED):
+        #for team in contest.team_set.exclude(status=Team.CREATING):
+        for team in contest.team_set.all():
             teams.append({
                 'id': team.id,
                 'name': team.name,
@@ -239,7 +240,7 @@ class ContestTeamBatchManage(APIView):
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('contest_id')
+        self.check_input('teamId')
         # remove all contests
         for id in self.input['teamId']:
             team = Team.safe_get(id=id)
@@ -255,7 +256,7 @@ class ContestTeamDetail(APIView):
 
         # members
         members = []
-        for member in team.members:
+        for member in team.members.all():
             members.append({
                 'id': member.id,
                 'name': member.user.username
@@ -266,7 +267,7 @@ class ContestTeamDetail(APIView):
         if team.period:
             current_period_id = team.period.id
             current_period_name = team.period.name
-            for period in team.contest.period_set.all():
+            for period in team.contest.period_set.exclude(status=Period.REMOVED):
                 # period score
                 try:
                     period_score = PeriodScore.objects.get(period=period, team=team)
@@ -288,7 +289,7 @@ class ContestTeamDetail(APIView):
                         work_score = -1
                         work_submission_times = -1
                     works.append({
-                        'questionId': question,
+                        'questionId': question.id,
                         'questionIndex': question.index,
                         'questionDescription': question.description,
                         'workContentUrl': work_content_url,
@@ -324,9 +325,9 @@ class ContestTeamDetail(APIView):
     @organizer_required
     def post(self):
         self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl',
-                         'periodId''status', 'periods')
-        team = Team.safe_get(id=self.input['id'])
-
+                         'periodId', 'status', 'periods')
+        team = Team.safe_get(id=self.input['tid'])
+        print(1, team.id);
         # basic info
         team.name = self.input['name']
         team.avatar_url = self.input['avatarUrl'],
@@ -334,24 +335,25 @@ class ContestTeamDetail(APIView):
         team.status = self.input['status']
         try:
             # leader
-            leader = User.objects.get(id=self.input['leaderId'])
-            if leader.user_type != User_profile.PLAYER:
+            leader = Player.objects.get(id=self.input['leaderId'])
+            if leader.user.user_profile.user_type != User_profile.PLAYER:
                 raise InputError('Player Required')
             team.leader = leader
             # members
             team.members.clear()
             for memberId in self.input['memberIds']:
-                member = User.objects.get(id=memberId)
-                if member.user_type != User_profile.PLAYER:
+                member = Player.objects.get(id=memberId)
+                if member.user.user_type != User_profile.PLAYER:
                     raise InputError('Player Required')
                 team.members.add(member)
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
         # current period
-        period = Period.safe_get(id=input['periodId'])
+        period = Period.safe_get(id=self.input['periodId'])
         team.period = period
         team.save()
 
+        print(2, team.id);
         # work and score
         for period_info in self.input['periods']:
             period = Period.safe_get(id=period_info['id'])
@@ -367,6 +369,7 @@ class ContestTeamDetail(APIView):
                                            rank=period_info['rank'])
             # work
             works = period_info['work']
+            print(works)
             for work in works:
                 question = ExamQuestion.safe_get(id=work['questionId'])
                 try:
