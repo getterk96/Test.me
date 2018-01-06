@@ -1,4 +1,7 @@
 window.cid = window.get_args('cid');
+$t('/api/c/user_id', 'GET', {},
+    function (response) {window.uid = response.data},
+    function () {});
 
 window.usertype = 0;
 window.problem_list_ready = false;
@@ -418,7 +421,7 @@ header.title = '比赛详情';
 if (usertype in [0, 1]) {
     header.link_list.push({
         alias : '比赛论坛',
-        link : '../../forum/index.html?cid=' + window.cid,
+        link : '../../forum/?cid=' + window.cid + '&uid=' + window.uid,
         action : empty_f
     });
     header.link_list.push({
