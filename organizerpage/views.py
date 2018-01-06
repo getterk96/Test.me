@@ -338,14 +338,14 @@ class ContestTeamDetail(APIView):
             leader = Player.objects.get(id=self.input['leaderId'])
             if leader.user.user_profile.user_type != User_profile.PLAYER:
                 raise InputError('Player Required')
-            team.leader = leader.player
+            team.leader = leader
             # members
             team.members.clear()
             for memberId in self.input['memberIds']:
                 member = Player.objects.get(id=memberId)
-                if member.user.user_type != User_profile.PLAYER:
+                if member.user.user_profile.user_type != User_profile.PLAYER:
                     raise InputError('Player Required')
-                team.members.add(member.player)
+                team.members.add(member)
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
         # current period
@@ -353,7 +353,6 @@ class ContestTeamDetail(APIView):
         team.period = period
         team.save()
 
-        print(2, team.id);
         # work and score
         for period_info in self.input['periods']:
             period = Period.safe_get(id=period_info['id'])

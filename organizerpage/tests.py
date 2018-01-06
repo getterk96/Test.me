@@ -924,9 +924,9 @@ class TestTeam(TestCase):
         request = Mock(wraps=HttpRequest(), method='POST')
         request.body = Mock()
         str_id = str(Team.objects.get(name='test_team').id)
-        str_lid = str(Player.objects.get(gender=True).user.id)
+        str_lid = str(Player.objects.get(gender=True).id)
         str_pid = str(Period.objects.get(name='test_period').id)
-        str_mid = str([Player.objects.get(gender=True).user.id,])
+        str_mid = str([Player.objects.get(gender=True).id,])
         str_ps = str([])
         request.body.decode = Mock(return_value='{"tid":' + str_id + ','
                                                 '"name": "test_team_2",'
@@ -941,6 +941,7 @@ class TestTeam(TestCase):
         request.user = User.objects.get(username='test_organizer')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
+
 
 class TestAppeal(TestCase):
 
@@ -1136,4 +1137,3 @@ class TestBatchTeamMannage(TestCase):
         request.user = User.objects.get(username='test_organizer')
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['code'], 0)
-
