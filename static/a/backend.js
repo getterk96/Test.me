@@ -2,7 +2,7 @@ window.users = [];
 window.contests = [];
 
 window.level_dic = ['国际级', '国家级', '省级', '市级', '区级', '校级', '院系级'];
-
+window.contests = [];
 window.contest = {
     status : 0,
     attr : [
@@ -98,7 +98,7 @@ var org_get_succ = function(response, id) {
 }
 
 var user_get_succ = function(response) {
-    var url = '/api/a/organzier/detail';
+    var url = '/api/a/organizer/detail';
     var m = 'GET';
     for (i of response.data) {
         if (i['userType'] == 1) {
@@ -159,7 +159,8 @@ var con_get_succ = function(response, id) {
                 break;
         }
     }
-    window.contest.push(window.contest);
+    window.contest.id = id;
+    window.contests.push(window.contest);
 }
 
 var con_get_fail = function(response) {
@@ -170,7 +171,7 @@ var clist_get_succ = function(response) {
     var url = '/api/a/contest/detail';
     var m = 'GET';
     for (i of response.data) {
-        data = {id : i['id']};
+        data = {cid : i['id']};
         $t(url, m, data, con_get_succ, con_get_fail, i['id']);
     }
 };
@@ -219,9 +220,9 @@ var ctrl = new Vue({
             this.in_list = true;
         },
         accept_user : function() {
-            var url = '/api/a/organzier/verification';
+            var url = '/api/a/organizer/verification';
             var m = 'POST';
-            for (i of selected_user) {
+            for (i of this.selected_user) {
                 var data = {
                     id : i,
                     verify : 1
@@ -245,21 +246,21 @@ var ctrl = new Vue({
         switch_plat : function () {
             this.user_process = !this.user_process;
         },
-        accept_contest : function(cid) {
+        accept_content : function(cid) {
             var url = '/api/a/contest/verification';
             var m = 'POST';
             var data = {
-                id : cid,
+                cid : this.contest_list[cid].id,
                 verify : 1
             }
             $t(url, m, data, empty_succ, empty_fail);
             window.location.reload();
         },
-        deny_contest : function(id) {
+        deny_content : function(id) {
             var url = '/api/a/contest/verification';
             var m = 'POST';
             var data = {
-                id : cid,
+                cid : this.contest_list[cid].id,
                 verify : 0
             }
             $t(url, m, data, empty_succ, empty_fail);
