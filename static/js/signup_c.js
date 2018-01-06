@@ -175,6 +175,14 @@ var signup = new Vue({
                             break;
                         }
                     }
+                    if (this.userinfo[i].content.length < 8) {
+                        alert('密码太短！');
+                        return;
+                    }
+                    if (this.userinfo[i].content.length > 20) {
+                        alert('密码太长');
+                        return;
+                    }
                     break;
                 }
             }

@@ -84,8 +84,8 @@ var controller = new Vue({
         },
         search_succ : function(response) {
             for (i in response.data) {
-                var st = new Date(response.data[i]["signUpStartTime"] * 1000);
-                var ed = new Date(response.data[i]["signUpEndTime"] * 1000);
+                var st = new Date((response.data[i]["signUpStartTime"] - 8 * 3600) * 1000);
+                var ed = new Date((response.data[i]["signUpEndTime"] - 8 * 3600) * 1000);
                 this.querylist.push({
                     "name" : response.data[i]["name"],
                     "organizer" : response.data[i]["organizerName"],

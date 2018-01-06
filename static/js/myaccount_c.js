@@ -333,6 +333,14 @@ controller = new Vue({
                 alert("两次输入密码不一致。");
                 return;
             }
+            if (this.password.length < 8) {
+                alert('密码太短');
+                return;
+            }
+            if (this.password.length > 20) {
+                alert('密码太长');
+                return;
+            }
             var url = '/api/c/change_password';
             var m = 'POST';
             var data = {'password' : this.password};

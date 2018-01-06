@@ -1,6 +1,6 @@
 // universal script
 window.my_root_path = 'home/quincy/Work/test.me.view/'
-axios.defaults.baseURL = 'http://127.0.0.1:8000';
+axios.defaults.baseURL = 'http://139.199.98.74';
 axios.defaults.withCredentials = true;
 
 // global methods
