@@ -1,4 +1,7 @@
 window.cid = window.get_args('cid');
+$t('/api/c/user_id', 'GET', {},
+    function (response) {window.uid = response.data},
+    function () {});
 
 window.usertype = -1;
 window.invitation_counter = 0;
@@ -250,7 +253,7 @@ var init_header = function() {
     if (usertype in [0, 1]) {
         header.link_list.push({
             alias : '比赛论坛',
-            link : '../../forum/index.html?cid=' + window.cid,
+            link : '../../forum/?cid=' + window.cid + '&uid=' + window.uid,
             action : empty_f
         });
         header.link_list.push({
