@@ -450,41 +450,6 @@ class TestPeriodCreate(TestCase):
         response = json.loads(found.func(request).content.decode())
         self.assertEqual(response['msg'], 'Period start time must not be later then end time.')
 
-    def test_post_create_period_failed_by_exceeding_the_limit_of_slots(self):
-        found = resolve('/period/create', urlconf=organizerpage.urls)
-        request = Mock(wraps=HttpRequest(), method='POST')
-        request.body = Mock()
-        str_id = str(Contest.objects.get(name='test').id)
-        request.body.decode = Mock(return_value='{"id":' + str_id + ','
-                                                                    '"index":0,'
-                                                                    '"name":"test_period",'
-                                                                    '"description":"test_period",'
-                                                                    '"startTime":"2017-12-31 06:00:54",'
-                                                                    '"endTime": "2017-12-31 06:00:55",'
-                                                                    '"availableSlots": 3,'
-                                                                    '"attachmentUrl": "None"}')
-        request.user = User.objects.get(username='1')
-        found.func(request)
-        request.body.decode = Mock(return_value='{"id":' + str_id + ','
-                                                                    '"index":1,'
-                                                                    '"name":"test_period",'
-                                                                    '"description":"test_period",'
-                                                                    '"startTime":"2017-12-31 06:00:56",'
-                                                                    '"endTime": "2017-12-31 06:00:57",'
-                                                                    '"availableSlots": 3,'
-                                                                    '"attachmentUrl": "None"}')
-        found.func(request)
-        request.body.decode = Mock(return_value='{"id":' + str_id + ','
-                                                                    '"index":2,'
-                                                                    '"name":"test_period",'
-                                                                    '"description":"test_period",'
-                                                                    '"startTime":"2017-12-31 06:00:58",'
-                                                                    '"endTime": "2017-12-31 06:00:59",'
-                                                                    '"availableSlots": 3,'
-                                                                    '"attachmentUrl": "None"}')
-        response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['msg'], 'This contest cannot hold more periods.')
-
     def test_post_create_period_failed_by_index_already_taken(self):
         found = resolve('/period/create', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')

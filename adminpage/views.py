@@ -16,8 +16,9 @@ class AdminRegister(APIView):
             user = User.objects.create_user(username=self.input['username'],
                                             password=self.input['password'],
                                             email=self.input['email'])
-            user.user_type = User_profile.ADMINISTRATOR
+            user.user_profile.user_type = User_profile.ADMINISTRATOR
             user.save()
+            user.user_profile.save()
         except:
             raise LogicError('Sign up fail')
         
