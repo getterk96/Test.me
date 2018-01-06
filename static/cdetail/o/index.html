@@ -10,6 +10,7 @@
         <link type="text/css" rel="stylesheet" href="../../css/uni.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail.css" />
         <link type="text/css" rel="stylesheet" href="../../css/cdetail_o.css" />
+        <!--<script src='mock_data.js'></script>-->
     </head>
     <body>
         <div id="header">
@@ -374,10 +375,10 @@
                     </div>
                     <div :class="['o-bar']">
                         <template v-if="player_list[p_single_page][p_single_idx].status == 0">
-                            <button :class="['operator', 'negative']">禁赛</button>
+                            <button :class="['operator', 'negative']" @click='single_ban(p_single_page, p_single_idx)'>禁赛</button>
                             <button :class="['operator']">晋级</button>
                         </template>
-                        <button :class="['operator']" v-else>允许比赛</button>
+                        <button :class="['operator']" @click='single_normalize(p_single_page, p_single_idx)' v-else>允许比赛</button>
                     </div>
                     <button :class="['s-title', 'collapse']"><span :class="['title']">{{ player_list[p_single_page][p_single_idx].name + '的基本信息' }}</span></button>
                     <article :class="['s-body']">
@@ -413,7 +414,7 @@
                         </article>
                     </template>
                     <div :class="['s-u-resp']">
-                        <button :class="['response-button']">确认修改</button>
+                        <button :class="['response-button']" @click='modify_single_player'>确认修改</button>
                     </div>
                 </div>
             </template>

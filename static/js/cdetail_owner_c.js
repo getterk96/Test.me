@@ -7,7 +7,7 @@ const type_o = 1;
 
 var info = {};
 var status_dic = ['to solve', 'sovled', 'ignored'];
-var player_status_dict = ['正常', '禁赛', '无资格'];
+var player_status_dict = ['正常', '禁赛', '资格未审核'];
 
 //api
 
@@ -337,7 +337,6 @@ var appeal_detail_get_succ = function(response, param) {
     if (info.appeal_counter % info.appeal_page_capacity == 0) {
         info.appeal_list.push([]);
     }
-    console.log(info.appeal_counter / info.appeal_page_capacity);
     info.appeal_list[parseInt(info.appeal_counter / info.appeal_page_capacity)].push(appeal);
     info.appeal_counter = info.appeal_counter + 1;
 };
@@ -364,9 +363,6 @@ var org_get_contest_detail = function() {
     var m = 'GET';
     var data = {'id' : window.cid};
     $t(url, m, data, org_get_succ, org_get_fail);
-    //url = '/api/o/contest/team_batch_manage';
-    //data = {'cid' : window.cid};
-    //$t(url, m, data, player_get_succ, player_get_fail);
 };
 
 (function () {
@@ -510,17 +506,18 @@ info = new Vue({
         player_batch : true,
         p_single_page : 0,
         p_single_idx : 0,
-        player_page_capacity : 2,
+        player_page_capacity : 20,
         player_tmark_reverse : false,
         player_mark0_reverse : false,
         player_mark1_reverse : false,
         p_status_dict : window.player_status_dict,
-        player_list : window.mock_pl,//api
+        player_list : [],
         player_page : 0,
         player_p0_name : '',
         player_p1_name : '',
         player_mark : [],
-        selected_player : 0
+        selected_player : 0,
+        team_counter : 0,
     },
     computed : {
         player_p0 : function() {
@@ -539,11 +536,11 @@ info = new Vue({
             return nav.choice;
         },
         last_period_name : function() {
-            var last_idx = this.contest.period.length + 1;
+            var last_idx = -1;
             var ret = '';
             var now = (new Date()).valueOf();
             for (i of this.contest.period) {
-                if (now > i.start_time && last_idx > i.lid) {
+                if (now > i.start_time && last_idx < i.lid) {
                     last_idx = i.lid;
                     for (j of i.attr)
                         if (j.name == 'name') {
@@ -593,7 +590,6 @@ info = new Vue({
             }
             this.p_single_page  = p;
             this.p_single_idx = i;
-            this.player_mark =
             this.player_mark = [];
             for (r of this.player_list[this.p_single_page][this.p_single_idx].mark) {
                 this.player_mark.push(r);
@@ -806,9 +802,101 @@ info = new Vue({
             }
             this.player_list = div_result;
         },
-        normalize_selected_players : function() {},
+        normalize_selected_players : function() {
+            var ids = [];
+            for (i of this.player_list)
+                for (j of i) {
+                    if (j.selected) {
+                        ids.push(j.id);
+                    }
+                }
+            var url = '/api/o/contest/team_batch_manage';
+            var m = 'POST';
+            var data = {'teamId' : ids, 'status' : 2};
+            $t(url, m, data, batch_succ, batch_fail);
+        },
         promote_selected_players : function() {},
-        ban_selected_players : function() {},
+        ban_selected_players : function() {
+            var ids = [];
+            for (i of this.player_list)
+                for (j of i) {
+                    if (j.selected) {
+                        ids.push(j.id);
+                    }
+                }
+            var url = '/api/o/contest/team_batch_manage';
+            var m = 'POST';
+            var data = {'teamId' : ids, 'status' : -1};
+            $t(url, m, data, batch_succ, batch_fail);
+        },
+        single_ban : function(i, j) {
+            var ids = [this.player_list[i][j].id];
+            var url = '/api/o/contest/team_batch_manage';
+            var m = 'POST';
+            var data = {'teamId' : ids, 'status' : -1};
+            $t(url, m, data, single_player_succ, single_player_fail);
+        },
+        single_normalize : function(i, j) {
+            var ids = [this.player_list[i][j].id];
+            var url = '/api/o/contest/team_batch_manage';
+            var m = 'POST';
+            var data = {'teamId' : ids, 'status' : 2};
+            $t(url, m, data, single_player_succ, single_player_fail);
+        },
+        modify_single_player : function() {
+            var url = '/api/o/contest/team/detail';
+            var m = 'POST';
+            var player = this.player_list[this.p_single_page][this.p_single_idx];
+            console.log(player.id);
+            var member_id = [];
+            for (i of player.member) {
+                if (i.id != player.leader)
+                    member_id.push(i.id);
+            }
+            var pstatus = player.status;
+            if (pstatus == 0)
+                pstatus = 2;
+            else if (pstatus == 1)
+                pstatus = -1;
+            else if (pstatus == 2)
+                pstatus = 1;
+            var periods = [];
+            for (i in info.contest.period_id) {
+                var works = [];
+                var period_score = 0;
+                for (j in info.contest.period[i].question_id) {
+                    var work = {
+                        'questionId' : info.contest.period[i].question_id[j],
+                        'workContentUrl' : player.ans[i][j],
+                        'workScore' : this.player_mark[i][j],
+                        'submission_times' : player.times[i][j]
+                    }
+                    works.push(work);
+                    console.log(info.contest.period[i].question_id[j]);
+                    period_score += parseInt(player.mark[i][j]);
+                }
+                var period = {
+                    'id' : info.contest.period_id[i],
+                    'score' : period_score,
+                    'rank' : 0,
+                    'work' : works
+                };
+                periods.push(period)
+            }
+            var data = {
+                'tid' : player.id,
+                'name' : player.name,
+                'leaderId' : player.leader,
+                'memberIds' : member_id,
+                'avatarUrl' : '',
+                'description' : '',
+                'signUpAttachmentUrl' : player.a_url,
+                'status' : pstatus,
+                'periodId' : this.contest.period_id[0],
+                'periods' : periods
+            };
+            $t(url, m, data, single_player_succ, single_player_fail);
+        },
         unselect_all_player : function() {
             for (i of this.player_list) {
                 for (j of i) {
@@ -858,12 +946,12 @@ info = new Vue({
         },
         sumof : function(list) {
             var ans = 0;
-            for (i of list) { ans += i; }
+            for (i of list) { ans += i;}
             return ans;
         },
         totalsum : function(list) {
             var ans = 0;
-            for (i of list) { ans += this.sumof(i); }
+            for (i of list) { ans += this.sumof(i);}
             return ans;
         },
         switch_basic_info : function() {
@@ -1341,6 +1429,96 @@ info = new Vue({
         }
     }
 });
+    var url = '/api/o/contest/team_batch_manage';
+    var m = 'GET';
+    var data = {'cid' : window.cid};
+    $t(url, m, data, team_list_get_succ, team_list_get_fail);
+}
+
+var team_list_get_succ = function(response) {
+    for (i of response.data) {
+        var url = '/api/o/contest/team/detail';
+        var m = 'GET';
+        var data = {'id' : i.id};
+        $t(url, m, data, team_get_succ, team_get_fail, {'id' : i.id});
+    }
+}
+
+var single_player_succ = function(response) {
+    alert("选手信息处理完成！");
+    window.location.reload();
+}
+
+var single_player_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var batch_succ = function(response) {
+    alert("批量处理完成！");
+    window.location.reload();
+}
+
+var batch_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var team_get_succ = function(response, param) {
+    var data = response.data;
+    var members = [{'name' : data['leader'].name, 'id' : data['leader'].id}];
+    for (i of data['members'])
+        members.push({'name' : i.name, 'id' : i.id});
+    var team_status = 0;
+    var mark = [];
+    var ans = [];
+    var times = [];
+    for (i in info.contest.period) {
+        mark.push([]);
+        ans.push([]);
+        times.push([]);
+        for (j in info.contest.period[i].question) {
+            mark[i].push(0);
+            ans[i].push('#');
+            times[i].push(0);
+        }
+    }
+    for (i in data['periods']) {
+        for (j of data['periods'][i]['works']) {
+            console.log(i, j.questionIndex);
+            mark[i][j.questionIndex] = j.workScore;
+            ans[i][j.questionIndex] = j.workContentUrl;
+            times[i][j.questionIndex] = j.workSubmissionTimes;
+        }
+    }
+    if (data['status'] == -1)
+        team_status = 1;
+    if (data['status'] == 1)
+        team_status = 2;
+    var team = {
+        name : data['name'],
+        id : param['id'],
+        member : members,
+        leader : data['leader'].id,
+        mark : mark,
+        ans : ans,
+        status : team_status,
+        a_url : data['signUpAttachmentUrl'],
+        selected : false,
+        period_id : data['periodId'],
+        times : times
+    };
+    if (info.team_counter % info.player_page_capacity == 0) {
+        info.player_list.push([]);
+    }
+    info.player_list[parseInt(info.team_counter / info.player_page_capacity)].push(team);
+    info.team_counter = info.team_counter + 1;
+}
+
+var team_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
+}
+
+var team_list_get_fail = function(response) {
+    alert('[' + response.code.toString() + ']' + response.msg);
 }
 
 var q_post_succ = function (response, param) {
@@ -1383,7 +1561,6 @@ function recreate_contest() {
                     for (j in info.contest.period[i].question_id) {
                         var url = '/api/o/question/remove';
                         var m = 'POST';
-                        console.log(j, info.contest.period[i].question_id, info.contest.period[i].question_id[j])
                         var data = {id : info.contest.period[i].question_id[j]};
                         $t(url, m, data, function() {}, function(response) {alert('[' + response.code.toString() + ']' + response.msg);});
                     }
@@ -1466,8 +1643,6 @@ var upload_data = function(aim_status) {
             }
         );
     }
-    //        self.check_input('id', , 'logoUrl', 'bannerUrl',
-    //                      'level', 'tags')
     var url = '/api/o/contest/detail';
     var m = 'POST';
     var data = {'tags' : '', 'id' : window.cid};

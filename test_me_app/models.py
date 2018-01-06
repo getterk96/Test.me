@@ -324,7 +324,7 @@ class Team(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Team.objects.exclude(status=Team.DISMISSED).get(**kwargs)
+            return Team.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
@@ -356,7 +356,7 @@ class PeriodScore(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return TeamInvitation.objects.get(**kwargs)
+            return PeriodScore.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError('No such period score')
 
@@ -371,7 +371,7 @@ class Work(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return TeamInvitation.objects.get(**kwargs)
+            return Work.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError('No such work')
 
