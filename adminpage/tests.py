@@ -3,6 +3,7 @@ from django.core import management
 from django.core.urlresolvers import resolve
 from django.http import HttpRequest
 from unittest.mock import Mock
+from test_me import settings
 from test_me_app.models import *
 import adminpage.urls
 import json
@@ -20,10 +21,33 @@ class AdminPageTestCase(TransactionTestCase):
         management.call_command('loaddata', 'adminpage/fixtures/player.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/organizer.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/contest.json', verbosity=0)
+        management.call_command('loaddata', 'adminpage/fixtures/team.json', verbosity=0)
         management.call_command('loaddata', 'adminpage/fixtures/appeal.json', verbosity=0)
 
     def tearDown(self):
         management.call_command('flush', verbosity=0, interactive=False)
+
+
+class TestAdminRegister(AdminPageTestCase):
+
+    def test_register_wrong_token(self):
+        found = resolve('/register', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"username", "password":"password",'
+                                                '"email":"test@test.me", "adminToken":"233"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 3)
+        self.assertEqual(response['msg'], 'Wrong admin token')
+
+    def test_register_success(self):
+        found = resolve('/register', urlconf=adminpage.urls)
+        request = Mock(wraps=HttpRequest(), method='POST')
+        request.body = Mock()
+        request.body.decode = Mock(return_value='{"username":"username", "password":"password",'
+                                                '"email":"test@test.me", "adminToken":"' + settings.ADMIN_TOKEN +'"}')
+        response = json.loads(found.func(request).content.decode())
+        self.assertEqual(response['code'], 0)
 
 
 class TestAdminUserList(AdminPageTestCase):

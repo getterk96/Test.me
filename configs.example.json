@@ -4,5 +4,6 @@
   "DB_NAME": "test_me",
   "DB_USER": "username",
   "DB_PASS": "password",
-  "SITE_DOMAIN": "127.0.0.1"
+  "SITE_DOMAIN": "127.0.0.1",
+  "ADMIN_TOKEN": "ThisIsARandomStringUsedAsAdminToken"
 }

@@ -1,0 +1,13 @@
+[{"model": "test_me_app.team",
+  "pk": 1,
+  "fields": {
+    "name": "team1",
+    "leader_id": 1,
+    "members": [],
+    "contest_id": 1,
+    "period_id": null,
+    "avatar_url": "avatar_url1",
+    "sign_up_attachment_url": "sign_up_attachment_url1",
+    "status": 2
+  }
+}]
