@@ -8,16 +8,15 @@
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
         <link type="text/css" rel="stylesheet" href="index.css" />
-        <script src="../../js/uni.js"></script>
+        <script src="../js/uni.js"></script>
     </head>
     <body>
         <div id="login">
             <input placeholder="用户名" v-model="username" />
-            <input placeholder="密码" v-model="password" />
-            <input placeholder="验证码" v-model="valcode" />
+            <input placeholder="密码" v-model="password" type="password" />
             <button @click="login">登录</button>
         </div>
         <div><a href="signup.html">注册</a></div>
     </body>
-    <script :src="index.js"></script>
+    <script src="index.js"></script>
 </html>

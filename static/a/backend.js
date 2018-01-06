@@ -194,6 +194,10 @@ var empty_fail = function(response) {
     alert('[' + response.code + ']' + response.msg);
 };
 
+var logout_succ = function(response) {
+    window.location.assign('index.html');
+};
+
 var ctrl = new Vue({
     el : '#backend',
     data : {
@@ -215,7 +219,7 @@ var ctrl = new Vue({
             this.in_list = true;
         },
         accept_user : function() {
-            var url = 'api/a/organzier/verification';
+            var url = '/api/a/organzier/verification';
             var m = 'POST';
             for (i of selected_user) {
                 var data = {
@@ -227,7 +231,7 @@ var ctrl = new Vue({
             window.location.reload();
         },
         deny_user : function() {
-            var url = 'api/a/organzier/verification';
+            var url = '/api/a/organzier/verification';
             var m = 'POST';
             for (i of selected_user) {
                 var data = {
@@ -242,7 +246,7 @@ var ctrl = new Vue({
             this.user_process = !this.user_process;
         },
         accept_contest : function(cid) {
-            var url = 'api/a/contest/verification';
+            var url = '/api/a/contest/verification';
             var m = 'POST';
             var data = {
                 id : cid,
@@ -252,7 +256,7 @@ var ctrl = new Vue({
             window.location.reload();
         },
         deny_contest : function(id) {
-            var url = 'api/a/contest/verification';
+            var url = '/api/a/contest/verification';
             var m = 'POST';
             var data = {
                 id : cid,
@@ -260,6 +264,12 @@ var ctrl = new Vue({
             }
             $t(url, m, data, empty_succ, empty_fail);
             window.location.reload();
+        },
+        logout : function() {
+            var url = '/api/c/logout'
+            var m = "POST";
+            var data = {};
+            $t(url, m, data, logout_succ, empty_fail);
         }
     }
 });
