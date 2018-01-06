@@ -1052,12 +1052,18 @@ info = new Vue({
         },
         sumof : function(list) {
             var ans = 0;
-            for (i of list) { ans += i;}
+            for (i of list) {
+                if (typeof i == 'number') { ans +=i; }
+                else { ans += parseInt(i); }
+            }
             return ans;
         },
         totalsum : function(list) {
             var ans = 0;
-            for (i of list) { ans += this.sumof(i);}
+            for (i of list) {
+                if (typeof i == 'number') { ans +=i; }
+                else { ans += parseInt(i); }
+            }
             return ans;
         },
         switch_basic_info : function() {
