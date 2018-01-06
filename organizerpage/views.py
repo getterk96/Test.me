@@ -373,11 +373,11 @@ class ContestTeamDetail(APIView):
             for work in works:
                 question = ExamQuestion.safe_get(id=work['questionId'])
                 try:
-                    work = Work.safe_get(question=question, team=team)
-                    work.content_url = work['workContentUrl']
-                    work.score = work['workScore']
-                    work.submission_times = work['submission_times']
-                    work.save()
+                    dwork = Work.safe_get(question=question, team=team)
+                    dwork.content_url = work['workContentUrl']
+                    dwork.score = work['workScore']
+                    dwork.submission_times = work['submission_times']
+                    dwork.save()
                 except LogicError:
                     Work.objects.create(question=question, team=team,
                                         content_url=work['workContentUrl'],

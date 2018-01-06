@@ -376,7 +376,7 @@
                     <div :class="['o-bar']">
                         <template v-if="player_list[p_single_page][p_single_idx].status == 0">
                             <button :class="['operator', 'negative']" @click='single_ban(p_single_page, p_single_idx)'>禁赛</button>
-                            <button :class="['operator']">晋级</button>
+                            <button :class="['operator']" @click='single_promote(p_single_page, p_single_idx, 0)'>晋级</button>
                         </template>
                         <button :class="['operator']" @click='single_normalize(p_single_page, p_single_idx)' v-else>允许比赛</button>
                     </div>
