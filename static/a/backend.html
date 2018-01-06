@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="Access-Control-Allow-Origin" content="*">
+        <title>后台</title>
+        <script src="https://unpkg.com/vue"></script>
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
+        <link type="text/css" rel="stylesheet" href="backend.css" />
+    </head>
+    <body>
+        <div id="backend">
+            <button v-if="user_process" @click="switch_plat">前往比赛审核</button>
+            <button v-else @click="switch_plat">前往用户审核</button>
+            <template v-if="user_process">
+                <table>
+                    <thead>
+                        <th>&nbsp;</th>
+                        <th>用户名</th>
+                        <th>简介</th>
+                        <th>认证文件</th>
+                        <th>状态</th>
+                    </thead>
+                    <tr v-for="user in user_list">
+                        <td>
+                            <input type="checkbox" id="user_list.indexOf(user)" :value="user.id" v-model="selected_user" />
+                            <label for="user_list.indexOf(user)"></label>
+                        </td>
+                        <td>{{ user.name }}</td>
+                        <td><div :class="['udescription']">{{ user.description }}</div></td>
+                        <td><a :href="user.attachment">下载</a></td>
+                        <td>{{ ustatus_list[user.status] }}</td>
+                    </tr>
+                </table>
+                <button @click="accept_user">通过</button>
+                <button @click="deny_user">不通过</button>
+            </template>
+            <template v-else>
+                <template v-if="in_list">
+                    <table>
+                        <thead>
+                            <th>比赛名</th>
+                            <th>组织方</th>
+                            <th>状态</th>
+                            <th>&nbsp;</th>
+                        </thead>
+                        <tr v-for="contest in contest_list">
+                            <td>{{ contest.attr[0].content }}</td>
+                            <td>{{ contest.organizer.name }}</td>
+                            <td>{{ cstatus_list[contest.status] }}</td>
+                            <td><button @click="check_contest(contest_list.indexOf(contest))">详情</button></td>
+                        </tr>
+                    </table>
+                </template>
+                <template v-else>
+                    <button @click="back_to_list">回到列表</button>
+                    <ul>
+                        <li>状态:{{ cstatus_list[contest_list[check_id].status] }}</li>
+                        <template v-for="item in contest_list[check_id].attr">
+                            <li>
+                                <div :class="['label']">{{ item.alias }}</div>
+                                <template v-if="item.type == 'ltext'">
+                                    <textarea disabled rows='5' v-model="item.content"></textarea>
+                                </template>
+                                <template v-else-if="item.type == 'text'">
+                                    <input v-model="item.content" disabled />
+                                </template>
+                                <template v-else-if="item.type == 'datetime'">
+                                    <input type="date" disabled v-model="item.content.d" />
+                                    <input type="number" disabled v-model="item.content.h" />时
+                                    <input type="number" disabled v-model="item.content.m" />分
+                                </template>
+                                <template v-else-if="item.type == 'interval' && item.name == 'team_lim'">
+                                    <input type="number" disabled v-model="item.content.max" />
+                                </template>
+                                <template v-else-if="item.type == 'number' && item.name == 'slots'">
+                                    <input type="number" disabled v-model="item.content" />
+                                </template>
+                                <template v-else-if="item.type == 'file'">
+                                    <a :href="item.content">下载</a>
+                                </template>
+                            </li>
+                        </template>
+                    </ul>
+                    <button @click="accept_content(check_id)">通过</button>
+                    <button @click="deny_content(check_id)">不通过</button>
+                </template>
+            </template>
+        </div>
+    </body>
+    <script src="backend.js"></script>
+</html>
