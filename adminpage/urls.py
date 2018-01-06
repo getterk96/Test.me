@@ -4,6 +4,7 @@ from django.conf.urls import url
 from adminpage.views import *
 
 urlpatterns = [
+    url(r'^register$', AdminRegister.as_view()),
     url(r'^user/list$', AdminUserList.as_view()),
     url(r'^user/search$', AdminUserSearch.as_view()),
     url(r'^user/delete$', AdminUserDelete.as_view()),

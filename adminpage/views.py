@@ -1,10 +1,26 @@
 from codex.baseerror import *
 from codex.baseview import APIView
-
+from test_me import settings
 from codex.basedecorator import admin_required
 from test_me_app.models import *
 import time
 
+
+class AdminRegister(APIView):
+
+    def post(self):
+        self.check_input('username', 'password', 'email', 'adminToken')
+        if self.input['adminToken'] != settings.ADMIN_TOKEN:
+            raise ValidateError('Wrong admin token')
+        try:
+            user = User.objects.create_user(username=self.input['username'],
+                                            password=self.input['password'],
+                                            email=self.input['email'])
+            user.user_type = User_profile.ADMINISTRATOR
+            user.save()
+        except:
+            raise LogicError('Sign up fail')
+        
 
 class AdminUserList(APIView):
 
