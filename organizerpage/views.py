@@ -240,7 +240,7 @@ class ContestTeamBatchManage(APIView):
     @organizer_required
     def post(self):
         # check existence
-        self.check_input('teamId')
+        self.check_input('teamId', 'status')
         # remove all contests
         for id in self.input['teamId']:
             team = Team.safe_get(id=id)
@@ -327,7 +327,7 @@ class ContestTeamDetail(APIView):
         self.check_input('tid', 'name', 'leaderId', 'memberIds', 'avatarUrl', 'description', 'signUpAttachmentUrl',
                          'periodId', 'status', 'periods')
         team = Team.safe_get(id=self.input['tid'])
-        print(1, team.id);
+
         # basic info
         team.name = self.input['name']
         team.avatar_url = self.input['avatarUrl'],
@@ -338,14 +338,14 @@ class ContestTeamDetail(APIView):
             leader = Player.objects.get(id=self.input['leaderId'])
             if leader.user.user_profile.user_type != User_profile.PLAYER:
                 raise InputError('Player Required')
-            team.leader = leader
+            team.leader = leader.player
             # members
             team.members.clear()
             for memberId in self.input['memberIds']:
                 member = Player.objects.get(id=memberId)
                 if member.user.user_type != User_profile.PLAYER:
                     raise InputError('Player Required')
-                team.members.add(member)
+                team.members.add(member.player)
         except ObjectDoesNotExist:
             raise InputError('Player does not exist')
         # current period
@@ -507,7 +507,6 @@ class QuestionDetail(APIView):
             'submissionLimit': question.submission_limit,
         }
 
-    @organizer_required
     @organizer_required
     def post(self):
         # check existence
