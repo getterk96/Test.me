@@ -518,6 +518,8 @@ info = new Vue({
         player_mark : [],
         selected_player : 0,
         team_counter : 0,
+        promote_all : 0,
+        promote_now : 0,
     },
     computed : {
         player_p0 : function() {
@@ -815,7 +817,22 @@ info = new Vue({
             var data = {'teamId' : ids, 'status' : 2};
             $t(url, m, data, batch_succ, batch_fail);
         },
-        promote_selected_players : function() {},
+        promote_selected_players : function() {
+            this.promote_all = 0;
+            this.promote_now = 0;
+            for (i in this.player_list)
+                for (j in this.player_list[i]) {
+                    if (this.player_list[i][j].selected) {
+                        this.promote_all = this.promote_all + 1;
+                    }
+                }
+            for (i in this.player_list)
+                for (j in this.player_list[i]) {
+                    if (this.player_list[i][j].selected) {
+                        this.single_promote(i, j, 1);
+                    }
+                }
+        },
         ban_selected_players : function() {
             var ids = [];
             for (i of this.player_list)
@@ -883,6 +900,83 @@ info = new Vue({
                 };
                 periods.push(period)
             }
+            if (this.contest.period_id.indexOf(player.period_id) < 0) {
+                player.period_id = 0;
+            }
+            var data = {
+                'tid' : player.id,
+                'name' : player.name,
+                'leaderId' : player.leader,
+                'memberIds' : member_id,
+                'avatarUrl' : '',
+                'description' : '',
+                'signUpAttachmentUrl' : player.a_url,
+                'status' : pstatus,
+                'periodId' : player.period_id,
+                'periods' : periods
+            };
+            $t(url, m, data, single_player_succ, single_player_fail);
+        },
+        single_promote : function(i, j, type) {
+            var url = '/api/o/contest/team/detail';
+            var m = 'POST';
+            var player = this.player_list[i][j];
+            console.log(player.id);
+            var member_id = [];
+            for (i of player.member) {
+                if (i.id != player.leader)
+                    member_id.push(i.id);
+            }
+            var pstatus = player.status;
+            if (pstatus == 0)
+                pstatus = 2;
+            else if (pstatus == 1)
+                pstatus = -1;
+            else if (pstatus == 2)
+                pstatus = 1;
+            var periods = [];
+            for (i in info.contest.period_id) {
+                var works = [];
+                var period_score = 0;
+                for (j in info.contest.period[i].question_id) {
+                    var work = {
+                        'questionId' : info.contest.period[i].question_id[j],
+                        'workContentUrl' : player.ans[i][j],
+                        'workScore' : player.mark[i][j],
+                        'submission_times' : player.times[i][j]
+                    }
+                    works.push(work);
+                    console.log(info.contest.period[i].question_id[j]);
+                    period_score += parseInt(player.mark[i][j]);
+                }
+                var period = {
+                    'id' : info.contest.period_id[i],
+                    'score' : period_score,
+                    'rank' : 0,
+                    'work' : works
+                };
+                periods.push(period)
+            }
+            var ind = this.contest.period_id.indexOf(player.period_id);
+            if (ind < 0) {
+                player.period_id = 0;
+            }
+            else if (ind == this.contest.period_id.length - 1) {
+                if (type == 0)
+                    alert('此队伍已进入最后一个阶段！');
+                else {
+                    this.promote_now = this.promote_now + 1;
+                    alert('队伍' + player.name + '已进入最后一个阶段！');
+                    if (this.promote_now == this.promote_all) {
+                        alert('批量晋级完成！');
+                        window.location.reload();
+                    }
+                }
+                return;
+            }
+            else {
+                player.period_id = this.contest.period_id[ind + 1];
+            }
             var data = {
                 'tid' : player.id,
                 'name' : player.name,
@@ -895,7 +989,16 @@ info = new Vue({
                 'periodId' : this.contest.period_id[0],
                 'periods' : periods
             };
-            $t(url, m, data, single_player_succ, single_player_fail);
+            if (type == 0)
+                $t(url, m, data, single_player_succ, single_player_fail);
+            else
+                $t(url, m, data, function(response) {
+                    this.promote_now = this.promote_now + 1;
+                    if (this.promote_now == this.promote_all) {
+                        alert('批量晋级完成！');
+                        window.location.reload();
+                    }
+                }, single_player_fail);
         },
         unselect_all_player : function() {
             for (i of this.player_list) {
