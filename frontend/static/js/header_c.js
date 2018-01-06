@@ -6,3 +6,9 @@ var header = new Vue({
         link_list : []
     }
 })
+
+header.link_list.push({
+    alias : '比赛大厅',
+    link : '../index/index.html',
+    action : empty_f
+});

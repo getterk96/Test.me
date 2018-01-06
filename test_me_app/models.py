@@ -229,6 +229,7 @@ class Period(models.Model):
 
         contest = 0
         periods = 0
+        index = int(index)
         if contest_id:
             contest = Contest.objects.get(id=contest_id)
             periods = contest.period_set.exclude(status=Period.REMOVED).all()
@@ -241,6 +242,8 @@ class Period(models.Model):
             raise InputError('The index has been taken by another period.')
 
         index_list.append(index)
+        print(index_list);
+        print(index);
         index_list = sorted(index_list)
         p = index_list.index(index)
         if p < len(index_list) - 1:
@@ -321,7 +324,7 @@ class Team(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return Team.objects.exclude(status=Team.DISMISSED).get(**kwargs)
+            return Team.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError("No Such Team")
 
@@ -353,7 +356,7 @@ class PeriodScore(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return TeamInvitation.objects.get(**kwargs)
+            return PeriodScore.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError('No such period score')
 
@@ -368,7 +371,7 @@ class Work(models.Model):
     @staticmethod
     def safe_get(**kwargs):
         try:
-            return TeamInvitation.objects.get(**kwargs)
+            return Work.objects.get(**kwargs)
         except ObjectDoesNotExist:
             raise LogicError('No such work')
 

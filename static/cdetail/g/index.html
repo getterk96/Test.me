@@ -13,7 +13,6 @@
     <body>
         <div id="header">
             <div id="header-content">
-                <div id="header-greeting">{{ greeting }}</div>
                 <div id="header-title">{{ title }}</div>
                 <nav><ul>
                     <li v-for='link in link_list'>
@@ -45,12 +44,9 @@
                                         <textarea disabled :class="['display', 'long']" rows='5' v-model="item.content"></textarea>
                                     </template>
                                     <template v-else-if="item.type == 'datetime'">
-                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.sd" />
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.sh" />h
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.sm" />m-
-                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.ed" />
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.eh" />h
-                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.em" />m
+                                        <input type="date" :class="['display', 'mid']" disabled v-model="item.content.d" />
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.h" />时
+                                        <input type="number" :class="['display', 'short']" disabled v-model="item.content.m" />分
                                     </template>
                                     <template v-else-if="item.type == 'number'">
                                         <input type="number" disabled :class="['display', 'short']" v-model="item.content" />

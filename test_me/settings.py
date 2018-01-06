@@ -167,3 +167,7 @@ logging.basicConfig(
 )
 
 AUTH_PROFILE_MODULE = 'test_me_app.User_profile'
+
+
+# Admin toke
+ADMIN_TOKEN = CONFIGS['ADMIN_TOKEN']

@@ -8,6 +8,7 @@ var level_dic = ["国际级", "国家级", "省级", "市级", "区级", "校级
 var init_header = function() {
     header.greeting = 'Test.Me';
     header.title = '比赛大厅';
+    header.link_list.pop();
 
     if (usertype in [0, 1]) {
         header.link_list.push({
@@ -74,6 +75,7 @@ var controller = new Vue({
     methods : {
         searchcontest : function() {
             console.log("you're querying contest " + this.querytext);
+            this.querylist = [];
             this.no_viewport = true;
             var url = "/api/p/contest/search/simple";
             var m = "GET";
@@ -81,7 +83,6 @@ var controller = new Vue({
             $t(url, m, data, this.search_succ, this.search_fail);
         },
         search_succ : function(response) {
-            this.querylist = [];
             for (i in response.data) {
                 var st = new Date(response.data[i]["signUpStartTime"] * 1000);
                 var ed = new Date(response.data[i]["signUpEndTime"] * 1000);
@@ -113,6 +114,9 @@ var controller = new Vue({
         },
         directto : function(path) {
             window.location.assign(path);
+        },
+        checkenter : function(e) {
+            if (e.keyCode == 13) { this.searchcontest(); }
         }
     }
 });

@@ -14,7 +14,6 @@
     <body>
         <div id="header">
             <div id="header-content">
-                <div id="header-greeting">{{ greeting }}</div>
                 <div id="header-title">{{ title }}</div>
                 <nav><ul>
                     <li v-for='link in link_list'>
@@ -255,7 +254,6 @@
                             {{ '类型:' + appeal_type_dict[appeal_list[appeal_oncheck].type] + ',状态:' + appeal_status_dict[appeal_list[appeal_oncheck].processed] }}
                         </div>
                         <textarea v-model="appeal_list[appeal_oncheck].content" rows="10" :class="['a-content']" disabled></textarea>
-                        <textarea v-model="'组织方回复:' + appeal_list[appeal_oncheck].reply" rows="10" :class="['a-content']" disabled></textarea>
                         <div :class="['a-att']">
                             <span :class="['bold']">附件</span>
                             <a :href="appeal_list[appeal_oncheck].a_url">点此下载</a>

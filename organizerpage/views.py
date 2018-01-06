@@ -227,7 +227,8 @@ class ContestTeamBatchManage(APIView):
         self.check_input('cid')
         contest = Contest.safe_get(id=self.input['cid'])
         teams = []
-        for team in contest.team_set.exclude(status=Team.DISMISSED):
+        #for team in contest.team_set.exclude(status=Team.CREATING):
+        for team in contest.team_set.all():
             teams.append({
                 'id': team.id,
                 'name': team.name,
@@ -266,7 +267,7 @@ class ContestTeamDetail(APIView):
         if team.period:
             current_period_id = team.period.id
             current_period_name = team.period.name
-            for period in team.contest.period_set.all():
+            for period in team.contest.period_set.exclude(status=Period.REMOVED):
                 # period score
                 try:
                     period_score = PeriodScore.objects.get(period=period, team=team)
@@ -288,7 +289,7 @@ class ContestTeamDetail(APIView):
                         work_score = -1
                         work_submission_times = -1
                     works.append({
-                        'questionId': question,
+                        'questionId': question.id,
                         'questionIndex': question.index,
                         'questionDescription': question.description,
                         'workContentUrl': work_content_url,
@@ -334,15 +335,15 @@ class ContestTeamDetail(APIView):
         team.status = self.input['status']
         try:
             # leader
-            leader = User.objects.get(id=self.input['leaderId'])
-            if leader.user_profile.user_type != User_profile.PLAYER:
+            leader = Player.objects.get(id=self.input['leaderId'])
+            if leader.user.user_profile.user_type != User_profile.PLAYER:
                 raise InputError('Player Required')
             team.leader = leader.player
             # members
             team.members.clear()
             for memberId in self.input['memberIds']:
-                member = User.objects.get(id=memberId)
-                if member.user_profile.user_type != User_profile.PLAYER:
+                member = Player.objects.get(id=memberId)
+                if member.user.user_type != User_profile.PLAYER:
                     raise InputError('Player Required')
                 team.members.add(member.player)
         except ObjectDoesNotExist:
@@ -352,6 +353,7 @@ class ContestTeamDetail(APIView):
         team.period = period
         team.save()
 
+        print(2, team.id);
         # work and score
         for period_info in self.input['periods']:
             period = Period.safe_get(id=period_info['id'])
@@ -367,14 +369,15 @@ class ContestTeamDetail(APIView):
                                            rank=period_info['rank'])
             # work
             works = period_info['work']
+            print(works)
             for work in works:
                 question = ExamQuestion.safe_get(id=work['questionId'])
                 try:
-                    work = Work.safe_get(question=question, team=team)
-                    work.content_url = work['workContentUrl']
-                    work.score = work['workScore']
-                    work.submission_times = work['submission_times']
-                    work.save()
+                    dwork = Work.safe_get(question=question, team=team)
+                    dwork.content_url = work['workContentUrl']
+                    dwork.score = work['workScore']
+                    dwork.submission_times = work['submission_times']
+                    dwork.save()
                 except LogicError:
                     Work.objects.create(question=question, team=team,
                                         content_url=work['workContentUrl'],
@@ -560,7 +563,7 @@ class AppealDetail(APIView):
         self.check_input('id')
         # query
         appeal = Appeal.safe_get(id=self.input['id'])
-        members = []
+        members = [appeal.initiator.leader.nickname]
         for i in appeal.initiator.members.all():
             members.append(i.nickname)
         return {

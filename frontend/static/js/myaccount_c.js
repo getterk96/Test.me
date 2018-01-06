@@ -146,11 +146,6 @@ var init_header = function() {
 
     if (usertype in [0, 1]) {
         header.link_list.push({
-            alias : '比赛大厅',
-            link : '../index/index.html',
-            action : empty_f
-        });
-        header.link_list.push({
             alias : '登出',
             link : '#',
             action : function() {
@@ -255,7 +250,8 @@ controller = new Vue({
         cpassword : '',
         doc_name : '',
         mycontest : [],
-        myteam : []
+        myteam : [],
+        modify_description : false,
     },
     computed : {
         page : function() {
@@ -341,9 +337,11 @@ controller = new Vue({
             var m = 'POST';
             var data = {'password' : this.password};
             $t(url, m, data, this.save_password_succ, this.save_password_fail);
+            this.switch_modify_password();
         },
         save_password_succ : function(response) {
-            alert("密码修改成功。");
+            alert("密码修改成功。请重新登录。");
+            window.location.assign('../index.html');
         },
         save_password_fail : function(response) {
             alert('[' + response.code.toString() + ']' + response.msg);
@@ -369,6 +367,19 @@ controller = new Vue({
         create_contest : function() {
             //check whether this user has the authentication to create a contest
             window.location.assign('../create-contest/index.html');
+        },
+        start_modify_description : function() {
+            this.modify_description  = true;
+            tmp['description'] = this.user.description.content;
+        },
+        cancel_modify_description : function() {
+            this.modify_description = false;
+            this.user.description.content = tmp['description'];
+        },
+        save_description : function() {
+            //todo
+            this.save_modify_basic_info();
+            this.modify_description = false;
         }
     }
 })

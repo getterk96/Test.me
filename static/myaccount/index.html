@@ -13,7 +13,6 @@
     <body>
         <div id="header">
             <div id="header-content">
-                <div id="header-greeting">{{ greeting }}</div>
                 <div id="header-title">{{ title }}</div>
                 <nav><ul>
                     <li v-for='link in link_list'>
@@ -72,6 +71,14 @@
                       </div>
                   </div>
                   <div id="additionalinfo">
+                      <button :class="['operator', 'settings']" @click="start_modify_description" v-if="!modify_description">修改简介</button>
+                      <template v-else>
+                          <button :class="['operator', 'settings', 'negative']" @click="cancel_modify_description">取消</button>
+                          <button :class="['operator', 'settings']" @click="save_description">确认</button>
+                      </template>
+                      <textarea :class="['user-description']" v-model="user.description.content" rows="10" v-if="user.description.editable && modify_description">
+                      </textarea>
+                      <textarea :class="['user-description']" v-else disabled v-model="user.description.content" rows="10"></textarea>
                       <button :class="['operator', 'settings']" @click="switch_modify_password" v-if="!modify_password && !reupload_doc">修改密码</button>
                       <button :class="['operator', 'settings', 'negative']" @click="switch_modify_password" v-else-if="modify_password">取消</button>
                       <button :class="['operator', 'settings']" v-if="user_type == 1 && user.status.content == '未通过' && !modify_password && !reupload_doc" @click="switch_reupload_doc">重新上传验证文档</button>
@@ -109,7 +116,7 @@
               </div>
               <div :class="['session']" v-else>
                   <ul :class="['query_list']">
-                      <li v-for="item in mycontest" :class="[mycontest.indexOf(item) % 2 == 0 ? 'left' : 'right']">
+                      <li v-for="item in mycontest" :class="['contest']">
                           <div :class="['card_cover']">
                               <img :src="item.logo" />
                               <div :class="['card_title']">

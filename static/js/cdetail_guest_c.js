@@ -1,10 +1,14 @@
 window.cid = window.get_args('cid');
+$t('/api/c/user_id', 'GET', {},
+    function (response) {window.uid = response.data},
+    function () {});
 
 window.usertype = -1;
 window.invitation_counter = 0;
 
 const type_p = 0;
 const type_o = 1;
+var level_dic = ['国际级', '国家级', '省级', '市级', '区级', '校级', '院系级'];
 var info = {};
 
 window.contest = {
@@ -15,58 +19,7 @@ window.contest = {
         console.log('[err] No such attr');
         return null;
     },
-    period : [
-        {
-            show : true,
-            attr : [
-                {
-                    name : 'name',
-                    alias : '阶段名称',
-                    type : 'text',
-                    content : '',
-                    editable : false
-                },
-                {
-                    name : 'description',
-                    alias : '阶段简介',
-                    type : 'ltext',
-                    content : '',
-                    editable : false
-                },
-                {
-                    name : 'time',
-                    alias : '阶段时间',
-                    type : 'datetime',
-                    content : {
-                        sd : '1977-03-11',
-                        ed : '1997-05-22',
-                        sh : '19',
-                        sm : '00',
-                        eh : '19',
-                        em : '00'
-                    },
-                    editable : false
-                },
-                {
-                    name : 'slots',
-                    alias : '可参与团队数',
-                    type : 'number',
-                    content : '',
-                    editable : false
-                },
-                {
-                    name : 'p_file',
-                    alias : '阶段附件',
-                    editable : false,
-                    type : 'file',
-                    content : {
-                        url : '#',
-                        filename : 'fuck-zyn.pdf'
-                    }
-                }
-            ]
-        }
-    ],
+    period : [],
     attr : [
         {
             name : 'name',
@@ -83,16 +36,31 @@ window.contest = {
             editable : true
         },
         {
-            name : 'time',
-            alias : '报名时间',
+            name : 'level',
+            alias : '比赛等级',
+            type : 'ltext',
+            content : "",
+            editable : true
+        },
+        {
+            name : 'signupstime',
+            alias : '报名开始时间',
             type : 'datetime',
             content : {
-                sd : '1977-03-11',
-                ed : '1997-05-22',
-                sh : '19',
-                sm : '00',
-                eh : '19',
-                em : '00'
+                d : '',
+                h : '',
+                m : ''
+            },
+            editable : true
+        },
+        {
+            name : 'signupetime',
+            alias : '报名结束时间',
+            type : 'datetime',
+            content : {
+                d : '',
+                h : '',
+                m : ''
             },
             editable : true
         },
@@ -131,8 +99,8 @@ function ply_get_succ(response) {
         window.location.assign('../p/index.html?cid=' + window.cid);
         return;
     }
-    var start_time = new Date(data['signUpStartTime'] * 1000);
-    var end_time = new Date(data['signUpEndTime'] * 1000);
+    var start_time = new Date((data['signUpStartTime'] - 8 * 3600) * 1000);
+    var end_time = new Date((data['signUpEndTime'] - 8 * 3600) * 1000);
     for (i in window.contest.attr) {
         switch (window.contest.attr[i].name) {
             case 'name' :
@@ -141,17 +109,19 @@ function ply_get_succ(response) {
             case 'description' :
                 window.contest.attr[i].content = data['description'];
                 break;
-            case 'time' :
-                window.contest.attr[i].content['sd'] = start_time.getFullYear().toString() +
+            case 'signupstime' :
+                window.contest.attr[i].content['d'] = start_time.getFullYear().toString() +
                     '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                     '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString();
-                window.contest.attr[i].content['sh'] = start_time.getHours().toString();
-                window.contest.attr[i].content['sm'] = start_time.getMinutes().toString();
-                window.contest.attr[i].content['ed'] = end_time.getFullYear().toString() +
+                window.contest.attr[i].content['h'] = start_time.getHours().toString();
+                window.contest.attr[i].content['m'] = start_time.getMinutes().toString();
+                break;
+            case 'signupetime' :
+                window.contest.attr[i].content['d'] = end_time.getFullYear().toString() +
                     '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
                     '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString();
-                window.contest.attr[i].content['eh'] = end_time.getHours().toString();
-                window.contest.attr[i].content['em'] = end_time.getMinutes().toString();
+                window.contest.attr[i].content['h'] = end_time.getHours().toString();
+                window.contest.attr[i].content['m'] = end_time.getMinutes().toString();
                 break;
             case 'slots' :
                 window.contest.attr[i].content = data['availableSlots'].toString();
@@ -163,6 +133,8 @@ function ply_get_succ(response) {
                 window.contest.attr[i].content.url = data['signUpAttachmentUrl'];
                 window.contest.attr[i].content.file_name = data['signUpAttachmentUrl'];
                 break;
+            case 'level' :
+                window.contest.attr[i].content = level_dic[data['level']];
         }
     }
     window.contest.period_counter = 0;
@@ -173,8 +145,8 @@ function ply_get_succ(response) {
     window.contest.period = [];
     for (i in data['periods']) {
         var pdata = data['periods'][i];
-        var start_time = new Date(pdata['periodStartTime'] * 1000);
-        var end_time = new Date(pdata['periodEndTime'] * 1000);
+        var start_time = new Date((pdata['periodStartTime'] - 8 * 3600) * 1000);
+        var end_time = new Date((pdata['periodEndTime'] - 8 * 3600) * 1000);
         var period = {
             show : true,
             attr : [
@@ -186,20 +158,27 @@ function ply_get_succ(response) {
                     editable : true,
                 },
                 {
-                    name : 'time',
-                    alias : '阶段时间',
+                    name : 'pstime',
+                    alias : '阶段开始时间',
                     type : 'datetime',
                     content : {
-                        sd : start_time.getFullYear().toString() +
+                        d : start_time.getFullYear().toString() +
                             '-' + (start_time.getMonth() < 9 ? '0' : '') + (start_time.getMonth() + 1).toString() +
                             '-' + (start_time.getDate() < 10 ? '0' : '') + start_time.getDate().toString(),
-                        ed : end_time.getFullYear().toString() +
+                        h : start_time.getHours(),
+                        m : start_time.getMinutes()
+                    }
+                },
+                {
+                    name : 'petime',
+                    alias : '阶段结束时间',
+                    type : 'datetime',
+                    content : {
+                        d : end_time.getFullYear().toString() +
                             '-' + (end_time.getMonth() < 9 ? '0' : '') + (end_time.getMonth() + 1).toString() +
                             '-' + (end_time.getDate() < 10 ? '0' : '') + end_time.getDate().toString(),
-                        sh : start_time.getHours(),
-                        sm : start_time.getMinutes(),
-                        eh : end_time.getHours(),
-                        em : end_time.getMinutes()
+                        h : end_time.getHours(),
+                        m : end_time.getMinutes()
                     },
                     editable : true
                 },
@@ -274,7 +253,7 @@ var init_header = function() {
     if (usertype in [0, 1]) {
         header.link_list.push({
             alias : '比赛论坛',
-            link : '../../forum/index.html?cid=' + window.cid,
+            link : '../../forum/?cid=' + window.cid + '&uid=' + window.uid,
             action : empty_f
         });
         header.link_list.push({
