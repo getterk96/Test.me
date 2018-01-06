@@ -7,17 +7,17 @@
         <script src="https://unpkg.com/vue"></script>
         <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
         <script src="https://unpkg.com/current-device/umd/current-device.min.js"></script>
-        <link type="text/css" rel="stylesheet" href="index.css" />
+        <link type="text/css" rel="stylesheet" href="signup.css" />
         <script src="../../js/uni.js"></script>
     </head>
     <body>
-        <div id="login">
+        <div id="signup">
             <input placeholder="用户名" v-model="username" />
             <input placeholder="密码" v-model="password" />
+            <input placeholder="密码确认" v-model="cpassword" />
             <input placeholder="验证码" v-model="valcode" />
-            <button @click="login">登录</button>
+            <button>注册</button>
         </div>
-        <div><a href="signup.html">注册</a></div>
     </body>
-    <script :src="index.js"></script>
+    <srcipt :src="signup.js"></srcipt>
 </html>
