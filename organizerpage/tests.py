@@ -608,27 +608,6 @@ class TestPeriods(TestCase):
         found.func(request)
         self.assertEqual(Period.objects.get(id=int(str_id)).name, 'test_period0')
 
-    def test_post_contest_detail_failed_by_wrong_level(self):
-        found = resolve('/contest/detail', urlconf=organizerpage.urls)
-        request = Mock(wraps=HttpRequest(), method='POST')
-        request.body = Mock()
-        str_id = str(Contest.objects.get(name='test').id)
-        request.body.decode = Mock(return_value='{"id":' + str_id + ','
-                                                                    '"name":"test",'
-                                                                    '"description":"test",'
-                                                                    '"logoUrl": "None",'
-                                                                    '"bannerUrl":"None",'
-                                                                    '"signUpStart":"2017-12-31 04:00:54",'
-                                                                    '"signUpEnd": "2017-12-31 04:00:55",'
-                                                                    '"availableSlots": 0,'
-                                                                    '"maxTeamMembers": 5,'
-                                                                    '"signUpAttachmentUrl": "None",'
-                                                                    '"level": "abcd",'
-                                                                    '"tags": "test"}')
-        request.user = User.objects.get(username='1')
-        response = json.loads(found.func(request).content.decode())
-        self.assertEqual(response['msg'], 'Level should be a number.')
-
     def test_post_remove_period_successfully(self):
         found = resolve('/period/remove', urlconf=organizerpage.urls)
         request = Mock(wraps=HttpRequest(), method='POST')
